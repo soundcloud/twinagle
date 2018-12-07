@@ -2,7 +2,7 @@ name := "protoize"
 
 version := "0.1"
 sbtPlugin := true
-
+organization := "com.soundcloud"
 scalaVersion := "2.12.7"
 
 // sbt-protoc for generating code from Protobuf
