@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package mygen.protos;
+
+message Person {
+  string name = 1;
+  int32 age = 2;
+}
+
+message FooReq {}
+
+message FooResp {}
+
+message BarReq {}
+
+message BarResp {}
