@@ -57,13 +57,8 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         // Add the header, including package name and imports
         .add(generateHeader(fileDesc))
         .print(fileDesc.getServices.asScala) { (p, m) =>
-          p.add(generateServiceTrait(m)) // Service class
-//            .add(generateHandlerRoutes(m)) // HandlerRouterBuilder for handling generated clients
-//            .add(generateAbstractControllerClass(m)) // Trait for the Controller, which handles HTTP requests and Responses
-//            .add(generateDefaultControllerClass(m)) // Controller class for handling auto-generated clients
-//            .add(generateConverterTrait(m)) // Converter trait for turning HTTP objects into RPC objects
-//            .add(generateDefaultConverterClass(m)) // Default converter implementation for auto-generated clients
-//            .add(generateClient(m))
+          p.add(generateServiceTrait(m))
+            .add(generateClient(m))
         }
       outputFile.setContent(fp.result)
       outputFile.build
@@ -71,14 +66,15 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     private def generateClient(serviceDescriptor: ServiceDescriptor) = {
       val clientName = getClientName(serviceDescriptor)
+      val serviceName = getServiceName(serviceDescriptor)
 
       s"""
-         |class $clientName(jsonClient: JsonClient) {
+         |class $clientName(service: Service[Request, Response]) extends $serviceName {
          |
-       |${serviceDescriptor.methods.map(generateClientMethodDeclaration).mkString("\n")}
+         |${serviceDescriptor.methods.map(generateJsonClientMethod).mkString("\n")}
          |
-       |}
-     """.stripMargin
+         |}
+       """.stripMargin
 
     }
 
@@ -172,8 +168,10 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     private def generateHeader(fileDesc: FileDescriptor) = {
       s"""package ${fileDesc.scalaPackageName}
          |
+         |import com.soundcloud.twinagle.JsonConverter
          |import com.twitter.util.Future
-         |import com.twitter.finagle.http.{Method, Response}
+         |import com.twitter.finagle.Service
+         |import com.twitter.finagle.http.{Method, Request, Response}
          |import scalapb.json4s.JsonFormat
          |""".stripMargin
     }
@@ -205,25 +203,23 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         str.substring(0, 1).toLowerCase() + str.substring(1)
       else str
 
-    private def generateClientMethodDeclaration(methodDescriptor: MethodDescriptor) = {
+    private def generateJsonClientMethod(methodDescriptor: MethodDescriptor) = {
       val varType = methodInputType(methodDescriptor)
       val varName = decapitalize(varType)
       val outputType = methodOutputType(methodDescriptor)
       val methodName = methodDescriptor.name
       val path = generatePathForMethod(methodDescriptor)
       s"""
-         |  def $methodName($varName: $varType): Future[$outputType] = {
-         |    jsonClient.post(
-         |      path = Path($path),
-         |      body = Some(JsonFormat.toJsonString($varName))
-         |    ).map { r =>
-         |      JsonFormat.fromJsonString[$outputType](r.contentString)
-         |    }
+         |  override def $methodName($varName: $varType): Future[$outputType] = {
+         |    implicit val companion = $outputType.messageCompanion
+         |    val converter = new JsonConverter()
+         |    val request = converter.mkRequest($path, $varName)
+         |    service(request).map(x => converter.mkResponse(x)(companion))
          |  }""".stripMargin
     }
 
     private def generatePathForMethod(methodDescriptor: MethodDescriptor) = {
-      s""""/rpc/${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
+      s""""/twirp/${methodDescriptor.getFile.getPackage}.${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
     }
 
     private def generateRouteRegistrationLine(
