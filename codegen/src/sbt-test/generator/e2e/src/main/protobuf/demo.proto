@@ -7,10 +7,17 @@ message Person {
   int32 age = 2;
 }
 
-message FooReq {}
+message FooReq {
+  string asdf = 1;
+}
 
 message FooResp {}
 
 message BarReq {}
 
 message BarResp {}
+
+service Some {
+  rpc foo(FooReq)  returns (FooResp) {}
+  rpc bar(BarReq)  returns (BarResp) {}
+}

@@ -10,3 +10,4 @@ val pluginVersion = "0.1.0-SNAPSHOT"
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19")
 
 libraryDependencies += "com.soundcloud.twinagle" %% "twinagle-scalapb-plugin" % pluginVersion
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.8.3"

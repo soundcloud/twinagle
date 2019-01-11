@@ -7,18 +7,16 @@ import mygen.protos.demo._
 import com.soundcloud.twinagle._
 import org.scalatest._
 
-class PersonProtoSpec extends FlatSpec with MustMatchers {
-  "PersonBoo" should "have correct field count" in {
-    PersonBoo.FieldCount must be(2)
+class JsonClientSpec extends FlatSpec with MustMatchers {
+  "JsonClient" should "print something out" in {
+    val printer: Service[Request, Response] = (req: Request) => {
+      println(req.contentString)
+      Future.value(Response(req))
+    }
+    new SomeJsonClient(printer).foo(FooReq("asdfasdf"))
   }
 }
 
-// generated
-trait SomeService {
-  def foo(in: FooReq): Future[FooResp]
-
-  def bar(in: BarReq): Future[BarResp]
-}
 
 // generated
 class SomeJsonClient(service: Service[Request, Response]) extends SomeService {
