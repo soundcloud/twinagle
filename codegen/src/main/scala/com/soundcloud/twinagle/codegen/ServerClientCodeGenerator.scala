@@ -69,7 +69,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       val serviceName = getServiceName(serviceDescriptor)
 
       s"""
-         |class $clientName(service: Service[Request, Response]) extends $serviceName {
+         |class $clientName(httpClient: Service[Request, Response]) extends $serviceName {
          |
          |${serviceDescriptor.methods.map(generateJsonClientMethod).mkString("\n")}
          |
@@ -214,7 +214,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
          |    implicit val companion = $outputType.messageCompanion
          |    val converter = new JsonConverter()
          |    val request = converter.mkRequest($path, $varName)
-         |    service(request).map(x => converter.mkResponse(x)(companion))
+         |    httpClient(request).map(x => converter.mkResponse(x)(companion))
          |  }""".stripMargin
     }
 
