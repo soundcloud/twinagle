@@ -156,7 +156,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |trait $serviceName {
          |
-       |${methods.map(getServiceMethodDeclaration).mkString("\n")}
+         |${methods.map(getServiceMethodDeclaration).mkString("\n")}
          |}
      """.stripMargin
     }
@@ -199,7 +199,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     }
 
     private def decapitalize(str: String) =
-      if (str.length > 1)
+      if (str.length >= 1)
         str.substring(0, 1).toLowerCase() + str.substring(1)
       else str
 
