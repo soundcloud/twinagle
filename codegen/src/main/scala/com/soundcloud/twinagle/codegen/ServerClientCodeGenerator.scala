@@ -69,7 +69,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       val serviceName = getServiceName(serviceDescriptor)
 
       s"""
-         |class $clientName(httpClient: Service[Request, Response]) extends $serviceName {
+         |class ${clientName}Json(httpClient: Service[Request, Response]) extends $serviceName {
          |
          |${serviceDescriptor.methods.map(generateJsonClientMethod).mkString("\n")}
          |
