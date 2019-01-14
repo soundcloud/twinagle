@@ -11,14 +11,17 @@ import com.twitter.util.Future
   * to twirp internal errors.
   *
   * TODO:
-  * - should the path live with the service somehow?
   * - extensibility/observability (metrics, logging, tracing, exception tracking, etc)
   * - do (de-)serialization errors need special handling?
   * - check for POST method
   *
-  * @param services
+  * @param endpoints list of endpoints to expose
   */
-class Server(val services: Map[String, Service[Request, Response]]) extends Service[Request, Response] {
+class Server(endpoints: Seq[Endpoint]) extends Service[Request, Response] {
+
+  private val services = endpoints.foldLeft(Map.empty[String, Service[Request, Response]]) { (acc, ep) =>
+    acc + (ep.path -> ep.service)
+  }
 
   override def apply(request: Request): Future[Response] = services.get(request.path) match {
     case Some(service) => service(request).handle {
