@@ -32,7 +32,6 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
   * Supports JSON and binary Protobuf, depending on the request Content-Type header.
   *
   * @param f
-  * @param companion
   * @tparam Req
   * @tparam Rep
   */

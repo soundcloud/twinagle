@@ -84,9 +84,9 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |trait $converterName {
          |
-       |${serviceDescriptor.methods.map(generateConverterMethodDef).mkString("\n")}
+         |${serviceDescriptor.methods.map(generateConverterMethodDef).mkString("\n")}
          |
-       |}
+         |}
      """.stripMargin
     }
 
@@ -96,9 +96,9 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |class Default$converterTraitName extends $converterTraitName {
          |
-       |${serviceDescriptor.methods.map(generateDefaultConverterMethod).mkString("\n")}
+         |${serviceDescriptor.methods.map(generateDefaultConverterMethod).mkString("\n")}
          |
-       |}
+         |}
      """.stripMargin
 
     }
@@ -111,9 +111,9 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |abstract class $controllerClassName(rpc: $serviceName, converter: $converterClassName) {
          |
-       |${methods.map(getAbstractControllerMethod).mkString("\n")}
+         |${methods.map(getAbstractControllerMethod).mkString("\n")}
          |
-       |}
+         |}
     """.stripMargin
 
     }
@@ -143,7 +143,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |object ${serviceDescriptor.getName}HandlerRoutes {
          |
-       |  def addRoutes(controller: $controllerName) = HandlerRouterBuilder
+         |  def addRoutes(controller: $controllerName) = HandlerRouterBuilder
          |${serviceDescriptor.methods.map(generateRouteRegistrationLine).mkString("\n")}
          |}
      """.stripMargin
@@ -219,7 +219,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     }
 
     private def generatePathForMethod(methodDescriptor: MethodDescriptor) = {
-      s""""/twirp/${methodDescriptor.getFile.getPackage}.${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
+      s""""/twirp/${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
     }
 
     private def generateRouteRegistrationLine(
@@ -235,7 +235,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
          |  def $controllerMethod(handlerRequest: HandlerRequest): Future[Response] = {
          |    val req = converter.${converterMethodName(methodDescriptor)}(handlerRequest)
          |
-       |    rpc.$rpcMethodName(req)
+         |    rpc.$rpcMethodName(req)
          |      .map(JsonFormat.toJsonString)
          |      .map(JsonResponseBuilder.ok)
          |  }""".stripMargin
