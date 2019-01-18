@@ -59,6 +59,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         .print(fileDesc.getServices.asScala) { (p, m) =>
           p.add(generateServiceTrait(m))
             .add(generateClient(m))
+            .add(generateServer(m))
         }
       outputFile.setContent(fp.result)
       outputFile.build
@@ -78,77 +79,6 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     }
 
-    private def generateConverterTrait(serviceDescriptor: ServiceDescriptor) = {
-      val converterName = getConverterClassName(serviceDescriptor)
-
-      s"""
-         |trait $converterName {
-         |
-         |${serviceDescriptor.methods.map(generateConverterMethodDef).mkString("\n")}
-         |
-         |}
-     """.stripMargin
-    }
-
-    private def generateDefaultConverterClass(serviceDescriptor: ServiceDescriptor) = {
-      val converterTraitName = getConverterClassName(serviceDescriptor)
-
-      s"""
-         |class Default$converterTraitName extends $converterTraitName {
-         |
-         |${serviceDescriptor.methods.map(generateDefaultConverterMethod).mkString("\n")}
-         |
-         |}
-     """.stripMargin
-
-    }
-
-    private def generateAbstractControllerClass(serviceDescriptor: ServiceDescriptor) = {
-      val controllerClassName = generateAbstractControllerName(serviceDescriptor)
-      val serviceName = getServiceName(serviceDescriptor)
-      val converterClassName = getConverterClassName(serviceDescriptor)
-      val methods = serviceDescriptor.methods
-      s"""
-         |abstract class $controllerClassName(rpc: $serviceName, converter: $converterClassName) {
-         |
-         |${methods.map(getAbstractControllerMethod).mkString("\n")}
-         |
-         |}
-    """.stripMargin
-
-    }
-
-
-    private def getConverterClassName(serviceDescriptor: ServiceDescriptor) = {
-      s"${serviceDescriptor.getName}Converter"
-    }
-
-    private def generateDefaultControllerClass(serviceDescriptor: ServiceDescriptor) = {
-      val defaultControllerName = generateDefaultControllerName(serviceDescriptor)
-      val serviceName = getServiceName(serviceDescriptor)
-      val converterClass = getConverterClassName(serviceDescriptor)
-      val abstractControllerName = generateAbstractControllerName(serviceDescriptor)
-      s"""
-         |class $defaultControllerName(rpc: $serviceName, converter: $converterClass)
-         |  extends $abstractControllerName(rpc, converter) {
-         |
-       |${serviceDescriptor.methods.map(generateDefaultControllerMethod).mkString("\n")}
-         |
-       |}
-     """.stripMargin
-    }
-
-    private def generateHandlerRoutes(serviceDescriptor: ServiceDescriptor): String = {
-      val controllerName = generateAbstractControllerName(serviceDescriptor)
-      s"""
-         |object ${serviceDescriptor.getName}HandlerRoutes {
-         |
-         |  def addRoutes(controller: $controllerName) = HandlerRouterBuilder
-         |${serviceDescriptor.methods.map(generateRouteRegistrationLine).mkString("\n")}
-         |}
-     """.stripMargin
-
-    }
 
     private def generateServiceTrait(serviceDescriptor: ServiceDescriptor): String = {
       val serviceName = getServiceName(serviceDescriptor)
@@ -163,14 +93,18 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     private def getServiceName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Service"
 
+    private def getServerName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Server"
+
     private def getClientName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Client"
 
     private def generateHeader(fileDesc: FileDescriptor) = {
       s"""package ${fileDesc.scalaPackageName}
          |
-         |import com.soundcloud.twinagle.JsonConverter
+         |import java.net.InetSocketAddress
+         |
+         |import com.soundcloud.twinagle.{Endpoint, JsonConverter, Server, ServiceAdapter}
          |import com.twitter.util.Future
-         |import com.twitter.finagle.Service
+         |import com.twitter.finagle.{Http, Service, ServiceFactory}
          |import com.twitter.finagle.http.{Method, Request, Response}
          |import scalapb.json4s.JsonFormat
          |""".stripMargin
@@ -222,57 +156,24 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s""""/twirp/${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
     }
 
-    private def generateRouteRegistrationLine(
-                                               methodDescriptor: MethodDescriptor): String = {
-      val path = generatePathForMethod(methodDescriptor)
-      s"""    .register(Method.Post, $path, controller.${controllerMethodName(methodDescriptor)})"""
-    }
+    def getEndpoint(method: MethodDescriptor) =
+      s"""|    Endpoint(${generatePathForMethod(method)}, new ServiceAdapter(service.${method.name}))""".stripMargin
 
-    private def generateDefaultControllerMethod(methodDescriptor: MethodDescriptor) = {
-      val controllerMethod = controllerMethodName(methodDescriptor)
-      val rpcMethodName = methodDescriptor.name
+    private def generateServer(serviceDescriptor: ServiceDescriptor) = {
+      val serviceName = getServiceName(serviceDescriptor)
+      val serverName = getServerName(serviceDescriptor)
       s"""
-         |  def $controllerMethod(handlerRequest: HandlerRequest): Future[Response] = {
-         |    val req = converter.${converterMethodName(methodDescriptor)}(handlerRequest)
+         |class $serverName(service: $serviceName, port: Int) {
+         |  def build = {
+         |    val endpoints = Seq(
+         |    ${serviceDescriptor.methods.map(getEndpoint).mkString(",\n")}
+         |    )
+         |    Http.server.serve(new InetSocketAddress(port), ServiceFactory.const(new Server(endpoints)))
+         |  }
+         |}
          |
-         |    rpc.$rpcMethodName(req)
-         |      .map(JsonFormat.toJsonString)
-         |      .map(JsonResponseBuilder.ok)
-         |  }""".stripMargin
+       """.stripMargin
     }
-
-    private def generateDefaultControllerName(m: ServiceDescriptor) =
-      s"Default${m.getName}Controller"
-
-    private def converterMethodName(m: MethodDescriptor) =
-      s"convertTo${methodInputType(m)}"
-
-    private def generateDefaultConverterMethod(methodDescriptor: MethodDescriptor) = {
-      val rpcMethodInputType = methodInputType(methodDescriptor)
-      val methodName = converterMethodName(methodDescriptor)
-
-      s"""
-         |def $methodName(handlerRequest: HandlerRequest): $rpcMethodInputType = {
-         |  JsonFormat.fromJsonString[$rpcMethodInputType](handlerRequest.contentString)
-         |}""".stripMargin
-
-    }
-
-    private def generateConverterMethodDef(methodDescriptor: MethodDescriptor) = {
-      val rpcMethodInputType = methodInputType(methodDescriptor)
-      val methodName = converterMethodName(methodDescriptor)
-      s"""|  def $methodName(handlerRequest: HandlerRequest): $rpcMethodInputType""".stripMargin
-    }
-
-    private def getAbstractControllerMethod(method: MethodDescriptor) =
-      s"""|  def ${controllerMethodName(method)}(handlerRequest: HandlerRequest): Future[Response]""".stripMargin
-
-    private def generateAbstractControllerName(m: ServiceDescriptor) =
-      s"${m.getName}Controller"
-
-
-    private def controllerMethodName(m: MethodDescriptor) =
-      s"handle${m.name.capitalize}"
 
   }
 
