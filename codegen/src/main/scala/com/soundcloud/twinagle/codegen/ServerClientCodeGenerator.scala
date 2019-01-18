@@ -48,6 +48,23 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     import implicits._
 
+    def generateServiceObject(m: ServiceDescriptor): String = {
+      val serviceName = getServiceName(m)
+      s"""
+         |object $serviceName {
+         |  def server(service: $serviceName): Service[Request, Response] = new Server(Seq(
+         |${m.methods.map(generateEndpoint).mkString(",\n")}
+         |  ))
+         |}
+       """.stripMargin
+    }
+
+    def generateEndpoint(md: MethodDescriptor): String = {
+      val path = generatePathForMethod(md)
+      md.getName
+      s"    Endpoint($path, new ServiceAdapter(service.${md.getName}))"
+    }
+
     def generateFile(fileDesc: FileDescriptor): CodeGeneratorResponse.File = {
       val outputFile = CodeGeneratorResponse.File.newBuilder()
       outputFile.setName(
@@ -58,6 +75,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         .add(generateHeader(fileDesc))
         .print(fileDesc.getServices.asScala) { (p, m) =>
           p.add(generateServiceTrait(m))
+            .add(generateServiceObject(m))
             .add(generateClient(m))
             .add(generateServer(m))
         }
