@@ -14,7 +14,7 @@ class JsonConverter {
     request
   }
 
-  def mkResponse[Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](response: Response): Rep = {
+  def fromResponse[Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](response: Response): Rep = {
     JsonFormat.fromJsonString[Rep](response.contentString)
   }
 }

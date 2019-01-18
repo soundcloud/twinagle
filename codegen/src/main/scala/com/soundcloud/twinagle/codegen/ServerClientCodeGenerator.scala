@@ -148,7 +148,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
          |    implicit val companion = $outputType.messageCompanion
          |    val converter = new JsonConverter()
          |    val request = converter.mkRequest($path, $varName)
-         |    httpClient(request).map(x => converter.mkResponse(x)(companion))
+         |    httpClient(request).map(x => converter.fromResponse(x))
          |  }""".stripMargin
     }
 
