@@ -12,7 +12,8 @@ class JsonClientSpec extends FlatSpec with MustMatchers {
       println(req.contentString)
       Future.value(Response(req))
     }
-    new SomeClient(printer).foo(FooReq("asdfasdf"))
+    new SomeClientJson(printer).foo(FooReq("asdfasdf"))
+//    new SomeClientProtobuf(printer).foo(FooReq("asdfasdf"))
   }
 }
 

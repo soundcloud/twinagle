@@ -61,7 +61,6 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     def generateEndpoint(md: MethodDescriptor): String = {
       val path = generatePathForMethod(md)
-      md.getName
       s"    Endpoint($path, new ServiceAdapter(service.${md.getName}))"
     }
 
@@ -89,6 +88,8 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
       s"""
          |class ${clientName}Json(httpClient: Service[Request, Response]) extends $serviceName {
+         |
+         |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
          |
          |${serviceDescriptor.methods.map(generateJsonClientMethod).mkString("\n")}
          |
@@ -120,11 +121,10 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
          |
          |import java.net.InetSocketAddress
          |
-         |import com.soundcloud.twinagle.{Endpoint, JsonConverter, Server, ServiceAdapter}
-         |import com.twitter.util.Future
+         |import com.soundcloud.twinagle._
          |import com.twitter.finagle.{Http, Service, ServiceFactory}
-         |import com.twitter.finagle.http.{Method, Request, Response}
-         |import scalapb.json4s.JsonFormat
+         |import com.twitter.finagle.http.{Request, Response}
+         |import com.twitter.util.Future
          |""".stripMargin
     }
 
@@ -155,27 +155,35 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         str.substring(0, 1).toLowerCase() + str.substring(1)
       else str
 
-    private def generateJsonClientMethod(methodDescriptor: MethodDescriptor) = {
+    private def generateJsonClientService(methodDescriptor: MethodDescriptor): String = {
       val varType = methodInputType(methodDescriptor)
       val varName = decapitalize(varType)
+      val inputType = methodInputType(methodDescriptor)
       val outputType = methodOutputType(methodDescriptor)
       val methodName = methodDescriptor.name
       val path = generatePathForMethod(methodDescriptor)
       s"""
-         |  override def $methodName($varName: $varType): Future[$outputType] = {
-         |    implicit val companion = $outputType.messageCompanion
-         |    val converter = new JsonConverter()
-         |    val request = converter.mkRequest($path, $varName)
-         |    httpClient(request).map(x => converter.fromResponse(x))
-         |  }""".stripMargin
+        |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+        |    implicit val companion = $outputType
+        |    new JsonClientFilter($path) andThen
+        |      new TwirpHttpClient[Request] andThen
+        |      httpClient
+        |  }
+      """.stripMargin
+    }
+
+    private def generateJsonClientMethod(methodDescriptor: MethodDescriptor) = {
+      val inputType = methodInputType(methodDescriptor)
+      val outputType = methodOutputType(methodDescriptor)
+      val methodName = methodDescriptor.name
+      s"""
+         |  override def $methodName(request: $inputType): Future[$outputType] = ${methodName}Service(request)
+       """.stripMargin
     }
 
     private def generatePathForMethod(methodDescriptor: MethodDescriptor) = {
       s""""/twirp/${methodDescriptor.getService.getFullName}/${methodDescriptor.name.capitalize}""""
     }
-
-    def getEndpoint(method: MethodDescriptor) =
-      s"""|    Endpoint(${generatePathForMethod(method)}, new ServiceAdapter(service.${method.name}))""".stripMargin
 
     private def generateServer(serviceDescriptor: ServiceDescriptor) = {
       val serviceName = getServiceName(serviceDescriptor)
@@ -183,10 +191,8 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       s"""
          |class $serverName(service: $serviceName, port: Int) {
          |  def build = {
-         |    val endpoints = Seq(
-         |    ${serviceDescriptor.methods.map(getEndpoint).mkString(",\n")}
-         |    )
-         |    Http.server.serve(new InetSocketAddress(port), ServiceFactory.const(new Server(endpoints)))
+         |    val server = $serviceName.server(service)
+         |    Http.server.serve(new InetSocketAddress(port), ServiceFactory.const(server))
          |  }
          |}
          |
