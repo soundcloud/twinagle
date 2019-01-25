@@ -75,14 +75,15 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         .print(fileDesc.getServices.asScala) { (p, m) =>
           p.add(generateServiceTrait(m))
             .add(generateServiceObject(m))
-            .add(generateClient(m))
+            .add(generateJsonClient(m))
+            .add(generateProtobufClient(m))
             .add(generateServer(m))
         }
       outputFile.setContent(fp.result)
       outputFile.build
     }
 
-    private def generateClient(serviceDescriptor: ServiceDescriptor) = {
+    private def generateJsonClient(serviceDescriptor: ServiceDescriptor) = {
       val clientName = getClientName(serviceDescriptor)
       val serviceName = getServiceName(serviceDescriptor)
 
@@ -90,9 +91,21 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
          |class ${clientName}Json(httpClient: Service[Request, Response]) extends $serviceName {
          |
          |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
+         |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
+         |}
+       """.stripMargin
+
+    }
+
+    private def generateProtobufClient(serviceDescriptor: ServiceDescriptor) = {
+      val clientName = getClientName(serviceDescriptor)
+      val serviceName = getServiceName(serviceDescriptor)
+
+      s"""
+         |class ${clientName}Protobuf(httpClient: Service[Request, Response]) extends $serviceName {
          |
-         |${serviceDescriptor.methods.map(generateJsonClientMethod).mkString("\n")}
-         |
+         |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
+         |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
          |}
        """.stripMargin
 
@@ -166,13 +179,30 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
         |  private val ${methodName}Service: Service[$inputType, $outputType] = {
         |    implicit val companion = $outputType
         |    new JsonClientFilter($path) andThen
-        |      new TwirpHttpClient[Request] andThen
+        |      new TwirpHttpClient andThen
         |      httpClient
         |  }
       """.stripMargin
     }
 
-    private def generateJsonClientMethod(methodDescriptor: MethodDescriptor) = {
+    private def generateProtobufClientService(methodDescriptor: MethodDescriptor): String = {
+      val varType = methodInputType(methodDescriptor)
+      val varName = decapitalize(varType)
+      val inputType = methodInputType(methodDescriptor)
+      val outputType = methodOutputType(methodDescriptor)
+      val methodName = methodDescriptor.name
+      val path = generatePathForMethod(methodDescriptor)
+      s"""
+        |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+        |    implicit val companion = $outputType
+        |    new ProtobufClientFilter($path) andThen
+        |      new TwirpHttpClient andThen
+        |      httpClient
+        |  }
+      """.stripMargin
+    }
+
+    private def generateGenericClientMethod(methodDescriptor: MethodDescriptor) = {
       val inputType = methodInputType(methodDescriptor)
       val outputType = methodOutputType(methodDescriptor)
       val methodName = methodDescriptor.name

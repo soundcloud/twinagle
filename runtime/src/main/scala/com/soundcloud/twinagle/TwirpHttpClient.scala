@@ -1,14 +1,14 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.http.{Response, Status}
+import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
 /**
   * TwirpHttpClient
   */
-class TwirpHttpClient[Req] extends SimpleFilter[Req, Response] {
-  override def apply(request: Req, service: Service[Req, Response]): Future[Response] = {
+class TwirpHttpClient extends SimpleFilter[Request, Response] {
+  override def apply(request: Request, service: Service[Request, Response]): Future[Response] = {
     service(request).flatMap { response =>
       response.status match {
         case Status.Ok => Future.value(response)

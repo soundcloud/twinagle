@@ -1,20 +1,25 @@
 package mygen
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Future
 import mygen.protos.demo._
 import org.scalatest._
 
 class JsonClientSpec extends FlatSpec with MustMatchers {
   "JsonClient" should "print something out" in {
-    val printer: Service[Request, Response] = (req: Request) => {
-      println(req.contentString)
-      Future.value(Response(req))
+    
+    val svc = new SomeService {
+      override def foo(fooReq: FooReq): Future[FooResp] = {
+        println(fooReq.asdf)
+        Future.value(FooResp())
+      }
+
+      override def bar(barReq: BarReq): Future[BarResp] = Future.value(BarResp())
     }
-    new SomeClientJson(printer).foo(FooReq("asdfasdf"))
-//    new SomeClientProtobuf(printer).foo(FooReq("asdfasdf"))
+
+    val httpService = SomeService.server(svc)
+
+
+    new SomeClientJson(httpService).foo(FooReq("asdfasdf"))
+    new SomeClientProtobuf(httpService).foo(FooReq("asdfasdf"))
   }
 }
-
-
