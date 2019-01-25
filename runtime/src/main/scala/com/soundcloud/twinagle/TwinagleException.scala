@@ -9,7 +9,6 @@ object ErrorCode {
   //  TODO:  finagle flags maybe?
   /** The operation was cancelled. */
   final case object Canceled extends ErrorCode(Status.RequestTimeout, "canceled")
- 
   /** An unknown error occurred. For example, this can be used when handling errors raised by APIs that do not return any error information. */
   final case object Unknown extends ErrorCode(Status.InternalServerError, "unknown")
 
