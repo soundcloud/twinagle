@@ -1,20 +1,21 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.http.{MediaType, Method, Request, Response}
-import scalapb.json4s.JsonFormat
+import com.twitter.finagle.http.{Method, Request, Response}
+import com.twitter.io.Buf
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
-// runtime
-class JsonConverter {
-  // TODO: we need some kind of baseUrl
+class ProtobufConverter {
+
   def mkRequest(path: String, r: GeneratedMessage): Request = {
     val request = Request(Method.Post, path)
-    request.contentType = MediaType.Json
-    request.contentString = JsonFormat.toJsonString(r)
+    request.contentType = "application/protobuf"
+    request.content = Buf.ByteArray.Owned(r.toByteArray)
     request
   }
 
   def fromResponse[Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](response: Response): Rep = {
-    JsonFormat.fromJsonString[Rep](response.contentString)
+    val companion = implicitly[GeneratedMessageCompanion[Rep]]
+    companion.parseFrom(Buf.ByteArray.Owned.extract(response.content))
   }
+
 }
