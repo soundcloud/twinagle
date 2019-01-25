@@ -61,7 +61,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     def generateEndpoint(md: MethodDescriptor): String = {
       val path = generatePathForMethod(md)
-      s"    Endpoint($path, new ServiceAdapter(service.${md.getName}))"
+      s"    Endpoint($path, new ServiceAdapter(service.${decapitalize(md.getName)}))"
     }
 
     def generateFile(fileDesc: FileDescriptor): CodeGeneratorResponse.File = {
