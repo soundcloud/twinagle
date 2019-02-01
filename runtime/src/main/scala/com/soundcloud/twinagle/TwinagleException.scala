@@ -2,7 +2,7 @@ package com.soundcloud.twinagle
 
 import com.twitter.finagle.http.Status
 
-sealed abstract class ErrorCode(val status: Status, val desc: String)
+sealed abstract class ErrorCode(val status: Status, val desc: String) extends Product with Serializable
 
 object ErrorCode {
 
