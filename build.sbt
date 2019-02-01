@@ -30,7 +30,8 @@ lazy val runtime = (project in file("runtime")).settings(
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.2",
 
-    "org.specs2" %% "specs2-core" % "4.3.6" % Test
+    "org.specs2" %% "specs2-core" % "4.3.6" % Test,
+    "org.specs2" %% "specs2-mock" % "4.3.6" % Test
   )
 )
 
