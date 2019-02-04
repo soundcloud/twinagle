@@ -7,17 +7,24 @@ message Person {
   int32 age = 2;
 }
 
+// FooReq is an example request
 message FooReq {
   string asdf = 1;
 }
 
+// FooResp is an empty response
 message FooResp {}
 
 message BarReq {}
 
 message BarResp {}
 
+// this is some service that can foo and bar
 service Some {
-  rpc foo(FooReq)  returns (FooResp) {}
-  rpc bar(BarReq)  returns (BarResp) {}
+
+  // foo does things with a FooReq
+  rpc foo(FooReq) returns (FooResp) {}
+
+  // bad does something else
+  rpc bar(BarReq) returns (BarResp) {}
 }
