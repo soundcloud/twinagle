@@ -5,9 +5,12 @@ ThisBuild / crossScalaVersions := Seq("2.11.11")
 val scalapbVersion = "0.8.3"
 
 lazy val codegen = (project in file("codegen"))
-  .enablePlugins(ScriptedPlugin)
+  .enablePlugins(ScriptedPlugin, BuildInfoPlugin)
   .settings(
     name := "twinagle-scalapb-plugin",
+    buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage := "com.soundcloud.twinagle.codegen",
+    buildInfoUsePackageAsPath := true,
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "compilerplugin" % scalapbVersion
     ),
