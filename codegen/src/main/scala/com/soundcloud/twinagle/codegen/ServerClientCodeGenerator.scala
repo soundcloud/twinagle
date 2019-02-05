@@ -1,11 +1,11 @@
 package com.soundcloud.twinagle.codegen
 
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.Descriptors._
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import protocbridge.Artifact
-import scalapb.compiler.FunctionalPrinter
-import scalapb.compiler.DescriptorImplicits
+import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, Helper}
 import scalapb.options.compiler.Scalapb
 
 import scala.collection.JavaConverters._
@@ -111,11 +111,34 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     }
 
+    implicit final class ServiceExt(message: ServiceDescriptor) {
+
+      def sourcePath: Seq[Int] = Seq(FileDescriptorProto.SERVICE_FIELD_NUMBER, message.getIndex)
+
+      def comment: Option[String] = {
+        message.getFile
+          .findLocationByPath(sourcePath)
+          .map(t => t.getLeadingComments + t.getTrailingComments)
+          .map(Helper.escapeComment)
+          .filter(_.nonEmpty)
+      }
+    }
 
     private def generateServiceTrait(serviceDescriptor: ServiceDescriptor): String = {
+      val docLines: Seq[String] = serviceDescriptor.comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
+      val docString = if (docLines.nonEmpty) {
+        s"""
+           |/**
+           |${docLines.map("  * " + _).mkString("\n")}
+           |  */
+         """.stripMargin
+      } else {
+        ""
+      }
       val serviceName = getServiceName(serviceDescriptor)
       val methods = serviceDescriptor.methods
       s"""
+         |$docString
          |trait $serviceName {
          |
          |${methods.map(getServiceMethodDeclaration).mkString("\n")}
@@ -142,6 +165,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     }
 
     private def getServiceMethodDeclaration(methodDescriptor: MethodDescriptor) = {
+      // TODO: propagate comments
       val varType = methodInputType(methodDescriptor)
       val varName = decapitalize(varType)
       val outputType = methodOutputType(methodDescriptor)
@@ -176,12 +200,12 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       val methodName = methodDescriptor.name
       val path = generatePathForMethod(methodDescriptor)
       s"""
-        |  private val ${methodName}Service: Service[$inputType, $outputType] = {
-        |    implicit val companion = $outputType
-        |    new JsonClientFilter($path) andThen
-        |      new TwirpHttpClient andThen
-        |      httpClient
-        |  }
+         |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+         |    implicit val companion = $outputType
+         |    new JsonClientFilter($path) andThen
+         |      new TwirpHttpClient andThen
+         |      httpClient
+         |  }
       """.stripMargin
     }
 
@@ -193,12 +217,12 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       val methodName = methodDescriptor.name
       val path = generatePathForMethod(methodDescriptor)
       s"""
-        |  private val ${methodName}Service: Service[$inputType, $outputType] = {
-        |    implicit val companion = $outputType
-        |    new ProtobufClientFilter($path) andThen
-        |      new TwirpHttpClient andThen
-        |      httpClient
-        |  }
+         |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+         |    implicit val companion = $outputType
+         |    new ProtobufClientFilter($path) andThen
+         |      new TwirpHttpClient andThen
+         |      httpClient
+         |  }
       """.stripMargin
     }
 
