@@ -4,9 +4,7 @@ import com.google.protobuf.Descriptors.{FileDescriptor, MethodDescriptor, Servic
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 
-import scala.collection.JavaConverters._
-
-final class TwinagleServicePrinter(implicits: DescriptorImplicits) {
+final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: DescriptorImplicits) {
 
   import implicits._
 
@@ -26,23 +24,16 @@ final class TwinagleServicePrinter(implicits: DescriptorImplicits) {
     s"    Endpoint($path, new ServiceAdapter(service.${decapitalize(md.getName)}))"
   }
 
-  def generateFile(fileDesc: FileDescriptor): CodeGeneratorResponse.File = {
-    val outputFile = CodeGeneratorResponse.File.newBuilder()
-    outputFile.setName(
-      s"${fileDesc.scalaDirectory}/Generated${fileDesc.fileDescriptorObjectName}.scala")
+  def printService(printer: FunctionalPrinter): FunctionalPrinter = {
 
-    val fp = FunctionalPrinter()
+    printer
       // Add the header, including package name and imports
-      .add(generateHeader(fileDesc))
-      .print(fileDesc.getServices.asScala) { (p, m) =>
-        p.add(generateServiceTrait(m))
-          .add(generateServiceObject(m))
-          .add(generateJsonClient(m))
-          .add(generateProtobufClient(m))
-          .add(generateServer(m))
-      }
-    outputFile.setContent(fp.result)
-    outputFile.build
+      .add(generateHeader(service.getFile.scalaPackageName))
+      .add(generateServiceTrait(service))
+          .add(generateServiceObject(service))
+          .add(generateJsonClient(service))
+          .add(generateProtobufClient(service))
+          .add(generateServer(service))
   }
 
   private def generateJsonClient(serviceDescriptor: ServiceDescriptor) = {
@@ -91,8 +82,8 @@ final class TwinagleServicePrinter(implicits: DescriptorImplicits) {
 
   private def getClientName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Client"
 
-  private def generateHeader(fileDesc: FileDescriptor) = {
-    s"""package ${fileDesc.scalaPackageName}
+  private def generateHeader(packageName: String) = {
+    s"""package $packageName
        |
          |import java.net.InetSocketAddress
        |

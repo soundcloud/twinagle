@@ -28,3 +28,7 @@ service Some {
   // bad does something else
   rpc bar(BarReq) returns (BarResp) {}
 }
+
+service Other {
+  rpc fooAgain(FooReq) returns (FooResp) {}
+}

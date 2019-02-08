@@ -34,12 +34,22 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
 
     val implicits = new DescriptorImplicits(params, fileDescByName.values.toVector)
 
-    val servicePrinter = new TwinagleServicePrinter(implicits)
-    request.getFileToGenerateList.asScala.foreach { name =>
-      val fileDesc = fileDescByName(name)
-      val responseFile = servicePrinter.generateFile(fileDesc)
-      b.addFile(responseFile)
+    val services = fileDescByName.values.flatMap(_.getServices.asScala)
+
+    services.foreach { service =>
+      val fileDesc = service.getFile
+
+      import implicits._
+      val twinaglePrinter = new TwinagleServicePrinter(service, implicits)
+      val printer = twinaglePrinter.printService(FunctionalPrinter())
+
+      val outputFile = CodeGeneratorResponse.File.newBuilder()
+      outputFile.setName(
+        s"${fileDesc.scalaDirectory}/Generated${service.getName}.scala")
+      outputFile.setContent(printer.result())
+      b.addFile(outputFile.build)
     }
+
     b.build.toByteArray
   }
 
