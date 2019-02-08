@@ -1,18 +1,36 @@
 package com.soundcloud.twinagle.codegen
 
-import com.google.protobuf.Descriptors.{FileDescriptor, MethodDescriptor, ServiceDescriptor}
-import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
+import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 
 final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: DescriptorImplicits) {
 
   import implicits._
 
+  private[this] val twitterUtil = "_root_.com.twitter.util"
+  private[this] val finagle = "_root_.com.twitter.finagle"
+  private[this] val finagleHttp = s"$finagle.http"
+  private[this] val twinagle = "_root_.com.soundcloud.twinagle"
+
+  private[this] val Future = s"$twitterUtil.Future"
+  private[this] val Service = s"$finagle.Service"
+  private[this] val ServiceFactory = s"$finagle.ServiceFactory"
+  private[this] val Request = s"$finagleHttp.Request"
+  private[this] val Response = s"$finagleHttp.Response"
+
+  private[this] val Server = s"$twinagle.Server"
+  private[this] val ServiceAdapter = s"$twinagle.ServiceAdapter"
+  private[this] val Endpoint = s"$twinagle.Endpoint"
+
+  private[this] val Http = s"$finagle.Http"
+  private[this] val InetSocketAddress = s"_root_.java.net.InetSocketAddress"
+
+
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
     s"""
        |object $serviceName {
-       |  def server(service: $serviceName): Service[Request, Response] = new Server(Seq(
+       |  def server(service: $serviceName): $Service[$Request, $Response] = new $Server(Seq(
        |${m.methods.map(generateEndpoint).mkString(",\n")}
        |  ))
        |}
@@ -21,13 +39,12 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   def generateEndpoint(md: MethodDescriptor): String = {
     val path = generatePathForMethod(md)
-    s"    Endpoint($path, new ServiceAdapter(service.${decapitalize(md.getName)}))"
+    s"    $Endpoint($path, new $ServiceAdapter(service.${decapitalize(md.getName)}))"
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
 
     printer
-      // Add the header, including package name and imports
       .add(generateHeader(service.getFile.scalaPackageName))
       .add(generateServiceTrait(service))
           .add(generateServiceObject(service))
@@ -41,9 +58,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val serviceName = getServiceName(serviceDescriptor)
 
     s"""
-       |class ${clientName}Json(httpClient: Service[Request, Response]) extends $serviceName {
+       |class ${clientName}Json(httpClient: $Service[$Request, $Response]) extends $serviceName {
        |
-         |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
+       |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
        |}
        """.stripMargin
@@ -55,9 +72,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val serviceName = getServiceName(serviceDescriptor)
 
     s"""
-       |class ${clientName}Protobuf(httpClient: Service[Request, Response]) extends $serviceName {
+       |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response]) extends $serviceName {
        |
-         |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
+       |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
        |}
        """.stripMargin
@@ -71,7 +88,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     s"""
        |trait $serviceName {
        |
-         |${methods.map(getServiceMethodDeclaration).mkString("\n")}
+       |${methods.map(getServiceMethodDeclaration).mkString("\n")}
        |}
      """.stripMargin
   }
@@ -82,24 +99,14 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   private def getClientName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Client"
 
-  private def generateHeader(packageName: String) = {
-    s"""package $packageName
-       |
-         |import java.net.InetSocketAddress
-       |
-         |import com.soundcloud.twinagle._
-       |import com.twitter.finagle.{Http, Service, ServiceFactory}
-       |import com.twitter.finagle.http.{Request, Response}
-       |import com.twitter.util.Future
-       |""".stripMargin
-  }
+  private def generateHeader(packageName: String) = s"package $packageName"
 
   private def getServiceMethodDeclaration(methodDescriptor: MethodDescriptor) = {
     val varType = methodInputType(methodDescriptor)
     val varName = decapitalize(varType)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = methodDescriptor.name
-    s"  def $methodName($varName: $varType): Future[$outputType]"
+    s"  def $methodName($varName: $varType): $Future[$outputType]"
   }
 
 
@@ -129,10 +136,10 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methodName = methodDescriptor.name
     val path = generatePathForMethod(methodDescriptor)
     s"""
-       |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+       |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    new JsonClientFilter($path) andThen
-       |      new TwirpHttpClient andThen
+       |    new $twinagle.JsonClientFilter($path) andThen
+       |      new $twinagle.TwirpHttpClient andThen
        |      httpClient
        |  }
       """.stripMargin
@@ -146,10 +153,10 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methodName = methodDescriptor.name
     val path = generatePathForMethod(methodDescriptor)
     s"""
-       |  private val ${methodName}Service: Service[$inputType, $outputType] = {
+       |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    new ProtobufClientFilter($path) andThen
-       |      new TwirpHttpClient andThen
+       |    new $twinagle.ProtobufClientFilter($path) andThen
+       |      new $twinagle.TwirpHttpClient andThen
        |      httpClient
        |  }
       """.stripMargin
@@ -160,7 +167,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val outputType = methodOutputType(methodDescriptor)
     val methodName = methodDescriptor.name
     s"""
-       |  override def $methodName(request: $inputType): Future[$outputType] = ${methodName}Service(request)
+       |  override def $methodName(request: $inputType): $Future[$outputType] = ${methodName}Service(request)
        """.stripMargin
   }
 
@@ -175,7 +182,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |class $serverName(service: $serviceName, port: Int) {
        |  def build = {
        |    val server = $serviceName.server(service)
-       |    Http.server.serve(new InetSocketAddress(port), ServiceFactory.const(server))
+       |    $Http.server.serve(new $InetSocketAddress(port), $ServiceFactory.const(server))
        |  }
        |}
        |
