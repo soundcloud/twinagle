@@ -1,7 +1,8 @@
 package com.soundcloud.twinagle.codegen
 
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
-import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
+import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, Helper}
 
 final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: DescriptorImplicits) {
 
@@ -47,10 +48,10 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     printer
       .add(generateHeader(service.getFile.scalaPackageName))
       .add(generateServiceTrait(service))
-          .add(generateServiceObject(service))
-          .add(generateJsonClient(service))
-          .add(generateProtobufClient(service))
-          .add(generateServer(service))
+      .add(generateServiceObject(service))
+      .add(generateJsonClient(service))
+      .add(generateProtobufClient(service))
+      .add(generateServer(service))
   }
 
   private def generateJsonClient(serviceDescriptor: ServiceDescriptor) = {
@@ -81,12 +82,34 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   }
 
+  implicit final class ServiceExt(message: ServiceDescriptor) {
+
+    def sourcePath: Seq[Int] = Seq(FileDescriptorProto.SERVICE_FIELD_NUMBER, message.getIndex)
+
+    def comment: Option[String] = {
+      message.getFile
+        .findLocationByPath(sourcePath)
+        .map(t => t.getLeadingComments + t.getTrailingComments)
+        .map(Helper.escapeComment)
+        .filter(_.nonEmpty)
+    }
+  }
 
   private def generateServiceTrait(serviceDescriptor: ServiceDescriptor): String = {
+    val docLines: Seq[String] = serviceDescriptor.comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
+    val docString = if (docLines.nonEmpty) {
+      s"""
+         |/**
+         |${docLines.map("  * " + _).mkString("\n")}
+         |  */
+         """.stripMargin
+    } else {
+      ""
+    }
     val serviceName = getServiceName(serviceDescriptor)
     val methods = serviceDescriptor.methods
     s"""
-       |trait $serviceName {
+       |${docString}trait $serviceName {
        |
        |${methods.map(getServiceMethodDeclaration).mkString("\n")}
        |}
