@@ -28,6 +28,7 @@ lazy val codegen = (project in file("codegen"))
 
 lazy val runtime = (project in file("runtime")).settings(
   name := "twinagle-runtime",
+  publishTo in ThisBuild := Some("SC snapshots" at "https://maven.dev.s-cloud.net/content/repositories/snapshots"),
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-http" % "18.12.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
