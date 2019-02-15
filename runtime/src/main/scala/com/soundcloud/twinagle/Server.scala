@@ -16,7 +16,7 @@ import com.twitter.util.Future
   *
   * @param endpoints list of endpoints to expose
   */
-class Server(endpoints: Seq[Endpoint]) extends Service[Request, Response] {
+class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
 
   private val services = endpoints.foldLeft(Map.empty[String, Service[Request, Response]]) { (acc, ep) =>
     acc + (ep.path -> ep.service)
