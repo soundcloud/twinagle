@@ -1,7 +1,7 @@
 package com.soundcloud.twinagle
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{MediaType, Method, Request, Response}
+import com.twitter.finagle.http._
 import com.twitter.util.Future
 
 
@@ -47,7 +47,26 @@ class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
   }
 
   private def errorResponse(twex: TwinagleException): Response = {
-    val resp = Response(twex.code.status)
+    import ErrorCode._
+    val resp = Response(twex.code match {
+      case Canceled |
+           DeadlineExceeded => Status.RequestTimeout
+      case NotFound |
+           BadRoute => Status.NotFound
+      case PermissionDenied |
+           ResourceExhausted => Status.Forbidden
+      case Unauthenticated => Status.Unauthorized
+      case FailedPrecondition => Status.PreconditionFailed
+      case AlreadyExists |
+           Aborted => Status.Conflict
+      case InvalidArgument |
+           OutOfRange => Status.BadRequest
+      case Unimplemented => Status.NotImplemented
+      case Unknown |
+           Internal |
+           Dataloss => Status.InternalServerError
+      case Unavailable => Status.ServiceUnavailable
+    })
     resp.contentType = MediaType.Json
     // todo: proper JSON
     resp.contentString =

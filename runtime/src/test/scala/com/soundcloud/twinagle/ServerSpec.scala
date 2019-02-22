@@ -54,7 +54,7 @@ class ServerSpec extends Specification with Mockito {
     val response = Await.result(server(request))
 
     there was exactly(1)(svc).apply(request)
-    response.status ==== ex.code.status
+    response.status ==== Status.Forbidden
     response.contentString must contain(ex.code.desc)
   }
 
