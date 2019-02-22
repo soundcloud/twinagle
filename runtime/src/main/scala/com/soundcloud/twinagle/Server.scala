@@ -68,15 +68,11 @@ class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
       case Unavailable => Status.ServiceUnavailable
     })
     resp.contentType = MediaType.Json
-    // todo: proper JSON
-    resp.contentString =
-      s"""
-         |{
-         |  "code": "${twex.code.desc}",
-         |  "msg": "${twex.msg}",
-         |  "meta": {}
-         |}
-         """.stripMargin
+    resp.contentString = JsonError.toString(JsonError(
+      code = twex.code.desc,
+      msg = twex.msg,
+      meta = if (twex.meta.nonEmpty) Some(twex.meta) else None
+    ))
     resp
   }
 }
