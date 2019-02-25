@@ -1,11 +1,16 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
-
 /**
   * Endpoint represents a Twirp RPC endpoint.
-  * @param path the (absolute) HTTP path of the RPC endpoint.
-  * @param service a service that handles POST requests (JSON or Protobuf body, determined by the request Content-Type)
+  *
+  * @param prefix  prefix of all twirp services. Usually, "/twirp".
+  * @param service absolute name of the Twirp service.
+  * @param rpc     name of the RPC endpoint within the Twirp service.
   */
-case class Endpoint(path: String, service: Service[Request, Response])
+case class Endpoint(prefix: String, service: String, rpc: String) {
+  require(prefix.startsWith("/"))
+  require(!prefix.endsWith("/"))
+
+  /** @return the (absolute) HTTP path of the RPC endpoint. */
+  def path = s"$prefix/$service/$rpc"
+}

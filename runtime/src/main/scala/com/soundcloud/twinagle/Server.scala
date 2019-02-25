@@ -16,11 +16,9 @@ import com.twitter.util.Future
   *
   * @param endpoints list of endpoints to expose
   */
-class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
+class Server(endpoints: Map[Endpoint, Service[Request, Response]]) extends Service[Request, Response] {
 
-  private val services = endpoints.foldLeft(Map.empty[String, Service[Request, Response]]) { (acc, ep) =>
-    acc + (ep.path -> ep.service)
-  }
+  private val services = endpoints.map { case (k, v) => k.path -> v }
 
   override def apply(request: Request): Future[Response] = request.method match {
     case Method.Post =>

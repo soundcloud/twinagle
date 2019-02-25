@@ -11,13 +11,13 @@ class ServerSpec extends Specification with Mockito {
 
   trait Context extends Scope {
     val svc = mock[Service[Request, Response]]
-    val server = new Server(Seq(
-      Endpoint("/foo", svc)
+    val server = new Server(Map(
+      Endpoint("/twirp", "svc", "rpc") -> svc
     ))
   }
 
   "happy case" in new Context {
-    val request = Request(Method.Post, "/foo")
+    val request = Request(Method.Post, "/twirp/svc/rpc")
     svc.apply(any) returns Future.value(Response(Status.Ok))
 
 
@@ -28,12 +28,12 @@ class ServerSpec extends Specification with Mockito {
   }
 
   "non-POST request" in new Context {
-    val request = Request(Method.Get, "/foo")
+    val request = Request(Method.Get, "/twirp/svc/rpc")
 
     val response = Await.result(server(request))
 
     there were noCallsTo(svc)
-    response.status ==== Status.NotFound // really? verify w/ Go impl
+    response.status ==== Status.NotFound // TODO: really? verify w/ Go impl
   }
 
   "unknown path" in new Context {
@@ -46,7 +46,7 @@ class ServerSpec extends Specification with Mockito {
   }
 
   "handles TwinagleException" in new Context {
-    val request = Request(Method.Post, "/foo")
+    val request = Request(Method.Post, "/twirp/svc/rpc")
     val ex = TwinagleException(ErrorCode.PermissionDenied, "nope")
     svc.apply(any) returns Future.exception(ex)
 
@@ -59,7 +59,7 @@ class ServerSpec extends Specification with Mockito {
   }
 
   "handles unknown exceptions" in new Context {
-    val request = Request(Method.Post, "/foo")
+    val request = Request(Method.Post, "/twirp/svc/rpc")
     val ex = new RuntimeException("eek")
     svc.apply(any) returns Future.exception(ex)
 
@@ -74,7 +74,7 @@ class ServerSpec extends Specification with Mockito {
 
   "doesn't catch exceptions" in new Context {
     // TBD: do we want this?
-    val request = Request(Method.Post, "/foo")
+    val request = Request(Method.Post, "/twirp/svc/rpc")
     val ex = new RuntimeException("eek")
     svc.apply(any) throws ex
 
