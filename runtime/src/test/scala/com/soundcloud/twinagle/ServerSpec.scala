@@ -12,7 +12,7 @@ class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val svc = mock[Service[Request, Response]]
     val server = new Server(Map(
-      Endpoint("/twirp", "svc", "rpc") -> svc
+      EndpointMetadata("/twirp", "svc", "rpc") -> svc
     ))
   }
 

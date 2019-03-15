@@ -16,13 +16,13 @@ import com.twitter.util.Future
   *
   * @param endpoints list of endpoints to expose
   */
-class Server(endpoints: Map[Endpoint, Service[Request, Response]]) extends Service[Request, Response] {
+class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]]) extends Service[Request, Response] {
 
-  private val services = endpoints.map { case (k, v) => k.path -> v }
+  private val servicesByPath = endpoints.map { case (k, v) => k.path -> v }
 
   override def apply(request: Request): Future[Response] = request.method match {
     case Method.Post =>
-      services.get(request.path) match {
+      servicesByPath.get(request.path) match {
         case Some(service) => service(request).handle {
           case e: TwinagleException => errorResponse(e)
           case e => errorResponse(new TwinagleException(e))
@@ -43,6 +43,8 @@ class Server(endpoints: Map[Endpoint, Service[Request, Response]]) extends Servi
         ))
       )
   }
+
+  val endpointMetadataByPath: Map[String, EndpointMetadata] = endpoints.map(e => (e._1.path, e._1))
 
   private def errorResponse(twex: TwinagleException): Response = {
     import ErrorCode._
