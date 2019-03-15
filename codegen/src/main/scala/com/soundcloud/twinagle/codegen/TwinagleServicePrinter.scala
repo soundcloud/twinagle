@@ -51,7 +51,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     s"""      {
        |        val endpoint = $Endpoint("$prefix", "$svc", "$methodName")
        |        val httpService: $Service[$Request, $Response] =
-       |          new $ServiceAdapter(service.${decapitalize(decapitalizedName(md))})
+       |          new $ServiceAdapter(service.${decapitalizedName(md)})
        |        endpoint -> extension(endpoint).toFilter.andThen(httpService)
        |      }
      """.stripMargin
