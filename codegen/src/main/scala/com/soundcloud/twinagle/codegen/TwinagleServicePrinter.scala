@@ -22,7 +22,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   private[this] val Server = s"$twinagle.Server"
   private[this] val ServiceAdapter = s"$twinagle.ServiceAdapter"
-  private[this] val Endpoint = s"$twinagle.Endpoint"
+  private[this] val EndpointMetadata = s"$twinagle.EndpointMetadata"
 
   private[this] val Http = s"$finagle.Http"
   private[this] val InetSocketAddress = s"_root_.java.net.InetSocketAddress"
@@ -33,7 +33,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     s"""
        |object $serviceName {
        |  def server(service: $serviceName,
-       |             extension: $Endpoint => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
+       |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
        |    new $Server(Map(
        |${m.methods.map(generateEndpoint).mkString(",\n")}
        |  ))
@@ -49,7 +49,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val outputType = methodOutputType(md)
 
     s"""      {
-       |        val endpoint = $Endpoint("$prefix", "$svc", "$methodName")
+       |        val endpoint = $EndpointMetadata("$prefix", "$svc", "$methodName")
        |        val httpService: $Service[$Request, $Response] =
        |          new $ServiceAdapter(service.${decapitalizedName(md)})
        |        endpoint -> extension(endpoint).toFilter.andThen(httpService)
@@ -74,7 +74,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
     s"""
        |class ${clientName}Json(httpClient: $Service[$Request, $Response],
-       |                        extension: $Endpoint => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
        |
        |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
@@ -90,7 +90,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
     s"""
        |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response],
-       |                            extension: $Endpoint => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
        |
        |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
@@ -175,7 +175,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methodName = decapitalizedName(methodDescriptor)
     val path = generatePathForMethod(methodDescriptor)
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
-    val endpoint = s"""$Endpoint("/twirp", "$serviceName", "$rpcName")"""
+    val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
     val clientFilterName = """JsonClientFilter"""
     s"""
        |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
@@ -194,7 +194,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methodName = decapitalizedName(methodDescriptor)
     val path = generatePathForMethod(methodDescriptor)
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
-    val endpoint = s"""$Endpoint("/twirp", "$serviceName", "$rpcName")"""
+    val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
     s"""
        |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
