@@ -1,7 +1,7 @@
 package com.soundcloud.twinagle
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{MediaType, Method, Request, Response}
+import com.twitter.finagle.http._
 import com.twitter.util.Future
 
 
@@ -16,15 +16,13 @@ import com.twitter.util.Future
   *
   * @param endpoints list of endpoints to expose
   */
-class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
+class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]]) extends Service[Request, Response] {
 
-  private val services = endpoints.foldLeft(Map.empty[String, Service[Request, Response]]) { (acc, ep) =>
-    acc + (ep.path -> ep.service)
-  }
+  private val servicesByPath = endpoints.map { case (k, v) => k.path -> v }
 
   override def apply(request: Request): Future[Response] = request.method match {
     case Method.Post =>
-      services.get(request.path) match {
+      servicesByPath.get(request.path) match {
         case Some(service) => service(request).handle {
           case e: TwinagleException => errorResponse(e)
           case e => errorResponse(new TwinagleException(e))
@@ -47,17 +45,32 @@ class Server(val endpoints: Seq[Endpoint]) extends Service[Request, Response] {
   }
 
   private def errorResponse(twex: TwinagleException): Response = {
-    val resp = Response(twex.code.status)
+    import ErrorCode._
+    val resp = Response(twex.code match {
+      case Canceled |
+           DeadlineExceeded => Status.RequestTimeout
+      case NotFound |
+           BadRoute => Status.NotFound
+      case PermissionDenied |
+           ResourceExhausted => Status.Forbidden
+      case Unauthenticated => Status.Unauthorized
+      case FailedPrecondition => Status.PreconditionFailed
+      case AlreadyExists |
+           Aborted => Status.Conflict
+      case InvalidArgument |
+           OutOfRange => Status.BadRequest
+      case Unimplemented => Status.NotImplemented
+      case Unknown |
+           Internal |
+           Dataloss => Status.InternalServerError
+      case Unavailable => Status.ServiceUnavailable
+    })
     resp.contentType = MediaType.Json
-    // todo: proper JSON
-    resp.contentString =
-      s"""
-         |{
-         |  "code": "${twex.code.desc}",
-         |  "msg": "${twex.msg}",
-         |  "meta": {}
-         |}
-         """.stripMargin
+    resp.contentString = JsonError.toString(JsonError(
+      code = twex.code.desc,
+      msg = twex.msg,
+      meta = if (twex.meta.nonEmpty) Some(twex.meta) else None
+    ))
     resp
   }
 }

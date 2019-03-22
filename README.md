@@ -1,5 +1,6 @@
-# proto-plugin
-Code generation for clients and services with protobuf IDL
+# Twinagle = Twirp + Finagle
+
+Code generation and runtime support for writing Twirp services with Finagle.
 
 # Notes
 
@@ -17,15 +18,16 @@ Code generation for clients and services with protobuf IDL
 * [ ] expose protobuf comments as scaladocs on service traits
   - [x] on the trait
   - [ ] method scaladocs
-* [ ] build SBT plugin based on https://github.com/fiadliel/fs2-grpc
-  - [ ] refactor codegen based on [`GrpcServicePrinter`][GrpcServicePrinter]. 
-* [ ] make sure that multiple service definitions in proto file do something sensible
+* [x] build SBT plugin based on https://github.com/fiadliel/fs2-grpc
+  - [x] refactor codegen based on [`GrpcServicePrinter`][GrpcServicePrinter]. 
+* [x] make sure that multiple service definitions in proto file do something sensible
 * [ ] how to handle streaming RPCs? log and error and ignore? abort?
+* [x] add an extension point that clients can use to instrument generated clients / servers
 
 ## Runtime
 
 * [x] use sbt-buildinfo plugin to provide correct twinagle-runtime dependency
-* [ ] refactor/simplify exceptions (no separate `ErrorCode`)
+* [x] refactor/simplify exceptions ~~(no separate `ErrorCode`)~~
 
 [intellij]: https://intellij-support.jetbrains.com/hc/en-us/community/posts/206825945-sbt-tasks-as-part-of-the-normal-build
 [GrpcServicePrinter]: https://github.com/scalapb/ScalaPB/blob/master/compiler-plugin/src/main/scala/scalapb/compiler/GrpcServicePrinter.scala

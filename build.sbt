@@ -8,12 +8,16 @@ lazy val codegen = (project in file("codegen"))
   .enablePlugins(ScriptedPlugin, BuildInfoPlugin)
   .settings(
     name := "twinagle-scalapb-plugin",
+
+    sbtPlugin := true,
+    crossSbtVersions := List(sbtVersion.value, "0.13.18"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19"),
+    libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
+
     buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage := "com.soundcloud.twinagle.codegen",
     buildInfoUsePackageAsPath := true,
-    libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %% "compilerplugin" % scalapbVersion
-    ),
+
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.2.7"
@@ -44,4 +48,5 @@ lazy val root = (project in file("."))
   .settings(
     name := "twinagle-root",
     resolvers += Resolver.typesafeIvyRepo("releases"),
+    skip in publish := true
   )
