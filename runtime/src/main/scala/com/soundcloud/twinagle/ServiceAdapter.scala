@@ -35,7 +35,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
   * @tparam Req
   * @tparam Rep
   */
-class ServiceAdapter[Req <: GeneratedMessage with Message[Req] : GeneratedMessageCompanion, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](f: Req => Future[Rep])
+private[twinagle] class ServiceAdapter[Req <: GeneratedMessage with Message[Req] : GeneratedMessageCompanion, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](f: Req => Future[Rep])
 
   extends Service[Request, Response] {
 
