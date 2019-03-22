@@ -7,7 +7,7 @@ import com.twitter.util.Future
 /**
   * TwirpHttpClient
   */
-class TwirpHttpClient extends SimpleFilter[Request, Response] {
+private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] {
   override def apply(request: Request, service: Service[Request, Response]): Future[Response] = {
     service(request).flatMap { response =>
       response.status match {

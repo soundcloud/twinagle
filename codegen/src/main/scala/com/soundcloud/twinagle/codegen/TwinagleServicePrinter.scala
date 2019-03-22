@@ -23,6 +23,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   private[this] val Server = s"$twinagle.Server"
   private[this] val ServiceAdapter = s"$twinagle.ServiceAdapter"
   private[this] val EndpointMetadata = s"$twinagle.EndpointMetadata"
+  private[this] val EndpointBuilder = s"$twinagle.TwirpEndpointBuilder"
 
   private[this] val Http = s"$finagle.Http"
   private[this] val InetSocketAddress = s"_root_.java.net.InetSocketAddress"
@@ -77,6 +78,8 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
        |
+       |  private val builder = new $EndpointBuilder(httpClient, extension)
+       |
        |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
        |}
@@ -92,6 +95,8 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response],
        |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
+       |
+       |  private val builder = new $EndpointBuilder(httpClient, extension)
        |
        |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
@@ -173,17 +178,12 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val inputType = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val path = generatePathForMethod(methodDescriptor)
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
-    val clientFilterName = """JsonClientFilter"""
     s"""
        |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    extension($endpoint).toFilter andThen
-       |      new $twinagle.$clientFilterName[$inputType, $outputType]($path) andThen
-       |      new $twinagle.TwirpHttpClient andThen
-       |      httpClient
+       |    builder.jsonEndpoint($endpoint)
        |  }
       """.stripMargin
   }
@@ -192,16 +192,12 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val inputType = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val path = generatePathForMethod(methodDescriptor)
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
     s"""
        |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    extension($endpoint).toFilter andThen
-       |      new $twinagle.ProtobufClientFilter[$inputType, $outputType]($path) andThen
-       |      new $twinagle.TwirpHttpClient andThen
-       |      httpClient
+       |    builder.protoEndpoint($endpoint)
        |  }
       """.stripMargin
   }
@@ -213,10 +209,6 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     s"""
        |  override def $methodName(request: $inputType): $Future[$outputType] = ${methodName}Service(request)
        """.stripMargin
-  }
-
-  private def generatePathForMethod(methodDescriptor: MethodDescriptor) = {
-    s""""/twirp/${methodDescriptor.getService.getFullName}/${decapitalizedName(methodDescriptor)}""""
   }
 
   private def generateServer(serviceDescriptor: ServiceDescriptor) = {

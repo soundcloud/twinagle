@@ -6,7 +6,7 @@ import com.twitter.io.Buf
 import com.twitter.util.Future
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
-class ProtobufClientFilter[Req <: GeneratedMessage, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](path: String) extends Filter[Req, Rep, Request, Response] {
+private[twinagle] class ProtobufClientFilter[Req <: GeneratedMessage, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](path: String) extends Filter[Req, Rep, Request, Response] {
 
   override def apply(request: Req, service: Service[Request, Response]): Future[Rep] = {
     val httpRequest = serializeRequest(path, request)
