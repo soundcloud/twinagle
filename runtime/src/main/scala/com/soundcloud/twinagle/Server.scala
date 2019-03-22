@@ -44,8 +44,6 @@ class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]]) exten
       )
   }
 
-  val endpointMetadataByPath: Map[String, EndpointMetadata] = endpoints.map(e => (e._1.path, e._1))
-
   private def errorResponse(twex: TwinagleException): Response = {
     import ErrorCode._
     val resp = Response(twex.code match {
