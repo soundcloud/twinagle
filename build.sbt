@@ -1,9 +1,13 @@
+lazy val scala212 = "2.12.8"
+lazy val scala211 = "2.11.12"
+
 ThisBuild / organization := "com.soundcloud.twinagle"
-ThisBuild / scalaVersion := "2.12.8"
-ThisBuild / crossScalaVersions := Seq("2.11.11")
+ThisBuild / scalaVersion := scala212
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 
 val scalapbVersion = "0.8.3"
 
+// Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))
   .enablePlugins(ScriptedPlugin, BuildInfoPlugin)
   .settings(
@@ -32,6 +36,7 @@ lazy val codegen = (project in file("codegen"))
 
 lazy val runtime = (project in file("runtime")).settings(
   name := "twinagle-runtime",
+  crossScalaVersions := Seq(scala211, scalaVersion.value),
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-http" % "18.12.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
@@ -47,6 +52,7 @@ lazy val root = (project in file("."))
   .aggregate(runtime, codegen)
   .settings(
     name := "twinagle-root",
+    crossScalaVersions := Nil,
     resolvers += Resolver.typesafeIvyRepo("releases"),
     skip in publish := true
   )
