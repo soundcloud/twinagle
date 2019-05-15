@@ -24,13 +24,10 @@ lazy val codegen = (project in file("codegen"))
 
     scriptedSbt := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.2.7"
+        case "2.12" => "1.2.8"
       }
     },
-    scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-    },
+    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
 
@@ -38,7 +35,7 @@ lazy val runtime = (project in file("runtime")).settings(
   name := "twinagle-runtime",
   crossScalaVersions := Seq(scala211, scalaVersion.value),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-http" % "18.12.0",
+    "com.twitter" %% "finagle-http" % "19.4.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.2",
 
