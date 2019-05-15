@@ -48,7 +48,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   def generateEndpoint(md: MethodDescriptor): String = {
     val prefix = "/twirp"
     val svc = md.getService.getFullName
-    val methodName = decapitalizedName(md)
+    val methodName = getName(md)
     val inputType = methodInputType(md)
     val outputType = methodOutputType(md)
 
