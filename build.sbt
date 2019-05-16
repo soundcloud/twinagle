@@ -9,11 +9,11 @@ val scalapbVersion = "0.8.3"
 
 // Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))
-  .enablePlugins(ScriptedPlugin, BuildInfoPlugin)
+  .enablePlugins(SbtPlugin, BuildInfoPlugin)
+  .dependsOn(runtime % "test")
   .settings(
     name := "twinagle-scalapb-plugin",
 
-    sbtPlugin := true,
     crossSbtVersions := List(sbtVersion.value, "0.13.18"),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
