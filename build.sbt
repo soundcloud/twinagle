@@ -1,19 +1,16 @@
 lazy val scala212 = "2.12.8"
 lazy val scala211 = "2.11.12"
 
-ThisBuild / organization := "com.soundcloud.twinagle"
 ThisBuild / scalaVersion := scala212
-ThisBuild / version      := "0.1.0-SNAPSHOT"
 
 val scalapbVersion = "0.8.3"
 
 // Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))
-  .enablePlugins(ScriptedPlugin, BuildInfoPlugin)
+  .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
     name := "twinagle-scalapb-plugin",
 
-    sbtPlugin := true,
     crossSbtVersions := List(sbtVersion.value, "0.13.18"),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
@@ -22,6 +19,7 @@ lazy val codegen = (project in file("codegen"))
     buildInfoPackage := "com.soundcloud.twinagle.codegen",
     buildInfoUsePackageAsPath := true,
 
+    publishLocal := publishLocal.dependsOn(publishLocal in runtime).value,
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.2.7"
@@ -56,3 +54,61 @@ lazy val root = (project in file("."))
     resolvers += Resolver.typesafeIvyRepo("releases"),
     skip in publish := true
   )
+
+// publishing to maven central
+
+ThisBuild / organization := "com.soundcloud"
+ThisBuild / organizationName := "SoundCloud"
+ThisBuild / organizationHomepage := Some(url("https://developers.soundcloud.com/"))
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/soundcloud/twinagle"),
+    "scm:git@github.com:soundcloud/twinagle.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(
+    id    = "ccmtaylor",
+    name  = "Christopher Taylor",
+    email = "christopher.taylor@soundcloud.com",
+    url   = url("https://github.com/ccmtaylor")
+  ),
+  Developer(
+    id    = "oberkowitz",
+    name  = "Oren Berkowitz",
+    email = "oren.berkowitz@soundcloud.com",
+    url   = url("https://github.com/oberkowitz")
+  )
+)
+
+usePgpKeyHex("612C04F1EFE66FB7")
+ThisBuild / description := "An implementation of the Twirp protocol on top of Finagle"
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/soundcloud/twinagle"))
+
+// Remove all additional repository other than Maven Central from POM
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := sonatypePublishTo.value
+ThisBuild / publishMavenStyle := true
+
+
+import ReleaseTransformations._
+
+releaseCrossBuild := true
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  releaseStepInputTask(codegen/scripted),
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  // For non cross-build projects, use releaseStepCommand("publishSigned")
+  releaseStepCommandAndRemaining("+publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
