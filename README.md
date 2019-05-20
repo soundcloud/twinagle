@@ -2,6 +2,8 @@
 
 Code generation and runtime support for writing Twirp services with Finagle.
 
+[![CircleCI](https://circleci.com/gh/ccmtaylor/twinagle/tree/master.svg?style=svg)](https://circleci.com/gh/ccmtaylor/twinagle/tree/master)
+
 # Notes
 
 * IntelliJ [doesn't run plugins][intellij] during project build. Before importing,
