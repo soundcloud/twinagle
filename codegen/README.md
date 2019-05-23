@@ -16,7 +16,7 @@ for example:
 
 ```
 cd src/sbt-test/generator/e2e`
-sbt -Dplugin.version=0.1.0-SNAPSHOT
+sbt -Dplugin.version=0.1.1-SNAPSHOT
 
 > test
 ```
