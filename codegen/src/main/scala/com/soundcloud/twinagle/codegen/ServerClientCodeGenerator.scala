@@ -24,7 +24,7 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
   // This would make sbt-protoc append the following artifacts to the user's
   // project.  If you have a runtime library this is the place to specify it.
   override def suggestedDependencies: Seq[protocbridge.Artifact] = Seq(
-    Artifact("com.soundcloud.twinagle", s"twinagle-runtime_${BuildInfo.scalaBinaryVersion}", BuildInfo.version),
+    Artifact("com.soundcloud", s"twinagle-runtime_${BuildInfo.scalaBinaryVersion}", BuildInfo.version),
     Artifact("com.google.protobuf", "protobuf-java", "3.5.1")
   )
 
@@ -160,7 +160,7 @@ object TwinaglePlugin extends AutoPlugin {
     },
     scalapbCodeGeneratorOptions := Seq(CodeGeneratorOption.Twinagle),
     libraryDependencies ++= List(
-      "com.soundcloud.twinagle" %% "twinagle-runtime" % com.soundcloud.twinagle.codegen.BuildInfo.version,
+      "com.soundcloud" %% "twinagle-runtime" % com.soundcloud.twinagle.codegen.BuildInfo.version,
       // not necessary? gets pulled in by twinagle-runtime
       //      "com.thesamet.scalapb"    %% "scalapb-json4s"       % "0.7.2",
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion
