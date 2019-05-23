@@ -2,7 +2,7 @@
 
 Code generation and runtime support for writing Twirp services with Finagle.
 
-[![Build Status](https://travis-ci.org/soundcloud/twinagle.svg?branch=master)](https://travis-ci.org/soundcloud/twinagle)
+[![CircleCI](https://circleci.com/gh/soundcloud/twinagle/tree/master.svg?style=svg)](https://circleci.com/gh/soundcloud/twinagle/tree/master)
 
 # Notes
 
