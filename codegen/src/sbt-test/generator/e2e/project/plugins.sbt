@@ -1,3 +1,5 @@
+addSbtCoursier
+
 //val pluginVersion = sys.props.get("plugin.version").getOrElse(
 //        sys.error("""|The system property 'plugin.version' is not defined.
 //                     |Specify this property by passing a version to SBT, for
