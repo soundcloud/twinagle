@@ -1,0 +1,18 @@
+container:
+  # we're using this because it includes sbt in the image.
+  image: circleci/openjdk:8
+  cpu: 2
+  memory: 2
+
+test_task:
+  coursier_cache:
+    folder: ~/.cache/coursier
+    fingerprint_script: find . -name '*.sbt' | xargs cat
+    populate_script: sbt update
+  ivy_cache:
+    folder: $HOME/.ivy2/cache
+    fingerprint_script: find . -name '*.sbt' | xargs cat
+    populate_script: sbt update
+  dirs_script: find ~/ -type d
+  test_script: sbt test scripted
+
