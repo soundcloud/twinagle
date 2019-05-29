@@ -5,13 +5,13 @@ container:
   memory: 2
 
 test_task:
-  coursier_cache:
-    folder: ~/.cache/coursier
-    fingerprint_script: find . -name '*.sbt' | xargs cat
-    populate_script: sbt update
   ivy_cache:
     folder: $HOME/.ivy2/cache
     fingerprint_script: find . -name '*.sbt' | xargs cat
+    populate_script: sbt update
+  sbt_cache:
+    folder: $HOME/.sbt/boot
+    fingerprint_script: cat project/build.properties
     populate_script: sbt update
   dirs_script: find ~/ -type d
   test_script: sbt test scripted
