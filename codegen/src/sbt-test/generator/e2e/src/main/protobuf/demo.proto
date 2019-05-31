@@ -23,10 +23,10 @@ message BarResp {}
 service Some {
 
   // foo does things with a FooReq
-  rpc Foo(FooReq) returns (FooResp) {}
+  rpc Foo(FooReq) returns (FooResp) {}  // foo does things with a FooReq
 
   // bar does something else
-  rpc Bar(BarReq) returns (BarResp) {}
+  rpc Bar(BarReq) returns (BarResp) {}   // bar does something else
 }
 
 service Other {

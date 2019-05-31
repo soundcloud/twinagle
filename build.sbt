@@ -3,7 +3,7 @@ lazy val scala211 = "2.11.12"
 
 ThisBuild / scalaVersion := scala212
 
-val scalapbVersion = "0.8.3"
+val scalapbVersion = "0.9.0-M6"
 
 // Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))

@@ -1,8 +1,7 @@
 package com.soundcloud.twinagle.codegen
 
-import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
-import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, Helper}
+import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 
 final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: DescriptorImplicits) {
 
@@ -106,35 +105,15 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   }
 
-  implicit final class ServiceExt(message: ServiceDescriptor) {
-
-    def sourcePath: Seq[Int] = Seq(FileDescriptorProto.SERVICE_FIELD_NUMBER, message.getIndex)
-
-    def comment: Option[String] = {
-      message.getFile
-        .findLocationByPath(sourcePath)
-        .map(t => t.getLeadingComments + t.getTrailingComments)
-        .map(Helper.escapeComment)
-        .filter(_.nonEmpty)
-    }
-  }
-
   private def generateServiceTrait(serviceDescriptor: ServiceDescriptor): String = {
-    val docLines: Seq[String] = serviceDescriptor.comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
-    val docString = if (docLines.nonEmpty) {
-      s"""
-         |/**
-         |${docLines.map("  * " + _).mkString("\n")}
-         |  */
-         """.stripMargin
-    } else {
-      ""
-    }
+    val comment = serviceDescriptor.comment
+    val docString: String = commentToDocString(comment)
     val serviceName = getServiceName(serviceDescriptor)
     val methods = serviceDescriptor.methods
     s"""
-       |${docString}trait $serviceName {
+       |$docString
        |
+       |trait $serviceName {
        |${methods.map(getServiceMethodDeclaration).mkString("\n")}
        |}
      """.stripMargin
@@ -153,7 +132,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val varName = decapitalize(varType)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    s"  def $methodName($varName: $varType): $Future[$outputType]"
+    s"""
+       |  ${commentToDocString(methodDescriptor.comment)}
+       |  def $methodName($varName: $varType): $Future[$outputType]""".stripMargin
   }
 
 
@@ -234,4 +215,15 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     m.getName   // Name exactly as it appears in the protobuf
   }
 
+  private def commentToDocString(comment: Option[String]) = {
+    val docLines: Seq[String] = comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
+    val docString = if (docLines.nonEmpty) {
+      s"""/**
+         |${docLines.map("  * " + _).mkString("\n")}
+         |  */""".stripMargin
+    } else {
+      ""
+    }
+    docString
+  }
 }
