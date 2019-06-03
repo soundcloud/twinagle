@@ -9,6 +9,7 @@ class ClientEndpointBuilder(httpClient: Service[Request, Response],
 
   def jsonEndpoint[Req <: GeneratedMessage, Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion](endpointMetadata: EndpointMetadata): Service[Req, Resp] = {
     extension(endpointMetadata).toFilter andThen
+      new TracingFilter[Req, Resp](endpointMetadata) andThen
       new JsonClientFilter[Req, Resp](endpointMetadata.path) andThen
       new TwirpHttpClient andThen
       httpClient
@@ -16,6 +17,7 @@ class ClientEndpointBuilder(httpClient: Service[Request, Response],
 
   def protoEndpoint[Req <: GeneratedMessage, Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion](endpointMetadata: EndpointMetadata): Service[Req, Resp] = {
     extension(endpointMetadata).toFilter andThen
+      new TracingFilter[Req, Resp](endpointMetadata) andThen
       new ProtobufClientFilter[Req, Resp](endpointMetadata.path) andThen
       new TwirpHttpClient andThen
       httpClient
