@@ -13,15 +13,13 @@ case class TracingFilter(endpointMetadata: EndpointMetadata, isClient: Boolean) 
     trace.recordBinary(TracingFilter.Service, endpointMetadata.service)
     trace.recordBinary(TracingFilter.Rpc, endpointMetadata.rpc)
 
-    service(request).onSuccess { response =>
-    }.onFailure { ex =>
-      trace.recordBinary(TracingFilter.Error, true)
-
-      if (ex.isInstanceOf[TwinagleException]) {
-        val tex = ex.asInstanceOf[TwinagleException]
-        trace.recordBinary(TracingFilter.ErrorCode, tex.code.toString)
-        trace.recordBinary(TracingFilter.ErrorMessage, tex.msg)
-      }
+    service(request).onFailure {
+      case ex: TwinagleException =>
+        trace.recordBinary(TracingFilter.Error, true)
+        trace.recordBinary(TracingFilter.ErrorCode, ex.code.toString)
+        trace.recordBinary(TracingFilter.ErrorMessage, ex.msg)
+      case ex =>
+        trace.recordBinary(TracingFilter.Error, true)
     }
   }
 }
