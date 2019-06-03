@@ -8,8 +8,6 @@ import scalapb.json4s.JsonFormat
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
 
-
-
 /**
   * Assumes that each PB service produces a generated trait
   *
@@ -39,7 +37,7 @@ private[twinagle] class ServiceAdapter[Req <: GeneratedMessage with Message[Req]
 
   extends Service[Request, Response] {
 
-  override def apply(request: Request): Future[Response] = request.contentType match {
+  override def apply(request: Request): Future[Response] = request.mediaType match {
     case Some(MediaType.Json) =>
       val input = JsonFormat.fromJsonString[Req](request.contentString)
       f(input).map { r =>
@@ -56,14 +54,12 @@ private[twinagle] class ServiceAdapter[Req <: GeneratedMessage with Message[Req]
         response.content = Buf.ByteArray.Owned(r.toByteArray)
         response
       }
-    case Some(other) => Future.exception(TwinagleException(
-      ErrorCode.Internal, // TODO: correct error code
-      s"unknown Content-Type: $other"
-    ))
-    case None => Future.exception(TwinagleException(
-      ErrorCode.Internal, // TODO: correct error code
-      s"no Content-Type header supplied"
-    ))
+    case _ =>
+      val contentType = request.contentType.getOrElse("")
+      Future.exception(TwinagleException(
+        ErrorCode.BadRoute,
+        s"unexpected Content-Type: '$contentType'"
+      ))
   }
 
   private def toBytes(buf: Buf): Array[Byte] = Buf.ByteArray.Owned.extract(buf)
