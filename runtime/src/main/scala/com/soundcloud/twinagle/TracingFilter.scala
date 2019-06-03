@@ -1,12 +1,11 @@
 package com.soundcloud.twinagle
 
 import com.twitter.finagle._
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.tracing.{ClientTracingFilter, ServerTracingFilter, Trace}
+import com.twitter.finagle.tracing.Trace
 import com.twitter.util.Future
 
-case class TracingFilter(endpointMetadata: EndpointMetadata) extends SimpleFilter[Request, Response] {
-  override def apply(request: Request, service: Service[Request, Response]): Future[Response] = {
+private[twinagle] class TracingFilter[In, Out](endpointMetadata: EndpointMetadata) extends SimpleFilter[In, Out] {
+  override def apply(request: In, service: Service[In, Out]): Future[Out] = {
     val trace = Trace()
     trace.recordBinary(TracingFilter.Prefix, endpointMetadata.prefix)
     trace.recordBinary(TracingFilter.Service, endpointMetadata.service)
