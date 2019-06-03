@@ -22,12 +22,10 @@ class TracingFilterSpec extends Specification {
   "adds annotations" >> {
     "successful request" in new Context {
       Trace.letTracer(tracer) {
-        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc"), isClient = true) andThen
+        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc")) andThen
           Service.const(Future.value(response))
         Await.result(svc(request))
       }
-
-      binaryAnnotations.get(TracingFilter.Kind) ==== Some("client")
 
       binaryAnnotations.get(TracingFilter.Prefix) ==== Some("/twirp")
       binaryAnnotations.get(TracingFilter.Service) ==== Some("svc")
@@ -41,12 +39,10 @@ class TracingFilterSpec extends Specification {
     "twinagle errors" in new Context {
       val exception = TwinagleException(ErrorCode.NotFound, "foo not found")
       Trace.letTracer(tracer) {
-        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc"), isClient = false) andThen
+        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc")) andThen
           Service.const(Future.exception(exception))
         Await.result(svc(request).liftToTry)
       }
-
-      binaryAnnotations.get(TracingFilter.Kind) ==== Some("server")
 
       binaryAnnotations.get(TracingFilter.Prefix) ==== Some("/twirp")
       binaryAnnotations.get(TracingFilter.Service) ==== Some("svc")
@@ -60,7 +56,7 @@ class TracingFilterSpec extends Specification {
     "other errors" in new Context {
       val exception = new RuntimeException("boom")
       Trace.letTracer(tracer) {
-        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc"), isClient = false) andThen
+        val svc = new TracingFilter(EndpointMetadata("/twirp", "svc", "rpc")) andThen
           Service.const(Future.exception(exception))
         Await.result(svc(request).liftToTry)
       }

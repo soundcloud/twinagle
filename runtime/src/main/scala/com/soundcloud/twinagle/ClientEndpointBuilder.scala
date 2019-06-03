@@ -11,7 +11,7 @@ class ClientEndpointBuilder(httpClient: Service[Request, Response],
     extension(endpointMetadata).toFilter andThen
       new JsonClientFilter[Req, Resp](endpointMetadata.path) andThen
       new TwirpHttpClient andThen
-      new TracingFilter(endpointMetadata, isClient = true) andThen
+      new TracingFilter(endpointMetadata) andThen
       httpClient
   }
 
@@ -19,7 +19,7 @@ class ClientEndpointBuilder(httpClient: Service[Request, Response],
     extension(endpointMetadata).toFilter andThen
       new ProtobufClientFilter[Req, Resp](endpointMetadata.path) andThen
       new TwirpHttpClient andThen
-      new TracingFilter(endpointMetadata, isClient = true) andThen
+      new TracingFilter(endpointMetadata) andThen
       httpClient
 
   }

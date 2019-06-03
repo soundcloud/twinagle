@@ -5,10 +5,9 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.tracing.{ClientTracingFilter, ServerTracingFilter, Trace}
 import com.twitter.util.Future
 
-case class TracingFilter(endpointMetadata: EndpointMetadata, isClient: Boolean) extends SimpleFilter[Request, Response] {
+case class TracingFilter(endpointMetadata: EndpointMetadata) extends SimpleFilter[Request, Response] {
   override def apply(request: Request, service: Service[Request, Response]): Future[Response] = {
     val trace = Trace()
-    trace.recordBinary(TracingFilter.Kind, if (isClient) "client" else "server")
     trace.recordBinary(TracingFilter.Prefix, endpointMetadata.prefix)
     trace.recordBinary(TracingFilter.Service, endpointMetadata.service)
     trace.recordBinary(TracingFilter.Rpc, endpointMetadata.rpc)
@@ -29,8 +28,7 @@ object TracingFilter {
   val Prefix = "twirp.prefix"
   val Rpc = "twirp.rpc"
 
-  val Kind = "twirp.kind" // whether this is a server or client trace
-  val Error = "twirp.is_error"
+  val Error = "error"
   val ErrorCode = "twirp.error_code"
   val ErrorMessage = "twirp.error_message"
 }
