@@ -78,7 +78,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
        |
-       |  private val builder = new $ClientEndpointBuilder(httpClient, extension)
+       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
        |
        |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
@@ -96,7 +96,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
        |  extends $serviceName {
        |
-       |  private val builder = new $ClientEndpointBuilder(httpClient, extension)
+       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
        |
        |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
        |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
@@ -163,9 +163,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
     s"""
-       |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
+       |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    builder.jsonEndpoint($endpoint)
+       |    _builder.jsonEndpoint($endpoint)
        |  }
       """.stripMargin
   }
@@ -177,9 +177,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
     s"""
-       |  private val ${methodName}Service: $Service[$inputType, $outputType] = {
+       |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    builder.protoEndpoint($endpoint)
+       |    _builder.protoEndpoint($endpoint)
        |  }
       """.stripMargin
   }
@@ -189,7 +189,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
     s"""
-       |  override def $methodName(request: $inputType): $Future[$outputType] = ${methodName}Service(request)
+       |  override def $methodName(request: $inputType): $Future[$outputType] = _${methodName}Service(request)
        """.stripMargin
   }
 
