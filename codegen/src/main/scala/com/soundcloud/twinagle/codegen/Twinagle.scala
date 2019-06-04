@@ -5,6 +5,7 @@ import sbtprotoc.ProtocPlugin.autoImport.PB
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
+import sbtprotoc.ProtocPlugin.ProtobufConfig
 
 object Twinagle extends AutoPlugin {
   override def requires: Plugins = sbtprotoc.ProtocPlugin && JvmPlugin
@@ -16,9 +17,8 @@ object Twinagle extends AutoPlugin {
       Target(scalapb.gen(grpc = false), (sourceManaged in Compile).value),
       Target(JvmGenerator("scala-twinagle", ServerClientCodeGenerator), (sourceManaged in Compile).value)
     ),
-    libraryDependencies ++= List(
-      "com.soundcloud" %% "twinagle-runtime" % com.soundcloud.twinagle.codegen.BuildInfo.version,
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion
+    libraryDependencies ++= Seq(
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
     )
   )
 }

@@ -17,8 +17,8 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
   // This would make sbt-protoc append the following artifacts to the user's
   // project.  If you have a runtime library this is the place to specify it.
   override def suggestedDependencies: Seq[protocbridge.Artifact] = Seq(
-    Artifact("com.soundcloud", s"twinagle-runtime_${BuildInfo.scalaBinaryVersion}", BuildInfo.version),
-    Artifact("com.google.protobuf", "protobuf-java", "3.5.1")
+    Artifact("com.soundcloud", s"twinagle-runtime", BuildInfo.version, crossVersion = true),
+    Artifact("com.thesamet.scalapb", "scalapb-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
   )
 
   def generateServiceFiles(file: FileDescriptor,
