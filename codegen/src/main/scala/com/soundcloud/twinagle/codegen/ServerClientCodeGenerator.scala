@@ -4,19 +4,12 @@ import com.google.protobuf.Descriptors._
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
-import com.soundcloud.twinagle.codegen.TwinaglePlugin.autoImport.scalapbCodeGenerators
-import protocbridge.{Artifact, JvmGenerator, Target}
-import sbt.Keys._
-import sbt._
-import sbt.plugins.JvmPlugin
-import sbtprotoc.ProtocPlugin.autoImport.PB
+import protocbridge.Artifact
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, GeneratorException, ProtobufGenerator}
 import scalapb.options.compiler.Scalapb
 
 import scala.collection.JavaConverters._
 
-
-sealed trait CodeGeneratorOption extends Product with Serializable
 
 object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
   val params = scalapb.compiler.GeneratorParams()
@@ -80,90 +73,4 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     handleCodeGeneratorRequest(request).toByteArray
   }
 
-}
-
-object Twinagle extends AutoPlugin {
-  override def requires: Plugins = TwinaglePlugin
-
-  override def trigger: PluginTrigger = NoTrigger
-
-  override def projectSettings: Seq[Def.Setting[_]] = List(
-    PB.targets := scalapbCodeGenerators.value
-  )
-}
-
-object TwinaglePlugin extends AutoPlugin {
-
-  object autoImport {
-
-    object CodeGeneratorOption {
-
-      case object FlatPackage extends CodeGeneratorOption {
-        override def toString = "flat_package"
-      }
-
-      case object JavaConversions extends CodeGeneratorOption {
-        override def toString: String = "java_conversions"
-      }
-
-      case object Twinagle extends CodeGeneratorOption {
-        override def toString: String = "twinagle"
-      }
-
-      case object SingleLineToProtoString extends CodeGeneratorOption {
-        override def toString: String = "single_line_to_proto_string"
-      }
-
-      case object AsciiFormatToString extends CodeGeneratorOption {
-        override def toString: String = "ascii_format_to_string"
-      }
-
-    }
-
-    val scalapbCodeGeneratorOptions =
-      settingKey[Seq[CodeGeneratorOption]]("Settings for scalapb/fs2-grpc code generation")
-    val scalapbProtobufDirectory =
-      settingKey[File]("Directory containing protobuf files for scalapb")
-    val scalapbCodeGenerators =
-      settingKey[Seq[Target]]("Code generators for scalapb")
-
-  }
-
-  import autoImport._
-
-  override def requires = sbtprotoc.ProtocPlugin && JvmPlugin
-
-  override def trigger = NoTrigger
-
-  def convertOptionsToScalapbGen(options: Set[CodeGeneratorOption]): (JvmGenerator, Seq[String]) = {
-    scalapb.gen(
-      flatPackage = options(CodeGeneratorOption.FlatPackage),
-      javaConversions = options(CodeGeneratorOption.JavaConversions),
-      grpc = false,
-      singleLineToProtoString = options(CodeGeneratorOption.SingleLineToProtoString),
-      asciiFormatToString = options(CodeGeneratorOption.AsciiFormatToString)
-    )
-  }
-
-  override def projectSettings: Seq[Def.Setting[_]] = List(
-    scalapbProtobufDirectory := (sourceManaged in Compile).value,
-    scalapbCodeGenerators := {
-      Target(convertOptionsToScalapbGen(scalapbCodeGeneratorOptions.value.toSet), (sourceManaged in Compile).value) ::
-        Option(
-          Target(
-            (JvmGenerator("scala-twinagle", ServerClientCodeGenerator),
-              scalapbCodeGeneratorOptions.value.filterNot(_ == CodeGeneratorOption.Twinagle).map(_.toString)),
-            (sourceManaged in Compile).value
-          ))
-          .filter(_ => scalapbCodeGeneratorOptions.value.contains(CodeGeneratorOption.Twinagle))
-          .toList
-    },
-    scalapbCodeGeneratorOptions := Seq(CodeGeneratorOption.Twinagle),
-    libraryDependencies ++= List(
-      "com.soundcloud" %% "twinagle-runtime" % com.soundcloud.twinagle.codegen.BuildInfo.version,
-      // not necessary? gets pulled in by twinagle-runtime
-      //      "com.thesamet.scalapb"    %% "scalapb-json4s"       % "0.7.2",
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion
-    )
-  )
 }
