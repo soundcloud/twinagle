@@ -8,7 +8,7 @@ package com.soundcloud.twinagle.test
 object TestProto extends _root_.scalapb.GeneratedFileObject {
   lazy val dependencies: Seq[_root_.scalapb.GeneratedFileObject] = Seq(
   )
-  lazy val messagesCompanions: Seq[_root_.scalapb.GeneratedMessageCompanion[_]] = Seq(
+  lazy val messagesCompanions: Seq[_root_.scalapb.GeneratedMessageCompanion[_ <: _root_.scalapb.GeneratedMessage]] = Seq(
     com.soundcloud.twinagle.test.TestMessage
   )
   private lazy val ProtoBytes: Array[Byte] =
