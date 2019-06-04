@@ -1,6 +1,6 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.Service
+import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.{MediaType, Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Future
@@ -9,38 +9,18 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
 
 /**
-  * Assumes that each PB service produces a generated trait
+  * Decodes Protobuf or Json-encoded HTTP requests into Twirp messages
   *
-  * ```
-  * trait SomeService {
-  * def foo(in: FooReq): Future[FooResp]
-  * def bar(in: BarReq): Future[BarResp]
-  * }
-  * ```
-  *
-  * Allows turning service methods into `Service[http.Request, http.Reponse]`:
-  *
-  * ```
-  * new Server(Map(
-  * "/twirp/com.soundcloud.SomeService/Foo" -> new ServiceAdapter(myFooService.foo _),
-  * "/twirp/com.soundcloud.SomeService/Bar" -> new ServiceAdapter(myBarService.bar _),
-  * ))
-  * ```
-  *
-  * Supports JSON and binary Protobuf, depending on the request Content-Type header.
-  *
-  * @param f
-  * @tparam Req
-  * @tparam Rep
+  * @tparam Req incoming twirp request message
+  * @tparam Rep outgoing twirp response message
   */
-private[twinagle] class ServiceAdapter[Req <: GeneratedMessage with Message[Req] : GeneratedMessageCompanion, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](f: Req => Future[Rep])
+private[twinagle] class TwirpEndpointFilter[Req <: GeneratedMessage with Message[Req] : GeneratedMessageCompanion, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion]
+extends Filter[Request, Response, Req, Rep] {
 
-  extends Service[Request, Response] {
-
-  override def apply(request: Request): Future[Response] = request.mediaType match {
+  override def apply(request: Request, service: Service[Req, Rep]): Future[Response] = request.mediaType match {
     case Some(MediaType.Json) =>
       val input = JsonFormat.fromJsonString[Req](request.contentString)
-      f(input).map { r =>
+      service(input).map { r =>
         val response = Response(Status.Ok)
         response.contentType = MediaType.Json
         response.contentString = JsonFormat.toJsonString(r)
@@ -48,7 +28,7 @@ private[twinagle] class ServiceAdapter[Req <: GeneratedMessage with Message[Req]
       }
     case Some("application/protobuf") =>
       val input = implicitly[GeneratedMessageCompanion[Req]].parseFrom(toBytes(request.content))
-      f(input).map { r =>
+      service(input).map { r =>
         val response = Response(Status.Ok)
         response.contentType = "application/protobuf"
         response.content = Buf.ByteArray.Owned(r.toByteArray)
