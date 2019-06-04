@@ -112,7 +112,6 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methods = serviceDescriptor.methods
     s"""
        |$docString
-       |
        |trait $serviceName {
        |${methods.map(getServiceMethodDeclaration).mkString("\n")}
        |}
@@ -132,8 +131,9 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val varName = decapitalize(varType)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
+    val docString = commentToDocString(methodDescriptor.comment).replace("\n", "\n  ") // First line is indented by "|  " and the next lines are indented with the replace
     s"""
-       |  ${commentToDocString(methodDescriptor.comment)}
+       |  $docString
        |  def $methodName($varName: $varType): $Future[$outputType]""".stripMargin
   }
 
@@ -217,13 +217,12 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   private def commentToDocString(comment: Option[String]) = {
     val docLines: Seq[String] = comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
-    val docString = if (docLines.nonEmpty) {
+    if (docLines.nonEmpty) {
       s"""/**
          |${docLines.map("  * " + _).mkString("\n")}
          |  */""".stripMargin
     } else {
       ""
     }
-    docString
   }
 }
