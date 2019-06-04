@@ -2,9 +2,11 @@ syntax = "proto3";
 
 package mygen.protos;
 
+import "google/protobuf/wrappers.proto";
+
 message Person {
   string name = 1;
-  int32 age = 2;
+  google.protobuf.Int32Value age = 2;
 }
 
 // FooReq is an example request
