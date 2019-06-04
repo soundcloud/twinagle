@@ -3,8 +3,6 @@ lazy val scala211 = "2.11.12"
 
 ThisBuild / scalaVersion := scala212
 
-val scalapbVersion = "0.8.3"
-
 // Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
@@ -34,7 +32,7 @@ lazy val runtime = (project in file("runtime")).settings(
   crossScalaVersions := Seq(scala211, scalaVersion.value),
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-http" % "19.5.0",
-    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
+    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.2",
 
     "org.specs2" %% "specs2-core" % "4.3.6" % Test,

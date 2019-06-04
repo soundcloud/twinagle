@@ -28,7 +28,7 @@ service Some {
   rpc Foo(FooReq) returns (FooResp) {}
 
   // bar does something else
-  rpc Bar(BarReq) returns (BarResp) {}
+  rpc Bar(BarReq) returns (BarResp) {}   // bar does something else
 }
 
 service Other {
