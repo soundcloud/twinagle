@@ -65,9 +65,8 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
       .add(generateHeader(service.getFile.scalaPackageName))
       .add(generateServiceTrait(service))
       .add(generateServiceObject(service))
-      .add(generateJsonClient(service))
       .add(generateProtobufClient(service))
-      .add(generateServer(service))
+      .add(generateJsonClient(service))
   }
 
   private def generateJsonClient(serviceDescriptor: ServiceDescriptor) = {
@@ -209,20 +208,6 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
     val methodName = decapitalizedName(methodDescriptor)
     s"""
        |  override def $methodName(request: $inputType): $Future[$outputType] = ${methodName}Service(request)
-       """.stripMargin
-  }
-
-  private def generateServer(serviceDescriptor: ServiceDescriptor) = {
-    val serviceName = getServiceName(serviceDescriptor)
-    val serverName = getServerName(serviceDescriptor)
-    s"""
-       |class $serverName(service: $serviceName, port: Int) {
-       |  def build = {
-       |    val server = $serviceName.server(service)
-       |    $Http.server.serve(new $InetSocketAddress(port), $ServiceFactory.const(server))
-       |  }
-       |}
-       |
        """.stripMargin
   }
 
