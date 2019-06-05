@@ -12,7 +12,7 @@ class ServerEndpointBuilder(extension: EndpointMetadata => Filter.TypeAgnostic) 
       extension(endpointMetadata).toFilter andThen
         new TracingFilter[Request, Response](endpointMetadata) andThen
         new TwirpEndpointFilter[Req, Resp] andThen
-        Service.rescue(Service.mk(rpc))
+        Service.mk(rpc)
     endpointMetadata -> httpService
   }
 }
