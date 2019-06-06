@@ -1,16 +1,18 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
+import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future, Throw}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-class ServiceAdapterSpec extends Specification {
+class TwirpEndpointFilterSpec extends Specification {
 
   "content-type header" >> {
     trait Context extends Scope {
-      val serviceAdapter = new ServiceAdapter[TestMessage, TestMessage](m => Future.value(m))
+      val svc = new TwirpEndpointFilter[TestMessage, TestMessage] andThen
+        Service.mk[TestMessage, TestMessage](msg => Future.value(msg))
     }
 
     "protobuf" >> {
@@ -19,7 +21,7 @@ class ServiceAdapterSpec extends Specification {
         request.contentType = "application/protobuf"
         // empty body because TestMessage has no fields and serializes as empty content
 
-        val response = Await.result(serviceAdapter(request))
+        val response = Await.result(svc(request))
 
         response.status ==== Status.Ok
       }
@@ -28,7 +30,7 @@ class ServiceAdapterSpec extends Specification {
         val request = Request()
         request.contentType = "application/protobuf; charset=UTF-8"
 
-        val response = Await.result(serviceAdapter(request))
+        val response = Await.result(svc(request))
 
         response.status ==== Status.Ok
       }
@@ -40,7 +42,7 @@ class ServiceAdapterSpec extends Specification {
         request.contentType = "application/json"
         request.contentString = "{}"
 
-        val response = Await.result(serviceAdapter(request))
+        val response = Await.result(svc(request))
 
         response.status ==== Status.Ok
         response.contentString ==== "{}"
@@ -51,7 +53,7 @@ class ServiceAdapterSpec extends Specification {
         request.contentType = "application/json; charset=UTF-8"
         request.contentString = "{}"
 
-        val response = Await.result(serviceAdapter(request))
+        val response = Await.result(svc(request))
 
         response.status ==== Status.Ok
         response.contentString ==== "{}"
@@ -63,7 +65,7 @@ class ServiceAdapterSpec extends Specification {
       request.contentType = "application/xml; charset=UTF-8"
       request.contentString = "{}"
 
-      val Throw(ex: TwinagleException) = Await.result(serviceAdapter(request).liftToTry)
+      val Throw(ex: TwinagleException) = Await.result(svc(request).liftToTry)
       ex.code ==== ErrorCode.BadRoute
     }
 
@@ -71,7 +73,7 @@ class ServiceAdapterSpec extends Specification {
       val request = Request()
       request.contentString = "{}"
 
-      val Throw(ex: TwinagleException) = Await.result(serviceAdapter(request).liftToTry)
+      val Throw(ex: TwinagleException) = Await.result(svc(request).liftToTry)
       ex.code ==== ErrorCode.BadRoute
     }
   }
