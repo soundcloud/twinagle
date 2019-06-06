@@ -1,7 +1,7 @@
 package com.soundcloud.twinagle
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Method, Request, Response, Status}
+import com.twitter.finagle.http.{Method, Request, Response}
 import com.twitter.finagle.tracing.{Annotation, BufferingTracer, Trace}
 import com.twitter.util.{Await, Future}
 import org.specs2.mutable.Specification
