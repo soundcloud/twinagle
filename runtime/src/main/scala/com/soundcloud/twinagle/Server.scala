@@ -15,7 +15,8 @@ import com.twitter.util.Future
   *
   * @param endpoints list of endpoints to expose
   */
-class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]]) extends Service[Request, Response] {
+private[twinagle] class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]])
+    extends Service[Request, Response] {
 
   private val servicesByPath = endpoints.map { case (k, v) => k.path -> v }
 
