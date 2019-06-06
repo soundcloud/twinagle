@@ -2,7 +2,7 @@ package com.soundcloud.twinagle
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status}
-import com.twitter.util.{Await, Future, Throw}
+import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope

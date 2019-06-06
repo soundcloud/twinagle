@@ -1,11 +1,10 @@
 package com.soundcloud.twinagle.codegen
 
 import protocbridge.{JvmGenerator, Target}
-import sbtprotoc.ProtocPlugin.autoImport.PB
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import sbtprotoc.ProtocPlugin.ProtobufConfig
+import sbtprotoc.ProtocPlugin.autoImport.PB
 
 object Twinagle extends AutoPlugin {
   override def requires: Plugins = sbtprotoc.ProtocPlugin && JvmPlugin

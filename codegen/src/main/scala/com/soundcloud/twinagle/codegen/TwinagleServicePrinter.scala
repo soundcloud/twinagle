@@ -15,18 +15,13 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   private[this] val Future = s"$twitterUtil.Future"
   private[this] val Service = s"$finagle.Service"
   private[this] val Filter = s"$finagle.Filter"
-  private[this] val ServiceFactory = s"$finagle.ServiceFactory"
   private[this] val Request = s"$finagleHttp.Request"
   private[this] val Response = s"$finagleHttp.Response"
 
   private[this] val Server = s"$twinagle.Server"
-  private[this] val ServiceAdapter = s"$twinagle.ServiceAdapter"
   private[this] val EndpointMetadata = s"$twinagle.EndpointMetadata"
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
   private[this] val ServerEndpointBuilder = s"$twinagle.ServerEndpointBuilder"
-
-  private[this] val Http = s"$finagle.Http"
-  private[this] val InetSocketAddress = s"_root_.java.net.InetSocketAddress"
 
 
   def generateServiceObject(m: ServiceDescriptor): String = {
@@ -118,8 +113,6 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   }
 
   private def getServiceName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Service"
-
-  private def getServerName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Server"
 
   private def getClientName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Client"
 

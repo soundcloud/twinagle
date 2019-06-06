@@ -3,10 +3,22 @@ lazy val scala211 = "2.11.12"
 
 ThisBuild / scalaVersion := scala212
 
+lazy val commonSettings = List(
+  scalacOptions ++= Seq(
+    "-encoding", "utf8",
+    "-deprecation",
+    "-unchecked",
+    "-Xlint",
+    "-Xfatal-warnings"
+  ),
+  Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint")
+)
+
 // Cross-compilation does not work for 2.11, haven't found the right combination of (sbt-protoc and sbt) versions
 lazy val codegen = (project in file("codegen"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
+    commonSettings,
     name := "twinagle-scalapb-plugin",
 
     crossSbtVersions := List(sbtVersion.value, "0.13.18"),
@@ -28,6 +40,7 @@ lazy val codegen = (project in file("codegen"))
   )
 
 lazy val runtime = (project in file("runtime")).settings(
+  commonSettings,
   name := "twinagle-runtime",
   crossScalaVersions := Seq(scala211, scalaVersion.value),
   libraryDependencies ++= Seq(
