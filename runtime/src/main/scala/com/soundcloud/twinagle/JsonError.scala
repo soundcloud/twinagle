@@ -6,7 +6,11 @@ package com.soundcloud.twinagle
   * If only there were some Language to Define these kind of Interfaces
   * tha we could use to generate code to (de-)serialize them ;).
   */
-private[twinagle] case class JsonError(code: String, msg: String, meta: Option[Map[String, String]])
+private[twinagle] case class JsonError(
+    code: String,
+    msg: String,
+    meta: Option[Map[String, String]]
+)
 
 private[twinagle] object JsonError {
 

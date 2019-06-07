@@ -9,13 +9,17 @@ import org.specs2.specification.Scope
 
 class TracingFilterSpec extends Specification {
   trait Context extends Scope {
-    val tracer = new BufferingTracer
+    val tracer   = new BufferingTracer
     val response = Response()
-    val request = Request(Method.Post, "/twirp/svc/rpc")
+    val request  = Request(Method.Post, "/twirp/svc/rpc")
 
-    def binaryAnnotations = tracer.map(_.annotation).collect {
-      case Annotation.BinaryAnnotation(k, v) => (k, v)
-    }.toMap
+    def binaryAnnotations =
+      tracer
+        .map(_.annotation)
+        .collect {
+          case Annotation.BinaryAnnotation(k, v) => (k, v)
+        }
+        .toMap
 
   }
 
@@ -50,7 +54,9 @@ class TracingFilterSpec extends Specification {
 
       binaryAnnotations.get(TracingFilter.Error) ==== Some(true)
       binaryAnnotations.get(TracingFilter.ErrorCode) ==== Some("not_found")
-      binaryAnnotations.get(TracingFilter.ErrorMessage) ==== Some("foo not found")
+      binaryAnnotations.get(TracingFilter.ErrorMessage) ==== Some(
+        "foo not found"
+      )
     }
 
     "other errors" in new Context {

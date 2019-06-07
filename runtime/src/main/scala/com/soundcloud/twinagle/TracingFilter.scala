@@ -4,7 +4,9 @@ import com.twitter.finagle._
 import com.twitter.finagle.tracing.Trace
 import com.twitter.util.Future
 
-private[twinagle] class TracingFilter[In, Out](endpointMetadata: EndpointMetadata) extends SimpleFilter[In, Out] {
+private[twinagle] class TracingFilter[In, Out](
+    endpointMetadata: EndpointMetadata
+) extends SimpleFilter[In, Out] {
   override def apply(request: In, service: Service[In, Out]): Future[Out] = {
     val trace = Trace()
     trace.recordBinary(TracingFilter.Prefix, endpointMetadata.prefix)
@@ -24,10 +26,10 @@ private[twinagle] class TracingFilter[In, Out](endpointMetadata: EndpointMetadat
 
 object TracingFilter {
   val Service = "twirp.service"
-  val Prefix = "twirp.prefix"
-  val Rpc = "twirp.rpc"
+  val Prefix  = "twirp.prefix"
+  val Rpc     = "twirp.rpc"
 
-  val Error = "error"
-  val ErrorCode = "twirp.error_code"
+  val Error        = "error"
+  val ErrorCode    = "twirp.error_code"
   val ErrorMessage = "twirp.error_message"
 }
