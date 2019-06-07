@@ -3,26 +3,28 @@ package com.soundcloud.twinagle.codegen
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 
-final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: DescriptorImplicits) {
+final class TwinagleServicePrinter(
+    service: ServiceDescriptor,
+    implicits: DescriptorImplicits
+) {
 
   import implicits._
 
   private[this] val twitterUtil = "_root_.com.twitter.util"
-  private[this] val finagle = "_root_.com.twitter.finagle"
+  private[this] val finagle     = "_root_.com.twitter.finagle"
   private[this] val finagleHttp = s"$finagle.http"
-  private[this] val twinagle = "_root_.com.soundcloud.twinagle"
+  private[this] val twinagle    = "_root_.com.soundcloud.twinagle"
 
-  private[this] val Future = s"$twitterUtil.Future"
-  private[this] val Service = s"$finagle.Service"
-  private[this] val Filter = s"$finagle.Filter"
-  private[this] val Request = s"$finagleHttp.Request"
+  private[this] val Future   = s"$twitterUtil.Future"
+  private[this] val Service  = s"$finagle.Service"
+  private[this] val Filter   = s"$finagle.Filter"
+  private[this] val Request  = s"$finagleHttp.Request"
   private[this] val Response = s"$finagleHttp.Response"
 
-  private[this] val Server = s"$twinagle.Server"
-  private[this] val EndpointMetadata = s"$twinagle.EndpointMetadata"
+  private[this] val Server                = s"$twinagle.Server"
+  private[this] val EndpointMetadata      = s"$twinagle.EndpointMetadata"
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
   private[this] val ServerEndpointBuilder = s"$twinagle.ServerEndpointBuilder"
-
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
@@ -40,15 +42,16 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   }
 
   def generateEndpoint(md: MethodDescriptor): String = {
-    val prefix = "/twirp"
-    val svc = md.getService.getFullName
-    val methodName = getName(md)
-    val inputType = methodInputType(md)
-    val outputType = methodOutputType(md)
+    val prefix            = "/twirp"
+    val svc               = md.getService.getFullName
+    val rpcName           = getName(md)
+    val inputType         = methodInputType(md)
+    val outputType        = methodOutputType(md)
+    val serviceMethodName = decapitalizedName(md)
 
     s"""      {
-       |        val endpoint = $EndpointMetadata("$prefix", "$svc", "$methodName")
-       |        builder.build[$inputType, $outputType](service.${decapitalizedName(md)}, endpoint)
+       |        val endpoint = $EndpointMetadata("$prefix", "$svc", "$rpcName")
+       |        builder.build[$inputType, $outputType](service.$serviceMethodName, endpoint)
        |      }
      """.stripMargin
   }
@@ -64,8 +67,15 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   }
 
   private def generateJsonClient(serviceDescriptor: ServiceDescriptor) = {
-    val clientName = getClientName(serviceDescriptor)
+    val clientName  = getClientName(serviceDescriptor)
     val serviceName = getServiceName(serviceDescriptor)
+
+    val jsonClients = serviceDescriptor.methods
+      .map(generateJsonClientService)
+      .mkString("\n")
+    val methods = serviceDescriptor.methods
+      .map(generateGenericClientMethod)
+      .mkString("\n")
 
     s"""
        |class ${clientName}Json(httpClient: $Service[$Request, $Response],
@@ -74,16 +84,23 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |
        |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
        |
-       |${serviceDescriptor.methods.map(generateJsonClientService).mkString("\n")}
-       |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
+       |$jsonClients
+       |$methods
        |}
        """.stripMargin
 
   }
 
   private def generateProtobufClient(serviceDescriptor: ServiceDescriptor) = {
-    val clientName = getClientName(serviceDescriptor)
+    val clientName  = getClientName(serviceDescriptor)
     val serviceName = getServiceName(serviceDescriptor)
+
+    val protobufClients = serviceDescriptor.methods
+      .map(generateProtobufClientService)
+      .mkString("\n")
+    val methods = serviceDescriptor.methods
+      .map(generateGenericClientMethod)
+      .mkString("\n")
 
     s"""
        |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response],
@@ -92,18 +109,20 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
        |
        |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
        |
-       |${serviceDescriptor.methods.map(generateProtobufClientService).mkString("\n")}
-       |${serviceDescriptor.methods.map(generateGenericClientMethod).mkString("\n")}
+       |$protobufClients
+       |$methods
        |}
        """.stripMargin
 
   }
 
-  private def generateServiceTrait(serviceDescriptor: ServiceDescriptor): String = {
-    val comment = serviceDescriptor.comment
+  private def generateServiceTrait(
+      serviceDescriptor: ServiceDescriptor
+  ): String = {
+    val comment           = serviceDescriptor.comment
     val docString: String = commentToDocString(comment)
-    val serviceName = getServiceName(serviceDescriptor)
-    val methods = serviceDescriptor.methods
+    val serviceName       = getServiceName(serviceDescriptor)
+    val methods           = serviceDescriptor.methods
     s"""
        |$docString
        |trait $serviceName {
@@ -112,23 +131,29 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
      """.stripMargin
   }
 
-  private def getServiceName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Service"
+  private def getServiceName(serviceDescriptor: ServiceDescriptor) =
+    s"${serviceDescriptor.getName}Service"
 
-  private def getClientName(serviceDescriptor: ServiceDescriptor) = s"${serviceDescriptor.getName}Client"
+  private def getClientName(serviceDescriptor: ServiceDescriptor) =
+    s"${serviceDescriptor.getName}Client"
 
   private def generateHeader(packageName: String) = s"package $packageName"
 
-  private def getServiceMethodDeclaration(methodDescriptor: MethodDescriptor) = {
-    val varType = methodInputType(methodDescriptor)
-    val varName = decapitalize(varType)
+  private def getServiceMethodDeclaration(
+      methodDescriptor: MethodDescriptor
+  ) = {
+    val varType    = methodInputType(methodDescriptor)
+    val varName    = decapitalize(varType)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val docString = commentToDocString(methodDescriptor.comment).replace("\n", "\n  ") // First line is indented by "|  " and the next lines are indented with the replace
+    val docString = commentToDocString(methodDescriptor.comment).replace(
+      "\n",
+      "\n  "
+    ) // First line is indented by "|  " and the next lines are indented with the replace
     s"""
        |  $docString
        |  def $methodName($varName: $varType): $Future[$outputType]""".stripMargin
   }
-
 
   private def methodInputType(methodDescriptor: MethodDescriptor) = {
     lastPart(methodDescriptor.inputType.scalaType)
@@ -140,7 +165,7 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
 
   private def lastPart(str: String): String = str.lastIndexOf(".") match {
     case i if i > 0 => str.substring(i + 1)
-    case _ => str
+    case _          => str
   }
 
   private def decapitalize(str: String) =
@@ -148,12 +173,16 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
       str.substring(0, 1).toLowerCase() + str.substring(1)
     else str
 
-  private def generateJsonClientService(methodDescriptor: MethodDescriptor): String = {
-    val inputType = methodInputType(methodDescriptor)
+  private def generateJsonClientService(
+      methodDescriptor: MethodDescriptor
+  ): String = {
+    val inputType  = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
+    val (serviceName, rpcName) =
+      (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
+
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
@@ -162,12 +191,16 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
       """.stripMargin
   }
 
-  private def generateProtobufClientService(methodDescriptor: MethodDescriptor): String = {
-    val inputType = methodInputType(methodDescriptor)
+  private def generateProtobufClientService(
+      methodDescriptor: MethodDescriptor
+  ): String = {
+    val inputType  = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val (serviceName, rpcName) = (methodDescriptor.getService.getFullName, getName(methodDescriptor))
+    val (serviceName, rpcName) =
+      (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
+
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
@@ -176,8 +209,10 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
       """.stripMargin
   }
 
-  private def generateGenericClientMethod(methodDescriptor: MethodDescriptor) = {
-    val inputType = methodInputType(methodDescriptor)
+  private def generateGenericClientMethod(
+      methodDescriptor: MethodDescriptor
+  ) = {
+    val inputType  = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
     s"""
@@ -186,15 +221,16 @@ final class TwinagleServicePrinter(service: ServiceDescriptor, implicits: Descri
   }
 
   private def decapitalizedName(m: MethodDescriptor) = {
-    m.name   // Name from the protobuf, but will lowercase the first letter
+    m.name // Name from the protobuf, but will lowercase the first letter
   }
 
   private def getName(m: MethodDescriptor) = {
-    m.getName   // Name exactly as it appears in the protobuf
+    m.getName // Name exactly as it appears in the protobuf
   }
 
   private def commentToDocString(comment: Option[String]) = {
-    val docLines: Seq[String] = comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
+    val docLines: Seq[String] =
+      comment.map(_.split('\n').toSeq).getOrElse(Seq.empty)
     if (docLines.nonEmpty) {
       s"""/**
          |${docLines.map("  * " + _).mkString("\n")}

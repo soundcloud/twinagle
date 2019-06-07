@@ -13,6 +13,6 @@ test_task:
     folder: $HOME/.sbt/boot
     fingerprint_script: cat project/build.properties
     populate_script: sbt update
-  dirs_script: find ~/ -type d
   test_script: sbt test scripted
+  scalafmt_script: sbt scalafmtCheckAll
 

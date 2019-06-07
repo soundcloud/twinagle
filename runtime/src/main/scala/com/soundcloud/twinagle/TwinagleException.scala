@@ -9,6 +9,7 @@ object ErrorCode {
   //  TODO:  finagle flags maybe?
   /** The operation was cancelled. */
   object Canceled extends ErrorCode("canceled")
+
   /** An unknown error occurred. For example, this can be used when handling errors raised by APIs that do not return any error information. */
   object Unknown extends ErrorCode("unknown")
 
@@ -58,29 +59,33 @@ object ErrorCode {
   object Dataloss extends ErrorCode("dataloss")
 
   def fromString(code: String): Option[ErrorCode] = code match {
-    case Canceled.desc => Some(Canceled)
-    case Unknown.desc => Some(Unknown)
-    case InvalidArgument.desc => Some(InvalidArgument)
-    case DeadlineExceeded.desc => Some(DeadlineExceeded)
-    case NotFound.desc => Some(NotFound)
-    case BadRoute.desc => Some(BadRoute)
-    case AlreadyExists.desc => Some(AlreadyExists)
-    case PermissionDenied.desc => Some(PermissionDenied)
-    case Unauthenticated.desc => Some(Unauthenticated)
-    case ResourceExhausted.desc => Some(ResourceExhausted)
+    case Canceled.desc           => Some(Canceled)
+    case Unknown.desc            => Some(Unknown)
+    case InvalidArgument.desc    => Some(InvalidArgument)
+    case DeadlineExceeded.desc   => Some(DeadlineExceeded)
+    case NotFound.desc           => Some(NotFound)
+    case BadRoute.desc           => Some(BadRoute)
+    case AlreadyExists.desc      => Some(AlreadyExists)
+    case PermissionDenied.desc   => Some(PermissionDenied)
+    case Unauthenticated.desc    => Some(Unauthenticated)
+    case ResourceExhausted.desc  => Some(ResourceExhausted)
     case FailedPrecondition.desc => Some(FailedPrecondition)
-    case Aborted.desc => Some(Aborted)
-    case OutOfRange.desc => Some(OutOfRange)
-    case Unimplemented.desc => Some(Unimplemented)
-    case Internal.desc => Some(Internal)
-    case Unavailable.desc => Some(Unavailable)
-    case Dataloss.desc => Some(Dataloss)
-    case _ => None
+    case Aborted.desc            => Some(Aborted)
+    case OutOfRange.desc         => Some(OutOfRange)
+    case Unimplemented.desc      => Some(Unimplemented)
+    case Internal.desc           => Some(Internal)
+    case Unavailable.desc        => Some(Unavailable)
+    case Dataloss.desc           => Some(Dataloss)
+    case _                       => None
   }
 }
 
-case class TwinagleException(code: ErrorCode, msg: String, meta: Map[String, String] = Map.empty, cause: Throwable = null) extends RuntimeException(msg, cause) {
-  def this(cause: Throwable) = this(ErrorCode.Internal, cause.toString, Map.empty, cause)
+case class TwinagleException(
+    code: ErrorCode,
+    msg: String,
+    meta: Map[String, String] = Map.empty,
+    cause: Throwable = null
+) extends RuntimeException(msg, cause) {
+  def this(cause: Throwable) =
+    this(ErrorCode.Internal, cause.toString, Map.empty, cause)
 }
-
-

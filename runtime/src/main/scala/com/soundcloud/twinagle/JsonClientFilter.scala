@@ -6,9 +6,17 @@ import com.twitter.util.Future
 import scalapb.json4s.JsonFormat
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
-private[twinagle] class JsonClientFilter[Req <: GeneratedMessage, Rep <: GeneratedMessage with Message[Rep] : GeneratedMessageCompanion](path: String) extends Filter[Req, Rep, Request, Response] {
+private[twinagle] class JsonClientFilter[
+    Req <: GeneratedMessage,
+    Rep <: GeneratedMessage with Message[Rep]: GeneratedMessageCompanion
+](
+    path: String
+) extends Filter[Req, Rep, Request, Response] {
 
-  override def apply(request: Req, service: Service[Request, Response]): Future[Rep] = {
+  override def apply(
+      request: Req,
+      service: Service[Request, Response]
+  ): Future[Rep] = {
     val httpRequest = serializeRequest(path, request)
     service(httpRequest).map(deserializeResponse)
   }

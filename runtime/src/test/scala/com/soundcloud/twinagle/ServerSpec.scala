@@ -11,15 +11,16 @@ class ServerSpec extends Specification with Mockito {
 
   trait Context extends Scope {
     val svc = mock[Service[Request, Response]]
-    val server = new Server(Map(
-      EndpointMetadata("/twirp", "svc", "rpc") -> svc
-    ))
+    val server = new Server(
+      Map(
+        EndpointMetadata("/twirp", "svc", "rpc") -> svc
+      )
+    )
   }
 
   "happy case" in new Context {
     val request = Request(Method.Post, "/twirp/svc/rpc")
     svc.apply(any) returns Future.value(Response(Status.Ok))
-
 
     val response = Await.result(server(request))
 
@@ -47,9 +48,8 @@ class ServerSpec extends Specification with Mockito {
 
   "handles TwinagleException" in new Context {
     val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex = TwinagleException(ErrorCode.PermissionDenied, "nope")
+    val ex      = TwinagleException(ErrorCode.PermissionDenied, "nope")
     svc.apply(any) returns Future.exception(ex)
-
 
     val response = Await.result(server(request))
 
@@ -60,9 +60,8 @@ class ServerSpec extends Specification with Mockito {
 
   "handles unknown exceptions" in new Context {
     val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex = new RuntimeException("eek")
+    val ex      = new RuntimeException("eek")
     svc.apply(any) returns Future.exception(ex)
-
 
     val response = Await.result(server(request))
 
@@ -75,7 +74,7 @@ class ServerSpec extends Specification with Mockito {
   "doesn't catch exceptions" in new Context {
     // TBD: do we want this?
     val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex = new RuntimeException("eek")
+    val ex      = new RuntimeException("eek")
     svc.apply(any) throws ex
 
     server(request) must throwAn(ex)
