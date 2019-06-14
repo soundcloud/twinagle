@@ -21,39 +21,31 @@ final class TwinagleServicePrinter(
   private[this] val Request  = s"$finagleHttp.Request"
   private[this] val Response = s"$finagleHttp.Response"
 
-  private[this] val Server                = s"$twinagle.Server"
   private[this] val EndpointMetadata      = s"$twinagle.EndpointMetadata"
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
-  private[this] val ServerEndpointBuilder = s"$twinagle.ServerEndpointBuilder"
+  private[this] val ServerBuilder         = s"$twinagle.ServerBuilder"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
     s"""
        |object $serviceName {
        |  def server(service: $serviceName,
-       |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] = {
-       |    val builder = new $ServerEndpointBuilder(extension)
-       |    new $Server(Map(
-       |${m.methods.map(generateEndpoint).mkString(",\n")}
-       |  ))
-       |  }
+       |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
+       |    $ServerBuilder(extension)
+       |${m.methods.map(registerEndpoint).mkString("\n")}
+       |      .build
        |}
        """.stripMargin
   }
 
-  def generateEndpoint(md: MethodDescriptor): String = {
-    val prefix            = "/twirp"
-    val svc               = md.getService.getFullName
-    val rpcName           = getName(md)
-    val inputType         = methodInputType(md)
-    val outputType        = methodOutputType(md)
-    val serviceMethodName = decapitalizedName(md)
+  def registerEndpoint(md: MethodDescriptor): String = {
+    val prefix           = "/twirp"
+    val svc              = md.getService.getFullName
+    val methodName       = getName(md)
+    val endpointMetadata = s"""$EndpointMetadata("$prefix", "$svc", "$methodName")"""
+    val rpc              = s"""service.${decapitalizedName(md)}"""
 
-    s"""      {
-       |        val endpoint = $EndpointMetadata("$prefix", "$svc", "$rpcName")
-       |        builder.build[$inputType, $outputType](service.$serviceMethodName, endpoint)
-       |      }
-     """.stripMargin
+    s"""      .register($endpointMetadata, $rpc _)"""
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {

@@ -1,7 +1,8 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Method, Request, Response, Status}
+import com.soundcloud.twinagle.test.TestMessage
+import com.twitter.finagle.Filter
+import com.twitter.finagle.http.{MediaType, Method, Request, Status}
 import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -10,74 +11,84 @@ import org.specs2.specification.Scope
 class ServerSpec extends Specification with Mockito {
 
   trait Context extends Scope {
-    val svc = mock[Service[Request, Response]]
-    val server = new Server(
-      Map(
-        EndpointMetadata("/twirp", "svc", "rpc") -> svc
-      )
-    )
+    val rpc = mock[TestMessage => Future[TestMessage]]
+    val server = ServerBuilder(_ => Filter.TypeAgnostic.Identity)
+      .register(EndpointMetadata("/twirp", "svc", "rpc"), rpc)
+      .build
+  }
+
+  private def httpRequest(method: Method = Method.Post, path: String = "/twirp/svc/rpc") = {
+    val req = Request(method, path)
+    req.mediaType = MediaType.Json
+    req.contentString = "{}"
+    req
   }
 
   "happy case" in new Context {
-    val request = Request(Method.Post, "/twirp/svc/rpc")
-    svc.apply(any) returns Future.value(Response(Status.Ok))
+    val request = httpRequest()
+    rpc.apply(any) returns Future.value(TestMessage())
 
     val response = Await.result(server(request))
 
-    there was exactly(1)(svc).apply(request)
+    there was exactly(1)(rpc).apply(TestMessage())
     response.status ==== Status.Ok
   }
 
   "non-POST request" in new Context {
-    val request = Request(Method.Get, "/twirp/svc/rpc")
+    val request = httpRequest(method = Method.Get)
 
     val response = Await.result(server(request))
 
-    there were noCallsTo(svc)
+    there were noCallsTo(rpc)
     response.status ==== Status.NotFound // TODO: really? verify w/ Go impl
   }
 
   "unknown path" in new Context {
-    val request = Request(Method.Post, "/bar")
+    val request = httpRequest(path = "/bar")
 
     val response = Await.result(server(request))
 
-    there were noCallsTo(svc)
+    there were noCallsTo(rpc)
     response.status ==== Status.NotFound
   }
 
-  "handles TwinagleException" in new Context {
-    val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex      = TwinagleException(ErrorCode.PermissionDenied, "nope")
-    svc.apply(any) returns Future.exception(ex)
+  "exceptions" >> {
+    "TwinagleException" in new Context {
+      val request = httpRequest()
+      val ex      = TwinagleException(ErrorCode.PermissionDenied, "nope")
+      rpc.apply(any) returns Future.exception(ex)
 
-    val response = Await.result(server(request))
+      val response = Await.result(server(request))
 
-    there was exactly(1)(svc).apply(request)
-    response.status ==== Status.Forbidden
-    response.contentString must contain(ex.code.desc)
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.Forbidden
+      response.contentString must contain(ex.code.desc)
+    }
+
+    "unknown exceptions" in new Context {
+      val request = httpRequest()
+      val ex      = new RuntimeException("eek")
+      rpc.apply(any) returns Future.exception(ex)
+
+      val response = Await.result(server(request))
+
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.InternalServerError
+      response.contentString must contain(ErrorCode.Internal.desc)
+      response.contentString must contain(ex.toString)
+    }
+
+    "catches exceptions thrown by user code" in new Context {
+      val request = httpRequest()
+      val ex      = new RuntimeException("eek")
+      rpc.apply(any) throws ex
+
+      val response = Await.result(server(request))
+
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.InternalServerError
+      response.contentString must contain(ErrorCode.Internal.desc)
+      response.contentString must contain(ex.toString)
+    }
   }
-
-  "handles unknown exceptions" in new Context {
-    val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex      = new RuntimeException("eek")
-    svc.apply(any) returns Future.exception(ex)
-
-    val response = Await.result(server(request))
-
-    there was exactly(1)(svc).apply(request)
-    response.status ==== Status.InternalServerError
-    response.contentString must contain(ErrorCode.Internal.desc)
-    response.contentString must contain(ex.toString)
-  }
-
-  "doesn't catch exceptions" in new Context {
-    // TBD: do we want this?
-    val request = Request(Method.Post, "/twirp/svc/rpc")
-    val ex      = new RuntimeException("eek")
-    svc.apply(any) throws ex
-
-    server(request) must throwAn(ex)
-  }
-
 }
