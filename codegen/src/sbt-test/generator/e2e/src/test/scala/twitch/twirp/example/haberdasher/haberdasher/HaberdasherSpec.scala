@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 
 class HaberdasherSpec extends Specification {
 
-  def makeHat(size: Size): Future[Hat] = {
+  def haderdash(size: Size): Future[Hat] = {
     if (size.inches >= 0) {
       Future.value(
         Hat(
@@ -23,7 +23,7 @@ class HaberdasherSpec extends Specification {
   }
 
   val svc = new HaberdasherService {
-    override def makeHat(size: Size): Future[Hat] = makeHat(size)
+    override def makeHat(size: Size): Future[Hat] = haderdash(size)
   }
 
   val flakySvc = new HaberdasherService {
@@ -34,7 +34,7 @@ class HaberdasherSpec extends Specification {
         Future.exception(
           TwinagleException(ErrorCode.Unknown, "failing because I'm flaky!"))
       } else {
-        makeHat(size)
+        haderdash(size)
       }
     }
   }
