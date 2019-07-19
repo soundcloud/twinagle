@@ -7,7 +7,7 @@ package com.soundcloud.twinagle
   * @param service absolute name of the Twirp service.
   * @param rpc     name of the RPC endpoint within the Twirp service.
   */
-case class EndpointMetadata(prefix: String, service: String, rpc: String) {
+case class EndpointMetadata(prefix: String, service: String, rpc: String, isIdempotent: Boolean = false) {
   require(prefix.startsWith("/"))
   require(!prefix.endsWith("/"))
 

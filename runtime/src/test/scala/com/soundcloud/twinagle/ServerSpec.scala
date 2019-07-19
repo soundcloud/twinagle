@@ -13,7 +13,7 @@ class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val rpc = mock[TestMessage => Future[TestMessage]]
     val server = ServerBuilder(_ => Filter.TypeAgnostic.Identity)
-      .register(EndpointMetadata("/twirp", "svc", "rpc"), rpc)
+      .register(EndpointMetadata("/twirp", "svc", "rpc", false), rpc)
       .build
   }
 

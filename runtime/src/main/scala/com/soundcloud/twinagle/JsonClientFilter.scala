@@ -18,6 +18,7 @@ private[twinagle] class JsonClientFilter[
       service: Service[Request, Response]
   ): Future[Rep] = {
     val httpRequest = serializeRequest(path, request)
+
     service(httpRequest).map(deserializeResponse)
   }
 
