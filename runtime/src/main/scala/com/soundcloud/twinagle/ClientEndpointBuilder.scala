@@ -51,11 +51,7 @@ class ClientEndpointBuilder(
   }
 
   private def buildRetryFilter[Req, Resp](isIdempotent: Boolean) = { // TODO: Are these values reasonable? How configurable should they be?
-    val retryPolicy = if (isIdempotent) {
-      shouldRetry[Req, Resp]
-    } else {
-      defaultRetry
-    }
+    val retryPolicy = if (isIdempotent) shouldRetry[Req, Resp] else defaultRetry
     new RetryFilter[Req, Resp](
       RetryPolicy.tries(3, retryPolicy),
       HighResTimer.Default,

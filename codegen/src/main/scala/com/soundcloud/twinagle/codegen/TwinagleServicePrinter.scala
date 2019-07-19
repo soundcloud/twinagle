@@ -168,13 +168,10 @@ final class TwinagleServicePrinter(
   private def generateJsonClientService(
       methodDescriptor: MethodDescriptor
   ): String = {
-    val isIdempotent = methodDescriptor.getOptions.getIdempotencyLevel.getNumber match {
-      case 1 | 2 => "true"
-      case _     => "false"
-    }
-    val inputType  = methodInputType(methodDescriptor)
-    val outputType = methodOutputType(methodDescriptor)
-    val methodName = decapitalizedName(methodDescriptor)
+    val isIdempotent = isMethodIdempotent(methodDescriptor)
+    val inputType    = methodInputType(methodDescriptor)
+    val outputType   = methodOutputType(methodDescriptor)
+    val methodName   = decapitalizedName(methodDescriptor)
     val (serviceName, rpcName) =
       (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName", $isIdempotent)"""
@@ -190,13 +187,10 @@ final class TwinagleServicePrinter(
   private def generateProtobufClientService(
       methodDescriptor: MethodDescriptor
   ): String = {
-    val isIdempotent = methodDescriptor.getOptions.getIdempotencyLevel.getNumber match {
-      case 1 | 2 => "true"
-      case _     => "false"
-    }
-    val inputType  = methodInputType(methodDescriptor)
-    val outputType = methodOutputType(methodDescriptor)
-    val methodName = decapitalizedName(methodDescriptor)
+    val isIdempotent = isMethodIdempotent(methodDescriptor)
+    val inputType    = methodInputType(methodDescriptor)
+    val outputType   = methodOutputType(methodDescriptor)
+    val methodName   = decapitalizedName(methodDescriptor)
     val (serviceName, rpcName) =
       (methodDescriptor.getService.getFullName, getName(methodDescriptor))
     val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName", $isIdempotent)"""
@@ -237,6 +231,13 @@ final class TwinagleServicePrinter(
          |  */""".stripMargin
     } else {
       ""
+    }
+  }
+
+  private def isMethodIdempotent(methodDescriptor: MethodDescriptor) = {
+    methodDescriptor.getOptions.getIdempotencyLevel.getNumber match {
+      case 1 | 2 => "true"
+      case _     => "false"
     }
   }
 }

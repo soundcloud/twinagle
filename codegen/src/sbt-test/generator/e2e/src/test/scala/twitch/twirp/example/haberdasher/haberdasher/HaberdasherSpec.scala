@@ -7,42 +7,36 @@ import org.specs2.mutable.Specification
 
 class HaberdasherSpec extends Specification {
 
-  val svc = new HaberdasherService {
-    override def makeHat(size: Size): Future[Hat] =
-      if (size.inches >= 0) {
-        Future.value(
-          Hat(
-            size = size.inches,
-            color = "brown",
-            name = "bowler"
-          )
+  def makeHat(size: Size): Future[Hat] = {
+    if (size.inches >= 0) {
+      Future.value(
+        Hat(
+          size = size.inches,
+          color = "brown",
+          name = "bowler"
         )
-      } else {
-        Future.exception(
-          TwinagleException(ErrorCode.InvalidArgument, "size must be positive"))
-      }
+      )
+    } else {
+      Future.exception(
+        TwinagleException(ErrorCode.InvalidArgument, "size must be positive"))
+    }
   }
 
-  val faultySvc = new HaberdasherService {
+  val svc = new HaberdasherService {
+    override def makeHat(size: Size): Future[Hat] = makeHat(size)
+  }
+
+  val flakySvc = new HaberdasherService {
     var shouldFail = true
-    override def makeHat(size: Size): Future[Hat] =
+    override def makeHat(size: Size): Future[Hat] = {
       if (shouldFail) {
         shouldFail = false
         Future.exception(
-          TwinagleException(ErrorCode.InvalidArgument,
-                            "failing because I'm flaky!"))
-      } else if (size.inches >= 0) {
-        Future.value(
-          Hat(
-            size = size.inches,
-            color = "brown",
-            name = "bowler"
-          )
-        )
+          TwinagleException(ErrorCode.Unknown, "failing because I'm flaky!"))
       } else {
-        Future.exception(
-          TwinagleException(ErrorCode.InvalidArgument, "size must be positive"))
+        makeHat(size)
       }
+    }
   }
 
   val httpService: Service[http.Request, http.Response] =
@@ -68,7 +62,7 @@ class HaberdasherSpec extends Specification {
 
     "retries idempotent methods" in {
       val faultyHttpService: Service[http.Request, http.Response] =
-        HaberdasherService.server(faultySvc)
+        HaberdasherService.server(flakySvc)
 
       val client = new HaberdasherClientJson(faultyHttpService)
 
@@ -99,7 +93,7 @@ class HaberdasherSpec extends Specification {
     "retries idempotent methods" in {
 
       val faultyHttpService: Service[http.Request, http.Response] =
-        HaberdasherService.server(faultySvc)
+        HaberdasherService.server(flakySvc)
 
       val client = new HaberdasherClientProtobuf(faultyHttpService)
 
