@@ -42,6 +42,10 @@ class HaberdasherSpec extends Specification {
   val httpService: Service[http.Request, http.Response] =
     HaberdasherService.server(svc)
 
+  val retry: Option[PartialFunction[TwinagleException, Boolean]] = Some({
+    case _ => true
+  })
+
   "ClientJson" >> {
 
     "make a valid HTTP request" in {
@@ -64,7 +68,8 @@ class HaberdasherSpec extends Specification {
       val faultyHttpService: Service[http.Request, http.Response] =
         HaberdasherService.server(flakySvc)
 
-      val client = new HaberdasherClientJson(faultyHttpService)
+      val client =
+        new HaberdasherClientJson(faultyHttpService, retryMatcher = retry)
 
       val hat = Await.result(client.makeHat(Size(12)))
       hat.color ==== "brown"
@@ -95,7 +100,8 @@ class HaberdasherSpec extends Specification {
       val faultyHttpService: Service[http.Request, http.Response] =
         HaberdasherService.server(flakySvc)
 
-      val client = new HaberdasherClientProtobuf(faultyHttpService)
+      val client =
+        new HaberdasherClientProtobuf(faultyHttpService, retryMatcher = retry)
 
       val hat = Await.result(client.makeHat(Size(12)))
       hat.color ==== "brown"

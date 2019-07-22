@@ -24,6 +24,7 @@ final class TwinagleServicePrinter(
   private[this] val EndpointMetadata      = s"$twinagle.EndpointMetadata"
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
   private[this] val ServerBuilder         = s"$twinagle.ServerBuilder"
+  private[this] val RetryMatcher          = s"Option[PartialFunction[$twinagle.TwinagleException, Boolean]]"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
@@ -71,7 +72,8 @@ final class TwinagleServicePrinter(
 
     s"""
        |class ${clientName}Json(httpClient: $Service[$Request, $Response],
-       |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
+       |                        retryMatcher: $RetryMatcher = None)
        |  extends $serviceName {
        |
        |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
@@ -96,7 +98,8 @@ final class TwinagleServicePrinter(
 
     s"""
        |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response],
-       |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
+       |                            retryMatcher: $RetryMatcher = None)
        |  extends $serviceName {
        |
        |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
@@ -179,7 +182,7 @@ final class TwinagleServicePrinter(
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    _builder.jsonEndpoint($endpoint)
+       |    _builder.jsonEndpoint($endpoint, retryMatcher)
        |  }
       """.stripMargin
   }
@@ -198,7 +201,7 @@ final class TwinagleServicePrinter(
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
        |    implicit val companion = $outputType
-       |    _builder.protoEndpoint($endpoint)
+       |    _builder.protoEndpoint($endpoint, retryMatcher)
        |  }
       """.stripMargin
   }

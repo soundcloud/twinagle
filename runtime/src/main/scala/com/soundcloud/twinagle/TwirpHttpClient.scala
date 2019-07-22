@@ -15,10 +15,13 @@ private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] 
     service(request).flatMap { response =>
       response.status match {
         case Status.Ok => Future.value(response)
-        case _         => Future.exception(errorFromResponse(response))
+        case _         => Future.exception(TwirpHttpClient.errorFromResponse(response))
       }
     }
   }
+}
+
+object TwirpHttpClient {
 
   // Error handling ported from the Go implementation of Twirp:
   // https://github.com/twitchtv/twirp/blob/3b7987b1a81780060352721385655fdcbf9c12da/protoc-gen-twirp/generator.go#L488-L528
@@ -27,7 +30,7 @@ private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] 
   // If the response has a valid serialized Twirp error, then it's returned.
   // If not, the response status code is used to generate a similar twirp
   // error. See twirpErrorFromIntermediary for more info on intermediary errors.
-  private def errorFromResponse(httpResponse: Response): TwinagleException =
+  def errorFromResponse(httpResponse: Response): TwinagleException =
     if (isRedirect(httpResponse.status)) {
       // Unexpected redirect: it must be an error from an intermediary.
       // Twirp clients don't follow redirects automatically, Twirp only handles
