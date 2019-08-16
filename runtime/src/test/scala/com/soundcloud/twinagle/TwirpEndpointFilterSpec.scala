@@ -1,5 +1,6 @@
 package com.soundcloud.twinagle
 
+import com.soundcloud.twinagle.session.SessionCache
 import com.soundcloud.twinagle.test.TestMessage
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Status}
@@ -75,6 +76,42 @@ class TwirpEndpointFilterSpec extends Specification {
 
       val Throw(ex: TwinagleException) = Await.result(svc(request).liftToTry)
       ex.code ==== ErrorCode.BadRoute
+    }
+
+    "custom HTTP headers" >> {
+      "are not populated when missing from SessionCache" in {
+        val svc = new TwirpEndpointFilter[TestMessage, TestMessage] andThen
+          Service.mk[TestMessage, TestMessage](msg => {
+            SessionCache.context.get(SessionCache.customHeadersKey).map(_.keys.toSeq) match {
+              case Some(Seq("Content-Type")) => Future.value(msg)
+              case _ =>
+                Future.exception(TwinagleException(ErrorCode.Internal, "custom headers should not be present"))
+            }
+          })
+        val request = Request()
+        request.contentType = "application/protobuf; charset=UTF-8"
+
+        val response = Await.result(svc(request))
+
+        response.status ==== Status.Ok
+      }
+
+      "are available to service when provided" in {
+        val svc = new TwirpEndpointFilter[TestMessage, TestMessage] andThen
+          Service.mk[TestMessage, TestMessage](msg => {
+            SessionCache.context.get(SessionCache.customHeadersKey).flatMap(_.get("test")) match {
+              case Some("value") => Future.value(msg)
+              case _             => Future.exception(TwinagleException(ErrorCode.Internal, "can't find custom headers"))
+            }
+          })
+        val request = Request()
+        request.headerMap.put("test", "value")
+        request.contentType = "application/protobuf; charset=UTF-8"
+
+        val response = Await.result(svc(request))
+
+        response.status ==== Status.Ok
+      }
     }
   }
 

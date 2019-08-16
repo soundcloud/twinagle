@@ -1,7 +1,8 @@
 package com.soundcloud.twinagle
 
+import com.soundcloud.twinagle.session.SessionCache
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.http.{HeaderMap, Request, Response, Status}
 import com.twitter.util.{Await, Future, Throw}
 import org.specs2.mutable.Specification
 import org.specs2.specification.core.Fragments
@@ -60,5 +61,31 @@ class TwirpHttpClientSpec extends Specification {
         }
     }
 
+  }
+
+  "custom HTTP headers" >> {
+    "populates headerMap from SessionCache" in {
+      val response = Response(Status.Ok)
+      val svc = Service.mk[Request, Response] { req =>
+        req.headerMap.get("test") match {
+          case Some("value") => Future.value(response)
+          case _             => Future.exception(TwinagleException(ErrorCode.Internal, "custom headers not found"))
+        }
+      }
+      SessionCache.context.let(SessionCache.customHeadersKey, HeaderMap("test" -> "value")) {
+        Await.result(client(request, svc)) ==== response
+      }
+    }
+
+    "leaves headerMap unchanged when nothing is in SessionCache" in {
+      val response = Response(Status.Ok)
+      val svc = Service.mk[Request, Response] { req =>
+        req.headerMap.keys.toSeq match {
+          case Nil => Future.value(response)
+          case _   => Future.exception(TwinagleException(ErrorCode.Internal, "custom headers should not be present"))
+        }
+      }
+      Await.result(client(request, svc)) ==== response
+    }
   }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.twinagle
 
+import com.soundcloud.twinagle.session.SessionCache
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
@@ -12,6 +13,8 @@ private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] 
       request: Request,
       service: Service[Request, Response]
   ): Future[Response] = {
+    val headersFromContext = SessionCache.context.get(SessionCache.customHeadersKey)
+    headersFromContext.foreach(request.headerMap ++= _)
     service(request).flatMap { response =>
       response.status match {
         case Status.Ok => Future.value(response)
