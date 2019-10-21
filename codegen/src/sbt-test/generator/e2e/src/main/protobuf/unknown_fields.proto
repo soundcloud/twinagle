@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto.test;
+
+// this represents a "new version" of Test1 that has a new field
+message Test2 {
+    int32 foo = 1;
+    int32 bar = 2;
+}
+
+// Test1 represents a service using an old version of Test2 that doesn't
+// have field `bar` yet.
+message Test1 {
+    int32 foo = 1;
+}
+
