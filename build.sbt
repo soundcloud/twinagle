@@ -1,4 +1,4 @@
-lazy val scala212 = "2.12.8"
+lazy val scala212 = "2.12.10"
 lazy val scala211 = "2.11.12"
 
 ThisBuild / scalaVersion := scala212
@@ -21,8 +21,8 @@ lazy val codegen = (project in file("codegen"))
     commonSettings,
     name := "twinagle-scalapb-plugin",
 
-    crossSbtVersions := List(sbtVersion.value, "0.13.18"),
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19"),
+    crossSbtVersions := List(sbtVersion.value, "1.2.7"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.25"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
 
     buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
@@ -30,11 +30,6 @@ lazy val codegen = (project in file("codegen"))
     buildInfoUsePackageAsPath := true,
 
     publishLocal := publishLocal.dependsOn(publishLocal in runtime).value,
-    scriptedSbt := {
-      scalaBinaryVersion.value match {
-        case "2.12" => "1.2.8"
-      }
-    },
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
@@ -44,12 +39,12 @@ lazy val runtime = (project in file("runtime")).settings(
   name := "twinagle-runtime",
   crossScalaVersions := Seq(scala211, scalaVersion.value),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-http" % "19.5.0",
+    "com.twitter" %% "finagle-http" % "19.10.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.2",
+    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.10.0",
 
-    "org.specs2" %% "specs2-core" % "4.3.6" % Test,
-    "org.specs2" %% "specs2-mock" % "4.3.6" % Test
+    "org.specs2" %% "specs2-core" % "4.8.0" % Test,
+    "org.specs2" %% "specs2-mock" % "4.8.0" % Test
   )
 )
 
