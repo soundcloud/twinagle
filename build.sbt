@@ -22,7 +22,7 @@ lazy val codegen = (project in file("codegen"))
     name := "twinagle-scalapb-plugin",
 
     crossSbtVersions := List(sbtVersion.value, "0.13.18"),
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.19"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.25"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
 
     buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
