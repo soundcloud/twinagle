@@ -7,7 +7,6 @@ final class TwinagleServicePrinter(
     service: ServiceDescriptor,
     implicits: DescriptorImplicits
 ) {
-
   import implicits._
 
   private[this] val twitterUtil = "_root_.com.twitter.util"
@@ -49,7 +48,6 @@ final class TwinagleServicePrinter(
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
-
     printer
       .add(generateHeader(service.getFile.scalaPackageName))
       .add(generateServiceTrait(service))
@@ -80,7 +78,6 @@ final class TwinagleServicePrinter(
        |$methods
        |}
        """.stripMargin
-
   }
 
   private def generateProtobufClient(serviceDescriptor: ServiceDescriptor) = {
@@ -105,7 +102,6 @@ final class TwinagleServicePrinter(
        |$methods
        |}
        """.stripMargin
-
   }
 
   private def generateServiceTrait(

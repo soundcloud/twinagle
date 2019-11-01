@@ -12,7 +12,6 @@ private[twinagle] class ProtobufClientFilter[
 ](
     path: String
 ) extends Filter[Req, Rep, Request, Response] {
-
   override def apply(
       request: Req,
       service: Service[Request, Response]
@@ -32,5 +31,4 @@ private[twinagle] class ProtobufClientFilter[
     val companion = implicitly[GeneratedMessageCompanion[Rep]]
     companion.parseFrom(Buf.ByteArray.Owned.extract(response.content))
   }
-
 }

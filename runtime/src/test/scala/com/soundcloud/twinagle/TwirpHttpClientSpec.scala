@@ -59,6 +59,5 @@ class TwirpHttpClientSpec extends Specification {
           )
         }
     }
-
   }
 }

@@ -8,7 +8,6 @@ class ClientEndpointBuilder(
     httpClient: Service[Request, Response],
     extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity
 ) {
-
   def jsonEndpoint[
       Req <: GeneratedMessage,
       Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion
@@ -33,6 +32,5 @@ class ClientEndpointBuilder(
       new ProtobufClientFilter[Req, Resp](endpointMetadata.path) andThen
       new TwirpHttpClient andThen
       httpClient
-
   }
 }

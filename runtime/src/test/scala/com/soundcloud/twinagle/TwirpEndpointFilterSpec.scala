@@ -8,7 +8,6 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 class TwirpEndpointFilterSpec extends Specification {
-
   "content-type header" >> {
     trait Context extends Scope {
       val svc = new TwirpEndpointFilter[TestMessage, TestMessage] andThen
@@ -77,5 +76,4 @@ class TwirpEndpointFilterSpec extends Specification {
       ex.code ==== ErrorCode.BadRoute
     }
   }
-
 }
