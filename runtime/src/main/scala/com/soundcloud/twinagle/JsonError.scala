@@ -13,7 +13,6 @@ private[twinagle] case class JsonError(
 )
 
 private[twinagle] object JsonError {
-
   // we use json4s because we depend on it already via scalapb-runtime.
 
   import org.json4s._

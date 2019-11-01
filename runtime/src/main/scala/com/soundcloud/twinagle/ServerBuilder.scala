@@ -9,7 +9,6 @@ case class ServerBuilder(
     extension: EndpointMetadata => Filter.TypeAgnostic,
     endpoints: Map[EndpointMetadata, Service[Request, Response]] = Map.empty
 ) {
-
   def register[
       Req <: GeneratedMessage with Message[Req]: GeneratedMessageCompanion,
       Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion

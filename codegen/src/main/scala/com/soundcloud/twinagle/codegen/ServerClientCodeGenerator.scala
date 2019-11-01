@@ -54,7 +54,6 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     ProtobufGenerator.parseParameters(request.getParameter) match {
       case Right(params) =>
         try {
-
           val filesByName: Map[String, FileDescriptor] =
             request.getProtoFileList.asScala
               .foldLeft[Map[String, FileDescriptor]](Map.empty) {
@@ -90,5 +89,4 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     val request = CodeGeneratorRequest.parseFrom(req, registry)
     handleCodeGeneratorRequest(request).toByteArray
   }
-
 }

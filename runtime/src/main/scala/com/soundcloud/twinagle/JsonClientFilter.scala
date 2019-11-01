@@ -12,7 +12,6 @@ private[twinagle] class JsonClientFilter[
 ](
     path: String
 ) extends Filter[Req, Rep, Request, Response] {
-
   override def apply(
       request: Req,
       service: Service[Request, Response]
@@ -31,5 +30,4 @@ private[twinagle] class JsonClientFilter[
   def deserializeResponse(response: Response): Rep = {
     JsonFormat.fromJsonString[Rep](response.contentString)
   }
-
 }

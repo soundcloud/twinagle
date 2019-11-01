@@ -19,7 +19,6 @@ private[twinagle] class TwirpEndpointFilter[
       Rep
     ]: GeneratedMessageCompanion
 ] extends Filter[Request, Response, Req, Rep] {
-
   override def apply(
       request: Request,
       service: Service[Req, Rep]
@@ -52,5 +51,4 @@ private[twinagle] class TwirpEndpointFilter[
   }
 
   private def toBytes(buf: Buf): Array[Byte] = Buf.ByteArray.Owned.extract(buf)
-
 }

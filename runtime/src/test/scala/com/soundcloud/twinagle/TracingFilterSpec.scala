@@ -20,7 +20,6 @@ class TracingFilterSpec extends Specification {
           case Annotation.BinaryAnnotation(k, v) => (k, v)
         }
         .toMap
-
   }
 
   "adds annotations" >> {

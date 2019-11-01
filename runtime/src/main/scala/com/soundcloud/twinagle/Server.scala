@@ -17,7 +17,6 @@ import com.twitter.util.Future
   */
 private[twinagle] class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]])
     extends Service[Request, Response] {
-
   private val servicesByPath = endpoints.map { case (k, v) => k.path -> v }
 
   override def apply(request: Request): Future[Response] =
@@ -38,7 +37,6 @@ private[twinagle] class Server(endpoints: Map[EndpointMetadata, Service[Request,
                 )
               )
             )
-
         }
       case method =>
         Future.value(

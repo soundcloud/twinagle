@@ -9,7 +9,6 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 class ServerSpec extends Specification with Mockito {
-
   trait Context extends Scope {
     val rpc = mock[TestMessage => Future[TestMessage]]
     val server = ServerBuilder(_ => Filter.TypeAgnostic.Identity)

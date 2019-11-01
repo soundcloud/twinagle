@@ -5,7 +5,6 @@ sealed abstract case class ErrorCode(desc: String) {
 }
 
 object ErrorCode {
-
   //  TODO:  finagle flags maybe?
   /** The operation was cancelled. */
   object Canceled extends ErrorCode("canceled")
