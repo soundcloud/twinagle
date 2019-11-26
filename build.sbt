@@ -92,7 +92,7 @@ ThisBuild / homepage := Some(url("https://github.com/soundcloud/twinagle"))
 
 // Remove all additional repository other than Maven Central from POM
 ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / publishTo := sonatypePublishTo.value
+ThisBuild / publishTo := sonatypePublishToBundle.value
 ThisBuild / publishMavenStyle := true
 
 
