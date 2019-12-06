@@ -5,6 +5,6 @@
 //                 )
 //)
 
-val pluginVersion = "0.2.1-SNAPSHOT"
+val pluginVersion = "0.3.1-SNAPSHOT"
 
 addSbtPlugin("com.soundcloud" % "twinagle-scalapb-plugin" % pluginVersion)
