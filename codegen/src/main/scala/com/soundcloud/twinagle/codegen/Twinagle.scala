@@ -18,7 +18,10 @@ object Twinagle extends AutoPlugin {
       scalapb.GeneratorOption.FlatPackage // don't include proto filename in scala package name
     ),
     Compile / PB.targets := Seq(
-      Target(scalapb.gen(scalapbCodeGeneratorOptions.value), (sourceManaged in Compile).value),
+      Target(
+        scalapb.gen(scalapbCodeGeneratorOptions.value - scalapb.GeneratorOption.Grpc),
+        (sourceManaged in Compile).value
+      ),
       Target(
         JvmGenerator("scala-twinagle", ServerClientCodeGenerator),
         (sourceManaged in Compile).value,
