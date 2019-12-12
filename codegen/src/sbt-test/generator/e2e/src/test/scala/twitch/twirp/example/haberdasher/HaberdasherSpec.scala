@@ -1,4 +1,4 @@
-package twitch.twirp.example.haberdasher.haberdasher
+package twitch.twirp.example.haberdasher
 
 import com.soundcloud.twinagle.{ErrorCode, TwinagleException}
 import com.twitter.finagle.{Service, http}

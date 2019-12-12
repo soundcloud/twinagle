@@ -11,8 +11,6 @@ import scalapb.options.compiler.Scalapb
 import scala.collection.JavaConverters._
 
 object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
-  val params = scalapb.compiler.GeneratorParams()
-
   // This would make sbt-protoc append the following artifacts to the user's
   // project.  If you have a runtime library this is the place to specify it.
   override def suggestedDependencies: Seq[protocbridge.Artifact] = Seq(
