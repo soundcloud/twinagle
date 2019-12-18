@@ -1,4 +1,4 @@
-package proto.test.unknown_fields
+package proto.test
 
 import org.specs2.mutable.Specification
 
