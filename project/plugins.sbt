@@ -8,5 +8,5 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value,
-  "com.thesamet.scalapb" %% "compilerplugin" % "0.10.0-M1"
+  "com.thesamet.scalapb" %% "compilerplugin" % "0.10.0-M3"
 )
