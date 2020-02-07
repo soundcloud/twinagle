@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package com.soundcloud.twinagle.test;
+
+message TestMessage {};
