@@ -45,7 +45,13 @@ lazy val runtime = (project in file("runtime")).settings(
 
     "org.specs2" %% "specs2-core" % "4.8.3" % Test,
     "org.specs2" %% "specs2-mock" % "4.8.3" % Test
+  ),
+  // compile protobuf messages for unit tests
+  Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
+  PB.targets in Test := Seq(
+    scalapb.gen(flatPackage = true) -> (sourceManaged in Test).value
   )
+
 )
 
 
