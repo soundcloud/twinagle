@@ -3,15 +3,15 @@ package com.soundcloud.twinagle
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 case class ServerBuilder(
     extension: EndpointMetadata => Filter.TypeAgnostic,
     endpoints: Map[EndpointMetadata, Service[Request, Response]] = Map.empty
 ) {
   def register[
-      Req <: GeneratedMessage with Message[Req]: GeneratedMessageCompanion,
-      Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion
+      Req <: GeneratedMessage: GeneratedMessageCompanion,
+      Resp <: GeneratedMessage: GeneratedMessageCompanion
   ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ServerBuilder = {
     val httpService =
       extension(endpointMetadata).toFilter andThen

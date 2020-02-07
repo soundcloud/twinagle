@@ -1,11 +1,11 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.{MediaType, Request, Response, Status}
+import com.twitter.finagle.{Filter, Service}
 import com.twitter.io.Buf
 import com.twitter.util.Future
 import scalapb.json4s.JsonFormat
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
   * Decodes Protobuf or Json-encoded HTTP requests into Twirp messages
@@ -14,10 +14,8 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
   * @tparam Rep outgoing twirp response message
   */
 private[twinagle] class TwirpEndpointFilter[
-    Req <: GeneratedMessage with Message[Req]: GeneratedMessageCompanion,
-    Rep <: GeneratedMessage with Message[
-      Rep
-    ]: GeneratedMessageCompanion
+    Req <: GeneratedMessage: GeneratedMessageCompanion,
+    Rep <: GeneratedMessage: GeneratedMessageCompanion
 ] extends Filter[Request, Response, Req, Rep] {
   override def apply(
       request: Request,

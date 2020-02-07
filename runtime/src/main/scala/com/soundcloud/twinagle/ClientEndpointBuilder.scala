@@ -2,7 +2,7 @@ package com.soundcloud.twinagle
 
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class ClientEndpointBuilder(
     httpClient: Service[Request, Response],
@@ -10,7 +10,7 @@ class ClientEndpointBuilder(
 ) {
   def jsonEndpoint[
       Req <: GeneratedMessage,
-      Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion
+      Resp <: GeneratedMessage: GeneratedMessageCompanion
   ](
       endpointMetadata: EndpointMetadata
   ): Service[Req, Resp] = {
@@ -23,7 +23,7 @@ class ClientEndpointBuilder(
 
   def protoEndpoint[
       Req <: GeneratedMessage,
-      Resp <: GeneratedMessage with Message[Resp]: GeneratedMessageCompanion
+      Resp <: GeneratedMessage: GeneratedMessageCompanion
   ](
       endpointMetadata: EndpointMetadata
   ): Service[Req, Resp] = {
