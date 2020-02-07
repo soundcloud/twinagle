@@ -49,7 +49,7 @@ final class TwinagleServicePrinter(
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer
-      .add(generateHeader(service.getFile.scalaPackageName))
+      .add(generateHeader(service.getFile.scalaPackage.fullName))
       .add(generateServiceTrait(service))
       .add(generateServiceObject(service))
       .add(generateProtobufClient(service))

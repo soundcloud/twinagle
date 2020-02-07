@@ -4,11 +4,11 @@ import com.twitter.finagle.http.{Method, Request, Response}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 private[twinagle] class ProtobufClientFilter[
     Req <: GeneratedMessage,
-    Rep <: GeneratedMessage with Message[Rep]: GeneratedMessageCompanion
+    Rep <: GeneratedMessage: GeneratedMessageCompanion
 ](
     path: String
 ) extends Filter[Req, Rep, Request, Response] {
