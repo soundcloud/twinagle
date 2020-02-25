@@ -20,14 +20,16 @@ class TwirpHttpClientSpec extends Specification {
     "redirect" in {
       val response = Response(Status.MovedPermanently)
       val svc      = Service.const(Future.value(response))
-      val Throw(ex: TwinagleException) =
-        Await.result(client(request, svc).liftToTry)
-      ex.code ==== ErrorCode.Internal
-      ex.meta should haveKeys(
-        "location",
-        "http_error_code_from_intermediary",
-        "status_code"
-      )
+      Await.result(client(request, svc).liftToTry) match {
+        case Throw(ex: TwinagleException) =>
+          ex.code ==== ErrorCode.Internal
+          ex.meta should haveKeys(
+            "location",
+            "http_error_code_from_intermediary",
+            "status_code"
+          )
+        case _ => ko
+      }
     }
 
     Fragments.foreach(
@@ -49,14 +51,16 @@ class TwirpHttpClientSpec extends Specification {
         s"HTTP ${status.code} produces $errorCode" ! {
           val response = Response(status)
           val svc      = Service.const(Future.value(response))
-          val Throw(ex: TwinagleException) =
-            Await.result(client(request, svc).liftToTry)
-          ex.code ==== errorCode
-          ex.meta should haveKeys(
-            "body",
-            "http_error_code_from_intermediary",
-            "status_code"
-          )
+          Await.result(client(request, svc).liftToTry) match {
+            case Throw(ex: TwinagleException) =>
+              ex.code ==== errorCode
+              ex.meta should haveKeys(
+                "body",
+                "http_error_code_from_intermediary",
+                "status_code"
+              )
+            case _ => ko
+          }
         }
     }
   }
