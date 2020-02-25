@@ -5,14 +5,6 @@ container:
   memory: 2
 
 test_task:
-  ivy_cache:
-    folder: $HOME/.ivy2/cache
-    fingerprint_script: find . -name '*.sbt' | xargs cat
-    populate_script: sbt update
-  sbt_cache:
-    folder: $HOME/.sbt/boot
-    fingerprint_script: cat project/build.properties
-    populate_script: sbt update
   test_script: sbt test scripted
   scalafmt_script: sbt scalafmtCheckAll
 
