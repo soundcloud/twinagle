@@ -64,16 +64,22 @@ class TwirpEndpointFilterSpec extends Specification {
       request.contentType = "application/xml; charset=UTF-8"
       request.contentString = "{}"
 
-      val Throw(ex: TwinagleException) = Await.result(svc(request).liftToTry)
-      ex.code ==== ErrorCode.BadRoute
+      Await.result(svc(request).liftToTry) match {
+        case Throw(ex: TwinagleException) =>
+          ex.code ==== ErrorCode.BadRoute
+        case _ => ko
+      }
     }
 
     "unspecified" in new Context {
       val request = Request()
       request.contentString = "{}"
 
-      val Throw(ex: TwinagleException) = Await.result(svc(request).liftToTry)
-      ex.code ==== ErrorCode.BadRoute
+      Await.result(svc(request).liftToTry) match {
+        case Throw(ex: TwinagleException) =>
+          ex.code ==== ErrorCode.BadRoute
+        case _ => ko
+      }
     }
   }
 }
