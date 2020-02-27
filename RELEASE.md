@@ -6,8 +6,8 @@ To publish a release, two sets of credentials are necessary:
 an account for `oss.sonatype.org`,
 and a pgp key (and associated passphrase) for signing the artifacts.
 
-To avoid repeated password prompts,
-you can place the sonatype credentials in `~/.sbt/1.0/credentials.sbt`:
+For the release process to succeed,
+you need to place the sonatype credentials in `~/.sbt/1.0/credentials.sbt`:
 
 ```scala
 credentials += Credentials("Sonatype Nexus Repository Manager",
