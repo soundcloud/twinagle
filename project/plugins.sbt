@@ -8,7 +8,7 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value,
-  "com.thesamet.scalapb" %% "compilerplugin" % "0.10.0-M7"
+  "com.thesamet.scalapb" %% "compilerplugin" % "0.10.0"
 )
 // only necessary so we can generate protos for tests
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.28")
