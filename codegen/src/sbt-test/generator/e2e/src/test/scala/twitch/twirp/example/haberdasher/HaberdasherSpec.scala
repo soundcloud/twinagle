@@ -1,5 +1,6 @@
 package twitch.twirp.example.haberdasher
 
+import com.google.protobuf.timestamp.Timestamp
 import com.soundcloud.twinagle.{ErrorCode, TwinagleException}
 import com.twitter.finagle.{Service, http}
 import com.twitter.util.{Await, Future, Throw}
@@ -12,6 +13,7 @@ class HaberdasherSpec extends Specification {
       if (size.inches >= 0) {
         Future.value(
           Hat(
+            createdAt = Some(new Timestamp(123, 456)),
             size = size.inches,
             color = "brown",
             name = "bowler"
@@ -31,7 +33,7 @@ class HaberdasherSpec extends Specification {
     val client = new HaberdasherClientJson(httpService)
 
     "make a valid HTTP request" in {
-      val hat = Await.result(client.makeHat(Size(12)))
+      val hat = Await.result(client.makeHat(Size(12, Some(new Timestamp(234, 567)))))
 
       hat.color ==== "brown"
       hat.size ==== 12
