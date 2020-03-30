@@ -3,6 +3,7 @@
 Code generation and runtime support for writing Twirp services with Finagle.
 
 [![Build Status](https://api.cirrus-ci.com/github/soundcloud/twinagle.svg)](https://cirrus-ci.com/github/soundcloud/twinagle)
+![Scala CI](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.12)
 
 # Notes
