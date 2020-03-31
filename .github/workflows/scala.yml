@@ -17,4 +17,6 @@ jobs:
       run: sbt +test scripted
     - name: Release
       if: github.repository.fork == false
+      env:
+        CI: "true"
       run: sbt releaseEarly
