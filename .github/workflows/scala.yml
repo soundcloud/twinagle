@@ -16,5 +16,5 @@ jobs:
     - name: Run tests
       run: sbt +test scripted
     - name: Release
-      if: !github.repository.fork
+      if: github.repository.fork == false
       run: sbt releaseEarly
