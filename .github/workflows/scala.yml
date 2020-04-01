@@ -26,6 +26,6 @@ jobs:
       env:
         CI: "true"
         PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
-        SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+        SONATYPE_USER: soundcloud
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      run: sbt releaseEarly
+      run: sbt +releaseEarly
