@@ -18,9 +18,9 @@ jobs:
     - name: Create Keys
       if: github.repository.fork == false
       env:
-        PGP_PUBLIC_KEY: ${{ secrets.PGP_PUBLIC_KEY }}
+        PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
         PGP_PRIVATE_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
-      run: 'echo "$PGP_PRIVATE_KEY" > ./secring.asc && echo "$PGP_PUBLIC_KEY" >> ./pubring.asc'
+      run: 'echo "$PGP_PRIVATE_KEY" > ./secring.asc && echo "$PGP_PASSWORD" | gpg --passphrase-fd 0 --batch --yes --import ./secring.asc'
     - name: Release
       if: github.repository.fork == false
       env:
@@ -28,4 +28,4 @@ jobs:
         PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
         SONATYPE_USER: soundcloud
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      run: sbt +releaseEarly
+      run: sbt +releaseEarly sonatypeBundleRelease
