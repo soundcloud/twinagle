@@ -28,8 +28,8 @@ inThisBuild(
       )
     ),
     // These are the sbt-release-early settings to configure
-    pgpPublicRing := file("/keys/.gnupg/pubring.asc"),
-    pgpSecretRing := file("/keys/.gnupg/secring.asc"),
+    pgpPublicRing := file("./pubring.asc"),
+    pgpSecretRing := file("./secring.asc"),
     releaseEarlyWith := SonatypePublisher
   )
 )
