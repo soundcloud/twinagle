@@ -29,4 +29,4 @@ jobs:
         PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
         SONATYPE_USER: soundcloud
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      run: sbt +releaseEarly sonatypeBundleRelease
+      run: sbt releaseEarly +publishSigned sonatypeBundleRelease
