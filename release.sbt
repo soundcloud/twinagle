@@ -26,11 +26,6 @@ inThisBuild(
         url("https://github.com/soundcloud/twinagle"),
         "scm:git@github.com:soundcloud/twinagle.git"
       )
-    ),
-    // These are the sbt-release-early settings to configure
-    Keys.aggregate in releaseEarly := false, // workaround for jvican/sbt-release-early#30
-    pgpPublicRing := file("./pubring.asc"),
-    pgpSecretRing := file("./secring.asc"),
-    releaseEarlyWith := SonatypePublisher
+    )
   )
 )

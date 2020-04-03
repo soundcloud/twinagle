@@ -2,7 +2,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.2")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.9.0")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-release-early" % "2.1.1+10-c6ef3f60")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.2")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt"        %% "scripted-plugin" % sbtVersion.value,
