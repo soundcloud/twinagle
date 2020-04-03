@@ -19,7 +19,7 @@ jobs:
     - name: Release
       if: github.repository.fork == false
       env:
-        CI: "true"
+        CI_SNAPSHOT_RELEASE: "+publishSigned"
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSWORD }}
         PGP_SECRET: ${{ secrets.PGP_SECRET }}
         SONATYPE_USERNAME: soundcloud
