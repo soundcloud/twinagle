@@ -40,8 +40,8 @@ lazy val runtime = (project in file("runtime")).settings(
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.10.1",
 
-    "org.specs2" %% "specs2-core" % "4.9.2" % Test,
-    "org.specs2" %% "specs2-mock" % "4.9.2" % Test
+    "org.specs2" %% "specs2-core" % "4.9.3" % Test,
+    "org.specs2" %% "specs2-mock" % "4.9.3" % Test
   ),
 
   // compile protobuf messages for unit tests
