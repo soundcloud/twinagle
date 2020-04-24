@@ -34,7 +34,7 @@ lazy val runtime = (project in file("runtime")).settings(
   name := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213),
   libraryDependencies ++= Seq(
-    "com.twitter"          %% "finagle-http"    % "20.3.0",
+    "com.twitter"          %% "finagle-http"    % "20.4.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.10.1",
 
