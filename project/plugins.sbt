@@ -1,4 +1,4 @@
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.2")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.4")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.9.0")
 
@@ -9,4 +9,4 @@ libraryDependencies ++= Seq(
   "com.thesamet.scalapb" %% "compilerplugin"  % "0.10.2"
 )
 // only necessary so we can generate protos for tests
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.29")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.31")
