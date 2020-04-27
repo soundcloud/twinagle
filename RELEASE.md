@@ -7,13 +7,17 @@ Twinagle uses Github Releases.
 1. Enter the version number for the release in the tag field
 1. Update the release notes. The following template works well:
    ```
+   # :warning: Breaking Changes
+   
+   * enrage users for good reasons (#666)
+   
    # :star2: Improvements
 
-   * embiggen the betterness (#420)
+   * embiggen the betterness (#689)
 
    # :beetle: Bugfixes
 
-   * stop doing it wrong (#666)
+   * stop doing it wrong (#420)
 
    # :chart_with_upwards_trend: Updates
 
