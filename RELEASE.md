@@ -1,31 +1,29 @@
 # How to publish a release
 
-## Prerequisites
+Twinagle uses Github Releases.
 
-To publish a release, two sets of credentials are necessary:
-an account for `oss.sonatype.org`,
-and a pgp key (and associated passphrase) for signing the artifacts.
+1. Go to https://github.com/soundcloud/twinagle/releases
+1. Click "Draft a new release"
+1. Enter the version number for the release in the tag field
+1. Update the release notes. The following template works well:
+   ```
+   # :warning: Breaking Changes
+   
+   * enrage users for good reasons (#666)
+   
+   # :star2: Improvements
 
-For the release process to succeed,
-you need to place the sonatype credentials in `~/.sbt/1.0/credentials.sbt`:
+   * embiggen the betterness (#689)
 
-```scala
-credentials += Credentials("Sonatype Nexus Repository Manager",
-        "oss.sonatype.org",
-        "<username>",
-        "<password>"
-)
-```
+   # :beetle: Bugfixes
 
-GnuPG integrates with your system's keychain,
-so you will only be asked for the passphrase once.
+   * stop doing it wrong (#420)
 
-## Making a release
+   # :chart_with_upwards_trend: Updates
 
-Run `sbt release` **using JDK-8**. The command will
-
-* prompt for version numbers
-* ensure that tests pass
-* build and sign artifacts
-* publish them to oss.sonatype.org
-* release the published artifacts to maven central
+   * Finagle, probably
+   * relevant version bumps for dependencies, e.g. ScalaPB
+   ```
+1. Publish the release when you're ready.
+   A build will kick off in CI and publish the tagged release
+   to Maven Central.
