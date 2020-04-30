@@ -80,3 +80,56 @@ service Haberdasher {
 
 When you compile your project in SBT (e.g. via `sbt compile` or `sbt test`),
 Twinagle will generate code from the API definition.
+
+## Service
+
+The codegen step creates a Service trait that you can extend in order to make a
+proper Finagle service. Example:
+
+```scala
+import twitch.twirp.example.haberdasher.HaberdasherService
+
+class HaberdasherServiceImpl extends HaberdasherService {
+  override def makeHat(size: Size): Future[Hat] =
+    if (size.inches >= 0) {
+      Future.value(
+        Hat(
+          size = size.inches,
+          color = "brown",
+          name = "bowler"
+        )
+      )
+    } else {
+      Future.exception(TwinagleException(ErrorCode.InvalidArgument, "size must be positive"))
+    }
+}
+
+val httpService: Service[http.Request, http.Response] = HaberdasherService.server(new HaberdasherServiceImpl())
+```
+
+## Clients
+
+The code generator will create two clients: one that communicates over the wire to
+the matching server using [json](https://developers.google.com/protocol-buffers/docs/proto3#json),
+ and one that uses [binary protobuf](https://developers.google.com/protocol-buffers/docs/encoding).
+
+**Binary Protobuf:**
+
+*Our advice is to prefer usage of binary protobuf,
+unless (for example) it's important for a human to read the data on the wire easily,
+or some team standard mandates json on the wire.*
+
+```scala
+val client = new HaberdasherClientProtobuf(httpService)
+
+val hat = Await.result(client.makeHat(Size(34)))
+```
+
+**Json:**
+
+```scala
+val client = new HaberdasherClientJson(httpService)
+
+val hat = Await.result(client.makeHat(Size(12)))
+```
+
