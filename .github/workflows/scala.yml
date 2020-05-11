@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - master
-  tags:
-    # run for all tags
 
 jobs:
   build:
