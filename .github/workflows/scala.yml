@@ -1,4 +1,7 @@
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
 
 jobs:
   build:
@@ -16,7 +19,6 @@ jobs:
       run: sbt +test scripted
     - uses: olafurpg/setup-gpg@v2
     - name: Release
-      if: github.repository.fork == false
       env:
         CI_SNAPSHOT_RELEASE: "+publishSigned"
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSWORD }}
