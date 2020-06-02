@@ -38,13 +38,17 @@ final class TwinagleServicePrinter(
   }
 
   def registerEndpoint(md: MethodDescriptor): String = {
-    val prefix           = "/twirp"
-    val svc              = md.getService.getFullName
-    val methodName       = getName(md)
-    val endpointMetadata = s"""$EndpointMetadata("$prefix", "$svc", "$methodName")"""
-    val rpc              = s"""service.${decapitalizedName(md)}"""
+    val meta = endpointMetadata(md)
+    val rpc  = s"""service.${decapitalizedName(md)}"""
 
-    s"""      .register($endpointMetadata, $rpc _)"""
+    s"""      .register($meta, $rpc _)"""
+  }
+
+  def endpointMetadata(md: MethodDescriptor): String = {
+    val prefix     = "/twirp"
+    val svc        = md.getService.getFullName
+    val methodName = getName(md)
+    s"""$EndpointMetadata("$prefix", "$svc", "$methodName")"""
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
@@ -167,9 +171,7 @@ final class TwinagleServicePrinter(
     val inputType  = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val (serviceName, rpcName) =
-      (methodDescriptor.getService.getFullName, getName(methodDescriptor))
-    val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
+    val endpoint   = endpointMetadata(methodDescriptor)
 
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
@@ -185,9 +187,7 @@ final class TwinagleServicePrinter(
     val inputType  = methodInputType(methodDescriptor)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val (serviceName, rpcName) =
-      (methodDescriptor.getService.getFullName, getName(methodDescriptor))
-    val endpoint = s"""$EndpointMetadata("/twirp", "$serviceName", "$rpcName")"""
+    val endpoint   = endpointMetadata(methodDescriptor)
 
     s"""
        |  private val _${methodName}Service: $Service[$inputType, $outputType] = {
