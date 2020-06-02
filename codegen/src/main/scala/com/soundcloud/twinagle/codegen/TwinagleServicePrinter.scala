@@ -23,25 +23,28 @@ final class TwinagleServicePrinter(
   private[this] val EndpointMetadata      = s"$twinagle.EndpointMetadata"
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
   private[this] val ServerBuilder         = s"$twinagle.ServerBuilder"
+  private[this] val ProtoService          = s"$twinagle.ProtoService"
+  private[this] val ProtoRpc              = s"$twinagle.ProtoRpc"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
     s"""
        |object $serviceName {
+       |  def protoService(service: $serviceName): $ProtoService = $ProtoService(Seq(
+       |${m.methods.map(protoRpc).mkString("\n")}
+       |  ))
+       |
        |  def server(service: $serviceName,
        |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
-       |    $ServerBuilder(extension)
-       |${m.methods.map(registerEndpoint).mkString("\n")}
-       |      .build
+       |    $ServerBuilder(extension).register(protoService(service)).build
        |}
        """.stripMargin
   }
 
-  def registerEndpoint(md: MethodDescriptor): String = {
+  def protoRpc(md: MethodDescriptor): String = {
     val meta = endpointMetadata(md)
-    val rpc  = s"""service.${decapitalizedName(md)}"""
-
-    s"""      .register($meta, $rpc _)"""
+    val rpc  = s"service.${decapitalizedName(md)}"
+    s"    $ProtoRpc($meta, $rpc _)"
   }
 
   def endpointMetadata(md: MethodDescriptor): String = {

@@ -1,7 +1,6 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
-import com.twitter.finagle.Filter
 import com.twitter.finagle.http.{MediaType, Method, Request, Status}
 import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
@@ -11,8 +10,13 @@ import org.specs2.specification.Scope
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val rpc = mock[TestMessage => Future[TestMessage]]
-    val server = ServerBuilder(_ => Filter.TypeAgnostic.Identity)
-      .register(EndpointMetadata("/twirp", "svc", "rpc"), rpc)
+    val protoService = ProtoService(
+      Seq(
+        ProtoRpc(EndpointMetadata("/twirp", "svc", "rpc"), rpc)
+      )
+    )
+    val server = ServerBuilder()
+      .register(protoService)
       .build
   }
 
