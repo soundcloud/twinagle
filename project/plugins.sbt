@@ -6,7 +6,7 @@ addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt"        %% "scripted-plugin" % sbtVersion.value,
-  "com.thesamet.scalapb" %% "compilerplugin"  % "0.10.2"
+  "com.thesamet.scalapb" %% "compilerplugin"  % "0.10.4"
 )
 // only necessary so we can generate protos for tests
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.32")
