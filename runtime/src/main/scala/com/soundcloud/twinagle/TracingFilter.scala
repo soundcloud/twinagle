@@ -9,7 +9,6 @@ private[twinagle] class TracingFilter[In, Out](
 ) extends SimpleFilter[In, Out] {
   override def apply(request: In, service: Service[In, Out]): Future[Out] = {
     val trace = Trace()
-    trace.recordBinary(TracingFilter.Prefix, endpointMetadata.prefix)
     trace.recordBinary(TracingFilter.Service, endpointMetadata.service)
     trace.recordBinary(TracingFilter.Rpc, endpointMetadata.rpc)
 
@@ -26,7 +25,6 @@ private[twinagle] class TracingFilter[In, Out](
 
 object TracingFilter {
   val Service = "twirp.service"
-  val Prefix  = "twirp.prefix"
   val Rpc     = "twirp.rpc"
 
   val Error        = "error"

@@ -12,7 +12,7 @@ class ServerSpec extends Specification with Mockito {
     val rpc = mock[TestMessage => Future[TestMessage]]
     val protoService = ProtoService(
       Seq(
-        ProtoRpc(EndpointMetadata("/twirp", "svc", "rpc"), rpc)
+        ProtoRpc(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
     val server = ServerBuilder()
