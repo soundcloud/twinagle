@@ -19,8 +19,8 @@ class MultiServiceSpec extends Specification {
 
   "ServerBuilder allows building services that support multiple Protobuf services" in {
     val httpService = ServerBuilder()
-      .register(Service1Service.protoService(svc1))
-      .register(Service2Service.protoService(svc2))
+      .register(svc1)
+      .register(svc2)
       .build
 
     val svc1Client = new Service1ClientProtobuf(httpService)

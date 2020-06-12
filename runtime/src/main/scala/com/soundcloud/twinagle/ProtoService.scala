@@ -9,6 +9,9 @@ case class ProtoService(rpcs: Seq[ProtoRpc]) {
   assert(rpcs.map(_.metadata.service).toSet.size == 1, "inconsistent services in metadata")
   assert(rpcs.map(_.metadata.prefix).toSet.size == 1, "inconsistent prefixes in metadata")
 }
+object ProtoService {
+  implicit val asProtoService: AsProtoService[ProtoService] = (t: ProtoService) => t
+}
 
 case class ProtoRpc(metadata: EndpointMetadata, svc: Service[Request, Response])
 object ProtoRpc {

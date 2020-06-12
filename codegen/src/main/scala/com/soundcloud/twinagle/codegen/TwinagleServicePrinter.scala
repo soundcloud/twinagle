@@ -24,19 +24,20 @@ final class TwinagleServicePrinter(
   private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
   private[this] val ServerBuilder         = s"$twinagle.ServerBuilder"
   private[this] val ProtoService          = s"$twinagle.ProtoService"
+  private[this] val AsProtoService        = s"$twinagle.AsProtoService"
   private[this] val ProtoRpc              = s"$twinagle.ProtoRpc"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
     s"""
        |object $serviceName {
-       |  def protoService(service: $serviceName): $ProtoService = $ProtoService(Seq(
+       |  implicit val asProtoService: $AsProtoService[$serviceName] = (service: $serviceName) => $ProtoService(Seq(
        |${m.methods.map(protoRpc).mkString("\n")}
        |  ))
        |
        |  def server(service: $serviceName,
        |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
-       |    $ServerBuilder(extension).register(protoService(service)).build
+       |    $ServerBuilder(extension).register(service).build
        |}
        """.stripMargin
   }
@@ -158,10 +159,11 @@ final class TwinagleServicePrinter(
     lastPart(methodDescriptor.outputType.scalaType)
   }
 
-  private def lastPart(str: String): String = str.lastIndexOf(".") match {
-    case i if i > 0 => str.substring(i + 1)
-    case _          => str
-  }
+  private def lastPart(str: String): String =
+    str.lastIndexOf(".") match {
+      case i if i > 0 => str.substring(i + 1)
+      case _          => str
+    }
 
   private def decapitalize(str: String) =
     if (str.length >= 1)

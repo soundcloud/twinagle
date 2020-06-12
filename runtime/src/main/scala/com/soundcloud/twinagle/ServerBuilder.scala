@@ -8,7 +8,8 @@ case class ServerBuilder(
     endpoints: Seq[ProtoRpc] = Seq.empty
 ) {
 
-  def register(protoService: ProtoService): ServerBuilder = {
+  def register[T: AsProtoService](svc: T): ServerBuilder = {
+    val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
     this.copy(endpoints = endpoints ++ protoService.rpcs)
   }
 
@@ -22,4 +23,8 @@ case class ServerBuilder(
         rpc.svc
     )
 
+}
+
+trait AsProtoService[T] {
+  def asProtoService(t: T): ProtoService
 }
