@@ -9,15 +9,10 @@ import com.twitter.util.Future
   * TwinagleExceptions are returned as conformant JSON responses, other exceptions are mapped
   * to twirp internal errors.
   *
-  * TODO:
-  * - extensibility/observability (metrics, logging, tracing, exception tracking, etc)
-  * - do (de-)serialization errors need special handling?
-  *
-  * @param endpoints list of endpoints to expose
+  * @param endpoints list of protobuf RPCs to expose
   */
-private[twinagle] class Server(endpoints: Map[EndpointMetadata, Service[Request, Response]])
-    extends Service[Request, Response] {
-  private val servicesByPath = endpoints.map { case (k, v) => k.path -> v }
+private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request, Response] {
+  private val servicesByPath = endpoints.map(rpc => rpc.metadata.path -> rpc.svc).toMap
 
   override def apply(request: Request): Future[Response] =
     request.method match {

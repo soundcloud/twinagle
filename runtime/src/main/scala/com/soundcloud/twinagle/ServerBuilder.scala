@@ -13,7 +13,7 @@ case class ServerBuilder(
   }
 
   def build: Service[Request, Response] =
-    new Server(endpoints.map(instrument).map(rpc => rpc.metadata -> rpc.svc).toMap)
+    new Server(endpoints.map(instrument))
 
   private def instrument(rpc: ProtoRpc): ProtoRpc =
     rpc.copy(
