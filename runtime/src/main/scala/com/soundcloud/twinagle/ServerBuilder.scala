@@ -2,24 +2,29 @@ package com.soundcloud.twinagle
 
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.util.Future
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 case class ServerBuilder(
-    extension: EndpointMetadata => Filter.TypeAgnostic,
-    endpoints: Map[EndpointMetadata, Service[Request, Response]] = Map.empty
+    extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
+    endpoints: Seq[ProtoRpc] = Seq.empty
 ) {
-  def register[
-      Req <: GeneratedMessage: GeneratedMessageCompanion,
-      Resp <: GeneratedMessage: GeneratedMessageCompanion
-  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ServerBuilder = {
-    val httpService =
-      extension(endpointMetadata).toFilter andThen
-        new TracingFilter[Request, Response](endpointMetadata) andThen
-        new TwirpEndpointFilter[Req, Resp] andThen
-        Service.mk(rpc)
-    this.copy(endpoints = endpoints + (endpointMetadata -> httpService))
+
+  def register[T: AsProtoService](svc: T): ServerBuilder = {
+    val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
+    this.copy(endpoints = endpoints ++ protoService.rpcs)
   }
 
-  def build: Service[Request, Response] = new Server(endpoints)
+  def build: Service[Request, Response] =
+    new Server(endpoints.map(instrument))
+
+  private def instrument(rpc: ProtoRpc): ProtoRpc =
+    rpc.copy(
+      svc = extension(rpc.metadata).toFilter andThen
+        new TracingFilter[Request, Response](rpc.metadata) andThen
+        rpc.svc
+    )
+
+}
+
+trait AsProtoService[T] {
+  def asProtoService(t: T): ProtoService
 }
