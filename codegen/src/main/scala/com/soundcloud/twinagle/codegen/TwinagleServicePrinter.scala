@@ -49,10 +49,9 @@ final class TwinagleServicePrinter(
   }
 
   def endpointMetadata(md: MethodDescriptor): String = {
-    val prefix     = "/twirp"
     val svc        = md.getService.getFullName
     val methodName = getName(md)
-    s"""$EndpointMetadata("$prefix", "$svc", "$methodName")"""
+    s"""$EndpointMetadata("$svc", "$methodName")"""
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
