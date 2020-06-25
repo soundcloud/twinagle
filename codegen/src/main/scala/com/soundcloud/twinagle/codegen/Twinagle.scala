@@ -8,10 +8,7 @@ import sbtprotoc.ProtocPlugin.autoImport.PB
 
 object Twinagle extends AutoPlugin {
 
-  object autoImport {
-    val scalapbCodeGeneratorOptions = settingKey[Set[scalapb.GeneratorOption]]("Settings for scalapb code generation")
-  }
-  import autoImport._
+  val scalapbCodeGeneratorOptions = settingKey[Set[scalapb.GeneratorOption]]("Settings for scalapb code generation")
 
   override def requires: Plugins = sbtprotoc.ProtocPlugin && JvmPlugin
 
