@@ -1,5 +1,9 @@
 enablePlugins(Twinagle)
 
+// test that customizing the options works
+scalapbCodeGeneratorOptions += scalapb.GeneratorOption.JavaConversions
+Compile / PB.targets += PB.gens.java -> (sourceManaged in Compile).value
+
 scalacOptions ++= Seq(
   "-encoding", "utf8",
   "-deprecation",
