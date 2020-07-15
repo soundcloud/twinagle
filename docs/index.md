@@ -16,7 +16,7 @@ over http.
 
 ## Key References
 
-* [SoundCloud Backstage blog post]() about the launch of this project
+* [SoundCloud Backstage blog post](https://developers.soundcloud.com/blog/announcing-twinagle) about the launch of this project
 * [Blog post launching Twirp](https://blog.twitch.tv/en/2018/01/16/twirp-a-sweet-new-rpc-framework-for-go-5f2febbf35f/)
 * [Twirp golang implementation](https://github.com/twitchtv/twirp)
 * [Twirp wire protocol](https://github.com/twitchtv/twirp/blob/master/PROTOCOL.md)
