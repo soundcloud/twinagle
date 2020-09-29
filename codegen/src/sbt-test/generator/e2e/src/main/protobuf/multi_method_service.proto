@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package proto.test;
+
+message MMRequest {}
+
+message MMResponse {}
+
+service MultiMethod {
+  rpc Rpc1(MMRequest) returns (MMResponse);
+  rpc Rpc2(MMRequest) returns (MMResponse);
+}
