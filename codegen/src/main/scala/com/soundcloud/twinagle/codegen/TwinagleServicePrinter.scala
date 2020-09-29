@@ -32,7 +32,7 @@ final class TwinagleServicePrinter(
     s"""
        |object $serviceName {
        |  implicit val asProtoService: $AsProtoService[$serviceName] = (service: $serviceName) => $ProtoService(Seq(
-       |${m.methods.map(protoRpc).mkString("\n")}
+       |${m.methods.map(protoRpc).mkString(",\n")}
        |  ))
        |
        |  def server(service: $serviceName,
