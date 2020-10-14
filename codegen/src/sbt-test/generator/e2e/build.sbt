@@ -8,4 +8,4 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings"
 )
 
-libraryDependencies += "org.specs2" %% "specs2-core" % "4.10.4" % Test
+libraryDependencies += "org.specs2" %% "specs2-core" % "4.10.5" % Test
