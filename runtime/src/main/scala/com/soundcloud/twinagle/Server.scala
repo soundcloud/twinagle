@@ -1,6 +1,6 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.Service
+import com.twitter.finagle.{CancelledRequestException, Service}
 import com.twitter.finagle.http._
 import com.twitter.util.Future
 
@@ -21,7 +21,9 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request
           case Some(service) =>
             service(request).handle {
               case e: TwinagleException => errorResponse(e)
-              case e                    => errorResponse(new TwinagleException(e))
+              case e: CancelledRequestException =>
+                errorResponse(TwinagleException(ErrorCode.Canceled, "Request canceled by client"))
+              case e => errorResponse(new TwinagleException(e))
             }
           case None =>
             Future.value(
