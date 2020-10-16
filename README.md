@@ -7,6 +7,10 @@ for Scala+Finagle.
 Please see [the documentation website](https://soundcloud.github.io/twinagle)
 for an introduction.
 
+# Contribute
+
+Ensure `sbt +test scripted` passes before pushing.
+
 # Build and Release
 
 ![Build Status](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
