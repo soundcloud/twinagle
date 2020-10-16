@@ -22,7 +22,7 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request
             service(request).handle {
               case e: TwinagleException => errorResponse(e)
               case e: CancelledRequestException =>
-                errorResponse(new TwinagleException(ErrorCode.Canceled, "Request canceled by client"))
+                errorResponse(TwinagleException(ErrorCode.Canceled, "Request canceled by client"))
               case e => errorResponse(new TwinagleException(e))
             }
           case None =>
