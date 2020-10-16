@@ -99,7 +99,7 @@ class ServerSpec extends Specification with Mockito {
     "translates Finagle cancelled request exceptions into Twirp canceled" in new Context {
       val request = httpRequest()
       val ex      = new CancelledRequestException()
-      rpc.apply(any) throws ex
+      rpc.apply(any) returns Future.exception(ex)
 
       val response = Await.result(server(request))
 
