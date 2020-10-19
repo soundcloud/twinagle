@@ -14,7 +14,7 @@ Ensure `sbt +test scripted` passes before pushing.
 # Build and Release
 
 ![Build Status](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.12)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13)
 
 # Notes
 
