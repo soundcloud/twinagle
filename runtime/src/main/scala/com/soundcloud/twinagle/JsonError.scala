@@ -3,8 +3,8 @@ package com.soundcloud.twinagle
 /**
   * JsonError is the JSON representation of `TwinagleException`s.
   *
-  * If only there were some Language to Define these kind of Interfaces
-  * tha we could use to generate code to (de-)serialize them ;).
+  * If only there were some Language we could use to Define these kind of Interfaces
+  * so that we could generate code to (de-)serialize the errors ;).
   */
 private[twinagle] case class JsonError(
     code: String,
