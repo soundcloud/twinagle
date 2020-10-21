@@ -1,13 +1,12 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
+import com.twitter.finagle.{CancelledRequestException, Failure}
 import com.twitter.finagle.http.{MediaType, Method, Request, Status}
 import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-
-import com.twitter.finagle.CancelledRequestException
 
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
@@ -99,6 +98,19 @@ class ServerSpec extends Specification with Mockito {
     "translates Finagle cancelled request exceptions into Twirp canceled" in new Context {
       val request = httpRequest()
       val ex      = new CancelledRequestException()
+      rpc.apply(any) returns Future.exception(ex)
+
+      val response = Await.result(server(request))
+
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.RequestTimeout
+      response.contentString must contain(ErrorCode.Canceled.desc)
+      response.contentString must contain("Request canceled by client")
+    }
+
+    "translates Finagle failures caused by cancelled requests into Twirp canceled" in new Context {
+      val request = httpRequest()
+      val ex      = Failure(new CancelledRequestException())
       rpc.apply(any) returns Future.exception(ex)
 
       val response = Await.result(server(request))
