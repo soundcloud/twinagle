@@ -4,6 +4,10 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
+/**
+ * ClientEndpointBuilder is not part of Twinagle's public API.
+ * It is only public because it is referenced from generated code and may change at any time.
+ */
 class ClientEndpointBuilder(
     httpClient: Service[Request, Response],
     extension: EndpointMetadata => Filter.TypeAgnostic,
