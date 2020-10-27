@@ -15,4 +15,14 @@ class UnknownFieldsSpec extends Specification{
     roundtripped ==== original
   }
 
+  "JSON (de)serialization should propagate unknown fields" in {
+    val original = Test2(foo = 1, bar = 2)
+
+    val intermediate = JsonFormat.fromJsonString[Test1](JsonFormat.toJsonString(original))
+    intermediate.foo ==== original.foo
+
+    val roundtripped = JsonFormat.fromJsonString[Test2](JsonFormat.toJsonString(intermediate))
+    roundtripped ==== original
+  }
+
 }
