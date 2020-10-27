@@ -4,7 +4,7 @@ import com.twitter.finagle.http.{MediaType, Request, Response, Status}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import scalapb.json4s.{JsonFormat, Printer}
+import scalapb.json4s.{JsonFormat, Parser, Printer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
@@ -18,6 +18,7 @@ private[twinagle] class TwirpEndpointFilter[
     Rep <: GeneratedMessage: GeneratedMessageCompanion
 ] extends Filter[Request, Response, Req, Rep] {
 
+  val jsonParser = new Parser().ignoringUnknownFields
   val printer = new Printer().includingDefaultValueFields
 
   override def apply(
@@ -25,7 +26,7 @@ private[twinagle] class TwirpEndpointFilter[
       service: Service[Req, Rep]
   ): Future[Response] = request.mediaType match {
     case Some(MediaType.Json) =>
-      val input = JsonFormat.fromJsonString[Req](request.contentString)
+      val input = jsonParser.fromJsonString[Req](request.contentString)
       service(input).map { r =>
         val response = Response(Status.Ok)
         response.contentType = MediaType.Json

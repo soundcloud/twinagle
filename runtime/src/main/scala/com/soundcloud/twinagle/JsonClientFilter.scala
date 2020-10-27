@@ -3,7 +3,7 @@ package com.soundcloud.twinagle
 import com.twitter.finagle.http.{MediaType, Method, Request, Response}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
-import scalapb.json4s.JsonFormat
+import scalapb.json4s.{JsonFormat, Parser}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 private[twinagle] class JsonClientFilter[
@@ -12,6 +12,9 @@ private[twinagle] class JsonClientFilter[
 ](
     path: String
 ) extends Filter[Req, Rep, Request, Response] {
+
+  val jsonParser = new Parser().ignoringUnknownFields
+
   override def apply(
       request: Req,
       service: Service[Request, Response]
@@ -28,6 +31,6 @@ private[twinagle] class JsonClientFilter[
   }
 
   def deserializeResponse(response: Response): Rep = {
-    JsonFormat.fromJsonString[Rep](response.contentString)
+    jsonParser.fromJsonString[Rep](response.contentString)
   }
 }
