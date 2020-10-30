@@ -1,6 +1,6 @@
 package twitch.twirp.example.haberdasher
 
-import com.soundcloud.twinagle.{ErrorCode, TwinagleException}
+import com.soundcloud.twinagle.{ErrorCode, ServerBuilder, TwinagleException}
 import com.twitter.finagle.{Service, http}
 import com.twitter.util.{Await, Future, Throw}
 import org.specs2.mutable.Specification
@@ -23,45 +23,70 @@ class HaberdasherSpec extends Specification {
   }
 
 
-  val httpService: Service[http.Request, http.Response] = HaberdasherService.server(svc)
 
 
   "ClientJson" >> {
 
-    val client = new HaberdasherClientJson(httpService)
+    "basic usage" >> {
+      val httpService: Service[http.Request, http.Response] = HaberdasherService.server(svc)
+      val client = new HaberdasherClientJson(httpService)
 
-    "make a valid HTTP request" in {
-      val hat = Await.result(client.makeHat(Size(12)))
+      "make a valid HTTP request" in {
+        val hat = Await.result(client.makeHat(Size(12)))
 
-      hat.color ==== "brown"
-      hat.size ==== 12
+        hat.color ==== "brown"
+        hat.size ==== 12
+      }
+
+      "produces TwinagleExceptions for error responses" in {
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+
+        ex.code ==== ErrorCode.InvalidArgument
+      }
     }
 
-    "produces TwinagleExceptions for error responses" in {
-      val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
-
-      ex.code ==== ErrorCode.InvalidArgument
-    }
 
   }
 
 
   "ClientProtobuf" >> {
 
-    val client = new HaberdasherClientProtobuf(httpService)
+    "basic usage" >> {
+      val httpService: Service[http.Request, http.Response] = HaberdasherService.server(svc)
+      val client = new HaberdasherClientProtobuf(httpService)
 
-    "make a valid HTTP request" in {
+      "make a valid HTTP request" in {
 
-      val hat = Await.result(client.makeHat(Size(12)))
+        val hat = Await.result(client.makeHat(Size(12)))
 
-      hat.color ==== "brown"
-      hat.size ==== 12
+        hat.color ==== "brown"
+        hat.size ==== 12
+      }
+
+      "produces TwinagleExceptions for error responses" in {
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+
+        ex.code ==== ErrorCode.InvalidArgument
+      }
     }
 
-    "produces TwinagleExceptions for error responses" in {
-      val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+    "custom prefix" >> {
+      val httpService = ServerBuilder().withPrefix("/foo").register(svc).build
+      val client = new HaberdasherClientProtobuf(httpService, prefix = "/foo")
 
-      ex.code ==== ErrorCode.InvalidArgument
+      "make a valid HTTP request" in {
+
+        val hat = Await.result(client.makeHat(Size(12)))
+
+        hat.color ==== "brown"
+        hat.size ==== 12
+      }
+
+      "produces TwinagleExceptions for error responses" in {
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+
+        ex.code ==== ErrorCode.InvalidArgument
+      }
     }
   }
 }

@@ -5,15 +5,15 @@ import com.twitter.finagle.http._
 import com.twitter.finagle.stats.CancelledCategorizer
 import com.twitter.util.Future
 
-/**
-  * A Twirp-compatible HTTP server/router.
+/** A Twirp-compatible HTTP server/router.
   * TwinagleExceptions are returned as conformant JSON responses, other exceptions are mapped
   * to twirp internal errors.
   *
   * @param endpoints list of protobuf RPCs to expose
   */
-private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request, Response] {
-  private val servicesByPath = endpoints.map(rpc => rpc.metadata.path -> rpc.svc).toMap
+private[twinagle] class Server(endpoints: Seq[ProtoRpc], prefix: String) extends Service[Request, Response] {
+  private val servicesByPath =
+    endpoints.map(rpc => s"$prefix/${rpc.metadata.service}/${rpc.metadata.rpc}" -> rpc.svc).toMap
 
   override def apply(request: Request): Future[Response] =
     request.method match {

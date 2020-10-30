@@ -1,8 +1,8 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
-import com.twitter.finagle.{CancelledRequestException, Failure}
-import com.twitter.finagle.http.{MediaType, Method, Request, Status}
+import com.twitter.finagle.{CancelledRequestException, Failure, Service}
+import com.twitter.finagle.http.{MediaType, Method, Request, Response, Status}
 import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -54,6 +54,21 @@ class ServerSpec extends Specification with Mockito {
 
     there were noCallsTo(rpc)
     response.status ==== Status.NotFound
+  }
+
+  "custom path prefix" in new Context {
+    override val server: Service[Request, Response] = ServerBuilder()
+      .withPrefix("/foo")
+      .register(protoService)
+      .build
+    val request = httpRequest(path = "/foo/svc/rpc")
+    rpc.apply(any) returns Future.value(TestMessage())
+
+    val response = Await.result(server(request))
+
+    there was exactly(1)(rpc).apply(TestMessage())
+    response.status ==== Status.Ok
+
   }
 
   "exceptions" >> {

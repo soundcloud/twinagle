@@ -5,16 +5,24 @@ import com.twitter.finagle.{Filter, Service}
 
 case class ServerBuilder(
     extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
-    endpoints: Seq[ProtoRpc] = Seq.empty
+    endpoints: Seq[ProtoRpc] = Seq.empty,
+    prefix: String = "/twirp"
 ) {
+
+  require(prefix.startsWith("/"), "prefix must start with slash")
+  require(!prefix.endsWith("/"), "prefix must not end with slash")
 
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
     this.copy(endpoints = endpoints ++ protoService.rpcs)
   }
 
+  def withPrefix(prefix: String): ServerBuilder = {
+    this.copy(prefix = prefix)
+  }
+
   def build: Service[Request, Response] =
-    new Server(endpoints.map(instrument))
+    new Server(endpoints.map(instrument), prefix)
 
   private def instrument(rpc: ProtoRpc): ProtoRpc =
     rpc.copy(
