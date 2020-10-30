@@ -50,16 +50,17 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request
   private def errorResponse(twex: TwinagleException): Response = {
     import ErrorCode._
     val resp = Response(twex.code match {
-      case Canceled | DeadlineExceeded          => Status.RequestTimeout
-      case NotFound | BadRoute                  => Status.NotFound
-      case PermissionDenied | ResourceExhausted => Status.Forbidden
-      case Unauthenticated                      => Status.Unauthorized
-      case FailedPrecondition                   => Status.PreconditionFailed
-      case AlreadyExists | Aborted              => Status.Conflict
-      case InvalidArgument | OutOfRange         => Status.BadRequest
-      case Unimplemented                        => Status.NotImplemented
-      case Unknown | Internal | Dataloss        => Status.InternalServerError
-      case Unavailable                          => Status.ServiceUnavailable
+      case Canceled | DeadlineExceeded   => Status.RequestTimeout
+      case NotFound | BadRoute           => Status.NotFound
+      case PermissionDenied              => Status.Forbidden
+      case ResourceExhausted             => Status.TooManyRequests
+      case Unauthenticated               => Status.Unauthorized
+      case FailedPrecondition            => Status.PreconditionFailed
+      case AlreadyExists | Aborted       => Status.Conflict
+      case InvalidArgument | OutOfRange  => Status.BadRequest
+      case Unimplemented                 => Status.NotImplemented
+      case Unknown | Internal | Dataloss => Status.InternalServerError
+      case Unavailable                   => Status.ServiceUnavailable
     })
     resp.contentType = MediaType.Json
     resp.contentString = JsonError.toString(

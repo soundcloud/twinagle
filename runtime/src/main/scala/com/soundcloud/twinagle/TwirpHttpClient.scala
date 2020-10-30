@@ -4,8 +4,7 @@ import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
-/**
-  * TwirpHttpClient
+/** TwirpHttpClient
   */
 private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] {
   override def apply(
@@ -77,7 +76,8 @@ private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] 
       case Unauthorized       => ErrorCode.Unauthenticated
       case Forbidden          => ErrorCode.PermissionDenied
       case NotFound           => ErrorCode.BadRoute
-      case TooManyRequests | BadGateway | ServiceUnavailable | GatewayTimeout =>
+      case TooManyRequests    => ErrorCode.ResourceExhausted
+      case BadGateway | ServiceUnavailable | GatewayTimeout =>
         ErrorCode.Unavailable
       case _ => ErrorCode.Internal
     }
