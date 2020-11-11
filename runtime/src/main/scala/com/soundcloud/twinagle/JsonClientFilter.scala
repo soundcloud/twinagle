@@ -13,7 +13,7 @@ private[twinagle] class JsonClientFilter[
     path: String
 ) extends Filter[Req, Rep, Request, Response] {
 
-  val jsonParser = new Parser().ignoringUnknownFields
+  private val jsonParser = new Parser().ignoringUnknownFields
 
   override def apply(
       request: Req,
