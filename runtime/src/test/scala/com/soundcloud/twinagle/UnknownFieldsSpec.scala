@@ -5,7 +5,7 @@ import scalapb.json4s.{JsonFormat, Parser}
 
 class UnknownFieldsSpec extends Specification{
 
-  "should propagate unknown fields" in {
+  "binary protobuf propagates unknown fields" in {
     val original = Test2(foo = 1, bar = 2)
 
     val intermediate = Test1.parseFrom(original.toByteArray)
@@ -15,16 +15,16 @@ class UnknownFieldsSpec extends Specification{
     roundtripped ==== original
   }
 
-  "JSON (de)serialization should propagate unknown fields" in {
+  "JSON parsing ignores unknown fields" in {
     val original = Test2(foo = 1, bar = 2)
 
     val parser = new Parser().ignoringUnknownFields
 
     val intermediate = parser.fromJsonString[Test1](JsonFormat.toJsonString(original))
-    intermediate.foo ==== original.foo // this works
+    intermediate.foo ==== original.foo
 
     val roundtripped = parser.fromJsonString[Test2](JsonFormat.toJsonString(intermediate))
-    roundtripped ==== original // broken because unknown fields are ignored
+    roundtripped ==== original.copy(bar = 0) // unknown fields are ignored
   }
 
 }

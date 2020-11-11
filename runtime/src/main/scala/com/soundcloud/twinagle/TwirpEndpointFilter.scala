@@ -4,7 +4,7 @@ import com.twitter.finagle.http.{MediaType, Request, Response, Status}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import scalapb.json4s.{JsonFormat, Parser, Printer}
+import scalapb.json4s.{Parser, Printer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
