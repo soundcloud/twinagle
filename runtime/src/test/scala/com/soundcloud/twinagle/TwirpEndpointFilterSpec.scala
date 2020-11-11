@@ -57,7 +57,7 @@ class TwirpEndpointFilterSpec extends Specification {
         response.status ==== Status.Ok
         response.contentString ==== "{}"
       }
-      
+
       "serializes default values" in {
         val svc = new TwirpEndpointFilter[HasField, HasField] andThen
           Service.mk[HasField, HasField](msg => Future.value(msg))
@@ -70,6 +70,17 @@ class TwirpEndpointFilterSpec extends Specification {
 
         response.status ==== Status.Ok
         response.contentString ==== """{"foo":0}"""
+      }
+
+      "ignores unknown fields" in new Context {
+        val request = Request()
+        request.contentType = "application/json; charset=UTF-8"
+        request.contentString = """{"foo": 123}"""
+
+        val response = Await.result(svc(request))
+
+        response.status ==== Status.Ok
+        response.contentString ==== "{}"
       }
     }
 

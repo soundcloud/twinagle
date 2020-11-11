@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto.test;
+package com.soundcloud.twinagle;
 
 // this represents a "new version" of Test1 that has a new field
 message Test2 {
