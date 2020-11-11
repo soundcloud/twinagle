@@ -36,8 +36,10 @@ final class TwinagleServicePrinter(
        |  ))
        |
        |  def server(service: $serviceName,
-       |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity): $Service[$Request, $Response] =
-       |    $ServerBuilder(extension).register(service).build
+       |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
+       |             prefix: String = "/twirp"
+       |             ): $Service[$Request, $Response] =
+       |    $ServerBuilder(extension).withPrefix(prefix).register(service).build
        |}
        """.stripMargin
   }
@@ -76,10 +78,11 @@ final class TwinagleServicePrinter(
 
     s"""
        |class ${clientName}Json(httpClient: $Service[$Request, $Response],
-       |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                        extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
+       |                        prefix: String = "/twirp")
        |  extends $serviceName {
        |
-       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
+       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension, prefix)
        |
        |$jsonClients
        |$methods
@@ -100,10 +103,11 @@ final class TwinagleServicePrinter(
 
     s"""
        |class ${clientName}Protobuf(httpClient: $Service[$Request, $Response],
-       |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity)
+       |                            extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
+       |                            prefix: String = "/twirp")
        |  extends $serviceName {
        |
-       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension)
+       |  private val _builder = new $ClientEndpointBuilder(httpClient, extension, prefix)
        |
        |$protobufClients
        |$methods

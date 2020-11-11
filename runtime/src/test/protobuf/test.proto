@@ -3,3 +3,7 @@ syntax = "proto3";
 package com.soundcloud.twinagle.test;
 
 message TestMessage {};
+
+message HasField {
+    int32 foo = 1;
+}

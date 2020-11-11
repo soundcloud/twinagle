@@ -4,7 +4,7 @@ import com.twitter.finagle.http.{MediaType, Request, Response, Status}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import scalapb.json4s.JsonFormat
+import scalapb.json4s.{JsonFormat, Printer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
@@ -17,6 +17,9 @@ private[twinagle] class TwirpEndpointFilter[
     Req <: GeneratedMessage: GeneratedMessageCompanion,
     Rep <: GeneratedMessage: GeneratedMessageCompanion
 ] extends Filter[Request, Response, Req, Rep] {
+
+  val printer = new Printer().includingDefaultValueFields
+
   override def apply(
       request: Request,
       service: Service[Req, Rep]
@@ -26,7 +29,7 @@ private[twinagle] class TwirpEndpointFilter[
       service(input).map { r =>
         val response = Response(Status.Ok)
         response.contentType = MediaType.Json
-        response.contentString = JsonFormat.toJsonString(r)
+        response.contentString = printer.print(r)
         response
       }
     case Some("application/protobuf") =>

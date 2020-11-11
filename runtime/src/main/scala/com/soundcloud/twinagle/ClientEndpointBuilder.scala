@@ -6,8 +6,13 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class ClientEndpointBuilder(
     httpClient: Service[Request, Response],
-    extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity
+    extension: EndpointMetadata => Filter.TypeAgnostic,
+    prefix: String
 ) {
+
+  require(prefix.startsWith("/"), "prefix must start with slash")
+  require(!prefix.endsWith("/"), "prefix must not end with slash")
+
   def jsonEndpoint[
       Req <: GeneratedMessage,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
@@ -16,7 +21,7 @@ class ClientEndpointBuilder(
   ): Service[Req, Resp] = {
     extension(endpointMetadata).toFilter andThen
       new TracingFilter[Req, Resp](endpointMetadata) andThen
-      new JsonClientFilter[Req, Resp](endpointMetadata.path) andThen
+      new JsonClientFilter[Req, Resp](s"$prefix/${endpointMetadata.service}/${endpointMetadata.rpc}") andThen
       new TwirpHttpClient andThen
       httpClient
   }
@@ -29,7 +34,7 @@ class ClientEndpointBuilder(
   ): Service[Req, Resp] = {
     extension(endpointMetadata).toFilter andThen
       new TracingFilter[Req, Resp](endpointMetadata) andThen
-      new ProtobufClientFilter[Req, Resp](endpointMetadata.path) andThen
+      new ProtobufClientFilter[Req, Resp](s"$prefix/${endpointMetadata.service}/${endpointMetadata.rpc}") andThen
       new TwirpHttpClient andThen
       httpClient
   }

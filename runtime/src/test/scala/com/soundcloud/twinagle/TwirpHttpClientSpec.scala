@@ -38,7 +38,7 @@ class TwirpHttpClientSpec extends Specification {
         Status.Unauthorized       -> ErrorCode.Unauthenticated,
         Status.Forbidden          -> ErrorCode.PermissionDenied,
         Status.NotFound           -> ErrorCode.BadRoute,
-        Status.TooManyRequests    -> ErrorCode.Unavailable,
+        Status.TooManyRequests    -> ErrorCode.ResourceExhausted,
         Status.BadGateway         -> ErrorCode.Unavailable,
         Status.ServiceUnavailable -> ErrorCode.Unavailable,
         Status.GatewayTimeout     -> ErrorCode.Unavailable,

@@ -1,6 +1,6 @@
 package com.soundcloud.twinagle
 
-import com.soundcloud.twinagle.test.TestMessage
+import com.soundcloud.twinagle.test.{HasField,TestMessage}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future, Throw}
@@ -57,6 +57,20 @@ class TwirpEndpointFilterSpec extends Specification {
         response.status ==== Status.Ok
         response.contentString ==== "{}"
       }
+      
+      "serializes default values" in {
+        val svc = new TwirpEndpointFilter[HasField, HasField] andThen
+          Service.mk[HasField, HasField](msg => Future.value(msg))
+
+        val request = Request()
+        request.contentType = "application/json; charset=UTF-8"
+        request.contentString = "{}"
+
+        val response = Await.result(svc(request))
+
+        response.status ==== Status.Ok
+        response.contentString ==== """{"foo":0}"""
+      }
     }
 
     "un-supported content-type" in new Context {
@@ -71,7 +85,7 @@ class TwirpEndpointFilterSpec extends Specification {
       }
     }
 
-    "unspecified" in new Context {
+    "unspecified content-type" in new Context {
       val request = Request()
       request.contentString = "{}"
 

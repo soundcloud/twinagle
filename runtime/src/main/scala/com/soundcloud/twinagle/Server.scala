@@ -5,15 +5,15 @@ import com.twitter.finagle.http._
 import com.twitter.finagle.stats.CancelledCategorizer
 import com.twitter.util.Future
 
-/**
-  * A Twirp-compatible HTTP server/router.
+/** A Twirp-compatible HTTP server/router.
   * TwinagleExceptions are returned as conformant JSON responses, other exceptions are mapped
   * to twirp internal errors.
   *
   * @param endpoints list of protobuf RPCs to expose
   */
-private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request, Response] {
-  private val servicesByPath = endpoints.map(rpc => rpc.metadata.path -> rpc.svc).toMap
+private[twinagle] class Server(endpoints: Seq[ProtoRpc], prefix: String) extends Service[Request, Response] {
+  private val servicesByPath =
+    endpoints.map(rpc => s"$prefix/${rpc.metadata.service}/${rpc.metadata.rpc}" -> rpc.svc).toMap
 
   override def apply(request: Request): Future[Response] =
     request.method match {
@@ -50,16 +50,17 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc]) extends Service[Request
   private def errorResponse(twex: TwinagleException): Response = {
     import ErrorCode._
     val resp = Response(twex.code match {
-      case Canceled | DeadlineExceeded          => Status.RequestTimeout
-      case NotFound | BadRoute                  => Status.NotFound
-      case PermissionDenied | ResourceExhausted => Status.Forbidden
-      case Unauthenticated                      => Status.Unauthorized
-      case FailedPrecondition                   => Status.PreconditionFailed
-      case AlreadyExists | Aborted              => Status.Conflict
-      case InvalidArgument | OutOfRange         => Status.BadRequest
-      case Unimplemented                        => Status.NotImplemented
-      case Unknown | Internal | Dataloss        => Status.InternalServerError
-      case Unavailable                          => Status.ServiceUnavailable
+      case Canceled | DeadlineExceeded   => Status.RequestTimeout
+      case NotFound | BadRoute           => Status.NotFound
+      case PermissionDenied              => Status.Forbidden
+      case ResourceExhausted             => Status.TooManyRequests
+      case Unauthenticated               => Status.Unauthorized
+      case FailedPrecondition            => Status.PreconditionFailed
+      case AlreadyExists | Aborted       => Status.Conflict
+      case InvalidArgument | OutOfRange  => Status.BadRequest
+      case Unimplemented                 => Status.NotImplemented
+      case Unknown | Internal | Dataloss => Status.InternalServerError
+      case Unavailable                   => Status.ServiceUnavailable
     })
     resp.contentType = MediaType.Json
     resp.contentString = JsonError.toString(
