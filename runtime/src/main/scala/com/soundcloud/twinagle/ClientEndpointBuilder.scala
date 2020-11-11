@@ -10,8 +10,10 @@ class ClientEndpointBuilder(
     prefix: String
 ) {
 
-  require(prefix.startsWith("/"), "prefix must start with slash")
-  require(!prefix.endsWith("/"), "prefix must not end with slash")
+  if (prefix.nonEmpty) {
+    require(prefix.startsWith("/"), "prefix must start with slash")
+    require(!prefix.endsWith("/"), "prefix must not end with slash")
+  }
 
   def jsonEndpoint[
       Req <: GeneratedMessage,

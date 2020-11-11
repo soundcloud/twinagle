@@ -9,8 +9,10 @@ case class ServerBuilder(
     prefix: String = "/twirp"
 ) {
 
-  require(prefix.startsWith("/"), "prefix must start with slash")
-  require(!prefix.endsWith("/"), "prefix must not end with slash")
+  if (prefix.nonEmpty) {
+    require(prefix.startsWith("/"), "prefix must start with slash")
+    require(!prefix.endsWith("/"), "prefix must not end with slash")
+  }
 
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
