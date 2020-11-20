@@ -35,6 +35,5 @@ class ServerBuilderSpec extends Specification {
       }
     }
 
-
   }
 }

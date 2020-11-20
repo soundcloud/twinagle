@@ -7,8 +7,7 @@ import com.twitter.util.Future
 import scalapb.json4s.{Parser, Printer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
-/**
-  * Decodes Protobuf or Json-encoded HTTP requests into Twirp messages
+/** Decodes Protobuf or Json-encoded HTTP requests into Twirp messages
   *
   * @tparam Req incoming twirp request message
   * @tparam Rep outgoing twirp response message
@@ -19,7 +18,7 @@ private[twinagle] class TwirpEndpointFilter[
 ] extends Filter[Request, Response, Req, Rep] {
 
   private val jsonParser = new Parser().ignoringUnknownFields
-  private val printer = new Printer().includingDefaultValueFields
+  private val printer    = new Printer().includingDefaultValueFields
 
   override def apply(
       request: Request,

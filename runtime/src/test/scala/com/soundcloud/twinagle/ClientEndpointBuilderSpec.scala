@@ -19,7 +19,9 @@ class ClientEndpointBuilderSpec extends Specification {
     }
 
     "custom path works" in {
-      new ClientEndpointBuilder(httpClient, extension, prefix = "/somewhere/else") must not(throwAn[IllegalArgumentException])
+      new ClientEndpointBuilder(httpClient, extension, prefix = "/somewhere/else") must not(
+        throwAn[IllegalArgumentException]
+      )
     }
 
     "empty prefix" in {
@@ -32,7 +34,9 @@ class ClientEndpointBuilderSpec extends Specification {
       }
 
       "relative path" in {
-        new ClientEndpointBuilder(httpClient, extension, prefix = "relative/path") must throwAn[IllegalArgumentException]
+        new ClientEndpointBuilder(httpClient, extension, prefix = "relative/path") must throwAn[
+          IllegalArgumentException
+        ]
       }
 
       "ends with slash" in {

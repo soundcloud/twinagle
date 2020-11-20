@@ -1,7 +1,6 @@
 package com.soundcloud.twinagle
 
-/**
-  * JsonError is the JSON representation of `TwinagleException`s.
+/** JsonError is the JSON representation of `TwinagleException`s.
   *
   * If only there were some Language we could use to Define these kind of Interfaces
   * so that we could generate code to (de-)serialize the errors ;).
