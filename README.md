@@ -1,5 +1,8 @@
 # Twinagle = Twirp + Finagle
 
+![Build Status](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13)
+
 Twinagle is an implementation of the
 [Twirp wire protocol](https://github.com/twitchtv/twirp/blob/master/PROTOCOL.md)
 for Scala+Finagle.
@@ -7,14 +10,13 @@ for Scala+Finagle.
 Please see [the documentation website](https://soundcloud.github.io/twinagle)
 for an introduction.
 
-# Contribute
+# How to contribute
 
-Ensure `sbt +test scripted` passes before pushing.
+Thanks for your interest in Twinagle, we're welcome your contributions!
+For larger changes, please open an issue to discuss them before spending lots of time implementing things.
+For small changes, hack away and submit a pull request.
 
-# Build and Release
-
-![Build Status](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13)
+Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting code changes.
 
 # Notes
 
