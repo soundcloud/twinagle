@@ -23,7 +23,7 @@ private[twinagle] class TracingFilter[In, Out](
   }
 }
 
-object TracingFilter {
+private[twinagle] object TracingFilter {
   val Service = "twirp.service"
   val Rpc     = "twirp.rpc"
 

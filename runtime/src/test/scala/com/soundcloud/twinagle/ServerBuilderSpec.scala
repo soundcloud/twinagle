@@ -30,15 +30,10 @@ class ServerBuilderSpec extends Specification {
         ServerBuilder(prefix = "/some/path/") must throwAn[IllegalArgumentException]
       }
 
-      "copy method validates" in {
-        ServerBuilder().copy(prefix = "/invalid/") must throwAn[IllegalArgumentException]
-      }
-
       "withPrefix method validates" in {
         ServerBuilder().withPrefix("/invalid/") must throwAn[IllegalArgumentException]
       }
     }
-
 
   }
 }

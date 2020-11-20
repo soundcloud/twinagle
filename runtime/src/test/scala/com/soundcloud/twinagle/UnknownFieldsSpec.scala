@@ -3,7 +3,7 @@ package com.soundcloud.twinagle
 import org.specs2.mutable.Specification
 import scalapb.json4s.{JsonFormat, Parser}
 
-class UnknownFieldsSpec extends Specification{
+class UnknownFieldsSpec extends Specification {
 
   "binary protobuf propagates unknown fields" in {
     val original = Test2(foo = 1, bar = 2)

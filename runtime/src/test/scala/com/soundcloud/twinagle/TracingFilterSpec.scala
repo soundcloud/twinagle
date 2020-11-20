@@ -16,8 +16,8 @@ class TracingFilterSpec extends Specification {
     def binaryAnnotations =
       tracer
         .map(_.annotation)
-        .collect {
-          case Annotation.BinaryAnnotation(k, v) => (k, v)
+        .collect { case Annotation.BinaryAnnotation(k, v) =>
+          (k, v)
         }
         .toMap
   }

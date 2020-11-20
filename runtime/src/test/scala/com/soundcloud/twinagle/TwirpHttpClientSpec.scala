@@ -46,22 +46,21 @@ class TwirpHttpClientSpec extends Specification {
         Status.EnhanceYourCalm     -> ErrorCode.Internal,
         Status.InternalServerError -> ErrorCode.Internal
       )
-    ) {
-      case (status, errorCode) =>
-        s"HTTP ${status.code} produces $errorCode" ! {
-          val response = Response(status)
-          val svc      = Service.const(Future.value(response))
-          Await.result(client(request, svc).liftToTry) match {
-            case Throw(ex: TwinagleException) =>
-              ex.code ==== errorCode
-              ex.meta should haveKeys(
-                "body",
-                "http_error_code_from_intermediary",
-                "status_code"
-              )
-            case _ => ko
-          }
+    ) { case (status, errorCode) =>
+      s"HTTP ${status.code} produces $errorCode" ! {
+        val response = Response(status)
+        val svc      = Service.const(Future.value(response))
+        Await.result(client(request, svc).liftToTry) match {
+          case Throw(ex: TwinagleException) =>
+            ex.code ==== errorCode
+            ex.meta should haveKeys(
+              "body",
+              "http_error_code_from_intermediary",
+              "status_code"
+            )
+          case _ => ko
         }
+      }
     }
   }
 }
