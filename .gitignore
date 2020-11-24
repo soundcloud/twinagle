@@ -1,6 +1,7 @@
 *.class
 *.log
 .idea/
+.bsp/
 target/
 config/production
 .oracle_jre_usage/
