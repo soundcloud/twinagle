@@ -6,7 +6,7 @@ import com.google.protobuf.compiler.PluginProtos
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import protocbridge.Artifact
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, GeneratorException, ProtobufGenerator}
-import scalapb.options.compiler.Scalapb
+import scalapb.options.Scalapb
 
 import scala.collection.JavaConverters._
 
