@@ -93,7 +93,7 @@ This is required to work with Java protobuf utils such as `FieldMaskUtils`:
 Twinagle.scalapbCodeGeneratorOptions += scalapb.GeneratorOption.JavaConversions,
 
 // use `+=` / `++=` to add settings to `PB.targets
-// to avoid replacing/removing twinagle's code generation
+// to avoid replacing/removing Twinagle's code generation
 Compile / PB.targets += protocbridge.Target(
   PB.gens.java,
   (sourceManaged in Compile).value
