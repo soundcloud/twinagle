@@ -1,7 +1,6 @@
 on:
   push:
-    branches:
-    - master
+  pull_request:
   release:
     types:
     - published
@@ -12,16 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - run: git fetch --tags --unshallow
-    - name: Set up JDK 1.8
+    - name: Install JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Install GPG
+      uses: olafurpg/setup-gpg@v3
+      if: ${{ github.event_name == 'release' }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Run tests
       run: sbt +test scripted
-    - uses: olafurpg/setup-gpg@v3
+    - name: Lint
+      run: sbt scalafmtCheckAll
     - name: Release
+      if: ${{ github.event_name == 'release' }}
       env:
         CI_SNAPSHOT_RELEASE: "+publishSigned"
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSWORD }}
