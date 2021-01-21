@@ -19,7 +19,7 @@ lazy val codegen = (project in file("codegen"))
   .settings(
     commonSettings,
     name := "twinagle-scalapb-plugin",
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.34"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.0"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
     buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage := "com.soundcloud.twinagle.codegen",
