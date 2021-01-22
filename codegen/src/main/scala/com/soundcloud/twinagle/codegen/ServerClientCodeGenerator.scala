@@ -5,6 +5,7 @@ import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import protocbridge.Artifact
+import protocgen.CodeGenRequest
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, GeneratorException, ProtobufGenerator}
 import scalapb.options.Scalapb
 
@@ -52,20 +53,10 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     ProtobufGenerator.parseParameters(request.getParameter) match {
       case Right(params) =>
         try {
-          val filesByName: Map[String, FileDescriptor] =
-            request.getProtoFileList.asScala
-              .foldLeft[Map[String, FileDescriptor]](Map.empty) { case (acc, fp) =>
-                val deps = fp.getDependencyList.asScala.map(acc)
-                acc + (fp.getName -> FileDescriptor.buildFrom(
-                  fp,
-                  deps.toArray
-                ))
-              }
-
-          val implicits =
-            new DescriptorImplicits(params, filesByName.values.toVector)
-          val genFiles = request.getFileToGenerateList.asScala.map(filesByName)
-          val srvFiles = genFiles.flatMap(generateServiceFiles(_, implicits))
+          val filesByName = CodeGenRequest.fileDescriptorsByName(request.getProtoFileList.asScala)
+          val implicits   = DescriptorImplicits.fromCodeGenRequest(params, CodeGenRequest(request))
+          val genFiles    = request.getFileToGenerateList.asScala.map(filesByName)
+          val srvFiles    = genFiles.flatMap(generateServiceFiles(_, implicits))
           b.addAllFile(srvFiles.asJava)
         } catch {
           case e: GeneratorException =>
