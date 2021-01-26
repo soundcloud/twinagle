@@ -3,16 +3,18 @@ package com.soundcloud.twinagle.codegen
 import com.google.protobuf.Descriptors._
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos
-import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
+import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact
-import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, GeneratorException, ProtobufGenerator}
-import scalapb.options.Scalapb
+import protocgen.{CodeGenApp, CodeGenRequest, CodeGenResponse}
+import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, ProtobufGenerator}
 
 import scala.collection.JavaConverters._
 
-object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
-  // This would make sbt-protoc append the following artifacts to the user's
-  // project.  If you have a runtime library this is the place to specify it.
+object ServerClientCodeGenerator extends CodeGenApp {
+  override def registerExtensions(registry: ExtensionRegistry): Unit = {
+    scalapb.options.Scalapb.registerAllExtensions(registry)
+  }
+
   override def suggestedDependencies: Seq[protocbridge.Artifact] = Seq(
     Artifact(
       "com.soundcloud",
@@ -27,6 +29,25 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
       crossVersion = true
     )
   )
+
+  def process(request: CodeGenRequest): CodeGenResponse =
+    ProtobufGenerator.parseParameters(request.parameter) match {
+      case Right(params) =>
+        // Implicits gives you extension methods that provide ScalaPB names and types
+        // for protobuf entities.
+        val implicits = DescriptorImplicits.fromCodeGenRequest(params, request)
+
+        // Process each top-level message in each file.
+        // This can be customized if you want to traverse the input in a different way.
+        CodeGenResponse.succeed(
+          for {
+            file        <- request.filesToGenerate
+            serviceFile <- generateServiceFiles(file, implicits)
+          } yield serviceFile
+        )
+      case Left(error) =>
+        CodeGenResponse.fail(error)
+    }
 
   def generateServiceFiles(
       file: FileDescriptor,
@@ -45,45 +66,4 @@ object ServerClientCodeGenerator extends protocbridge.ProtocCodeGenerator {
     }
   }
 
-  def handleCodeGeneratorRequest(
-      request: PluginProtos.CodeGeneratorRequest
-  ): PluginProtos.CodeGeneratorResponse = {
-    val b = CodeGeneratorResponse.newBuilder
-    ProtobufGenerator.parseParameters(request.getParameter) match {
-      case Right(params) =>
-        try {
-          val filesByName: Map[String, FileDescriptor] =
-            request.getProtoFileList.asScala
-              .foldLeft[Map[String, FileDescriptor]](Map.empty) { case (acc, fp) =>
-                val deps = fp.getDependencyList.asScala.map(acc)
-                acc + (fp.getName -> FileDescriptor.buildFrom(
-                  fp,
-                  deps.toArray
-                ))
-              }
-
-          val implicits =
-            new DescriptorImplicits(params, filesByName.values.toVector)
-          val genFiles = request.getFileToGenerateList.asScala.map(filesByName)
-          val srvFiles = genFiles.flatMap(generateServiceFiles(_, implicits))
-          b.addAllFile(srvFiles.asJava)
-        } catch {
-          case e: GeneratorException =>
-            b.setError(e.message)
-        }
-
-      case Left(error) =>
-        b.setError(error)
-    }
-
-    b.build()
-  }
-
-  override def run(req: Array[Byte]): Array[Byte] = {
-    println("Running")
-    val registry = ExtensionRegistry.newInstance()
-    Scalapb.registerAllExtensions(registry)
-    val request = CodeGeneratorRequest.parseFrom(req, registry)
-    handleCodeGeneratorRequest(request).toByteArray
-  }
 }
