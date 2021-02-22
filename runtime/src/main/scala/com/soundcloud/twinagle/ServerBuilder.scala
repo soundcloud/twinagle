@@ -11,7 +11,8 @@ import com.twitter.finagle.{Filter, Service}
   */
 class ServerBuilder private (
     extension: EndpointMetadata => Filter.TypeAgnostic,
-    endpoints: Seq[ProtoRpc],
+    messageFilters: Seq[MessageFilter],
+    endpoints: Seq[ProtoRpcBuilder],
     prefix: String
 ) {
 
@@ -26,7 +27,7 @@ class ServerBuilder private (
     */
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
-    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix)
+    new ServerBuilder(extension, messageFilters, endpoints ++ protoService.rpcs, prefix)
   }
 
   /** withPrefix configures the HTTP path prefix to use for this server (default: `/twirp`).
@@ -34,30 +35,38 @@ class ServerBuilder private (
     * Use an empty string to expose endpoints at the root of the HTTP path.
     */
   def withPrefix(prefix: String): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix)
+    new ServerBuilder(extension, messageFilters, endpoints, prefix)
+  }
+
+  def withMessageFilters(filters: Seq[MessageFilter]): ServerBuilder = {
+    new ServerBuilder(extension, filters, endpoints, prefix)
+
   }
 
   /** create an HTTP server that implements the Twirp wire protocol by
     * dispatching to the registered services.
     */
   def build: Service[Request, Response] =
-    new Server(endpoints.map(instrument), prefix)
+    new Server(endpoints.map(instrumentAndBuild), prefix)
 
-  private def instrument(rpc: ProtoRpc): ProtoRpc =
+  private def instrumentAndBuild(builder: ProtoRpcBuilder): ProtoRpc = {
+    val rpc = builder.build(messageFilters)
     rpc.copy(
       svc = extension(rpc.metadata).toFilter andThen
         new TracingFilter[Request, Response](rpc.metadata) andThen
         rpc.svc
     )
+  }
 
 }
 
 object ServerBuilder {
   def apply(
       extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
-      endpoints: Seq[ProtoRpc] = Seq.empty,
+      messageFilters: Seq[MessageFilter] = Seq.empty,
+      endpoints: Seq[ProtoRpcBuilder] = Seq.empty,
       prefix: String = "/twirp"
-  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix)
+  ): ServerBuilder = new ServerBuilder(extension, messageFilters, endpoints, prefix)
 }
 
 trait AsProtoService[T] {

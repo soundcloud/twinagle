@@ -8,12 +8,14 @@ import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
+import scala.collection.mutable.ListBuffer
+
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val rpc = mock[TestMessage => Future[TestMessage]]
     val protoService = ProtoService(
       Seq(
-        ProtoRpc(EndpointMetadata("svc", "rpc"), rpc)
+        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
     val server = ServerBuilder()
@@ -68,6 +70,32 @@ class ServerSpec extends Specification with Mockito {
 
     there was exactly(1)(rpc).apply(TestMessage())
     response.status ==== Status.Ok
+
+  }
+
+  "generated message filter" in new Context {
+
+    val filter           = mock[MessageFilter]
+    val recorderRequests = ListBuffer[TestMessage]()
+    filter
+      .toFilter[TestMessage, TestMessage]
+      .returns((request: TestMessage, service: Service[TestMessage, TestMessage]) => {
+        recorderRequests += request
+        service(request)
+      })
+    override val server: Service[Request, Response] = ServerBuilder()
+      .withPrefix("/foo")
+      .withMessageFilters(filters = Seq(filter))
+      .register(protoService)
+      .build
+    val request = httpRequest(path = "/foo/svc/rpc")
+    val message = TestMessage()
+    rpc.apply(any) returns Future.value(message)
+
+    val response = Await.result(server(request))
+
+    there was exactly(1)(filter).toFilter[TestMessage, TestMessage]
+    recorderRequests.toList ==== List(message)
 
   }
 
