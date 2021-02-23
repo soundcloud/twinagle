@@ -78,8 +78,8 @@ class ServerSpec extends Specification with Mockito {
     val recorderRequests = ListBuffer[GeneratedMessage]()
     val filter = new MessageFilter {
       override def toFilter[
-        Req <: GeneratedMessage : GeneratedMessageCompanion,
-        Resp <: GeneratedMessage : GeneratedMessageCompanion
+          Req <: GeneratedMessage: GeneratedMessageCompanion,
+          Resp <: GeneratedMessage: GeneratedMessageCompanion
       ]: Filter[Req, Resp, Req, Resp] =
         (request: Req, next: Service[Req, Resp]) => {
           recorderRequests += request

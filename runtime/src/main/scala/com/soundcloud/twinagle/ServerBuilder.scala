@@ -38,10 +38,18 @@ class ServerBuilder private (
     new ServerBuilder(extension, endpoints, prefix, messageFilters)
   }
 
+  /** withMessageFilters configures message filters. Such filters can be used
+    * to observe and modify request and response payloads
+    * expressed as ScalaPB's GeneratedMessage.
+    */
   def withMessageFilters(filters: Seq[MessageFilter]): ServerBuilder = {
     new ServerBuilder(extension, endpoints, prefix, filters)
   }
 
+  /** withMessageFilter adds a message filter. Such filter can be used
+    * to observe and modify request and response payloads
+    * expressed as ScalaPB's GeneratedMessage.
+    */
   def withMessageFilter(filter: MessageFilter): ServerBuilder = {
     new ServerBuilder(extension, endpoints, prefix, messageFilters :+ filter)
   }
