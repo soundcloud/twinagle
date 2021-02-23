@@ -11,9 +11,9 @@ import com.twitter.finagle.{Filter, Service}
   */
 class ServerBuilder private (
     extension: EndpointMetadata => Filter.TypeAgnostic,
-    messageFilters: Seq[MessageFilter],
     endpoints: Seq[ProtoRpcBuilder],
-    prefix: String
+    prefix: String,
+    messageFilters: Seq[MessageFilter]
 ) {
 
   if (prefix.nonEmpty) {
@@ -27,7 +27,7 @@ class ServerBuilder private (
     */
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
-    new ServerBuilder(extension, messageFilters, endpoints ++ protoService.rpcs, prefix)
+    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix, messageFilters)
   }
 
   /** withPrefix configures the HTTP path prefix to use for this server (default: `/twirp`).
@@ -35,12 +35,15 @@ class ServerBuilder private (
     * Use an empty string to expose endpoints at the root of the HTTP path.
     */
   def withPrefix(prefix: String): ServerBuilder = {
-    new ServerBuilder(extension, messageFilters, endpoints, prefix)
+    new ServerBuilder(extension, endpoints, prefix, messageFilters)
   }
 
   def withMessageFilters(filters: Seq[MessageFilter]): ServerBuilder = {
-    new ServerBuilder(extension, filters, endpoints, prefix)
+    new ServerBuilder(extension, endpoints, prefix, filters)
+  }
 
+  def withMessageFilter(filter: MessageFilter): ServerBuilder = {
+    new ServerBuilder(extension, endpoints, prefix, messageFilters :+ filter)
   }
 
   /** create an HTTP server that implements the Twirp wire protocol by
@@ -63,10 +66,10 @@ class ServerBuilder private (
 object ServerBuilder {
   def apply(
       extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
-      messageFilters: Seq[MessageFilter] = Seq.empty,
       endpoints: Seq[ProtoRpcBuilder] = Seq.empty,
-      prefix: String = "/twirp"
-  ): ServerBuilder = new ServerBuilder(extension, messageFilters, endpoints, prefix)
+      prefix: String = "/twirp",
+      messageFilters: Seq[MessageFilter] = Vector.empty
+  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix, messageFilters)
 }
 
 trait AsProtoService[T] {

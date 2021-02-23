@@ -38,9 +38,9 @@ final class TwinagleServicePrinter(
        |
        |  def server(service: $serviceName,
        |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
-       |             messageFilters: Seq[$MessageFilter] = Seq.empty,
-       |             prefix: String = "/twirp"
-       |             ): $Service[$Request, $Response] =
+       |             prefix: String = "/twirp",
+       |             messageFilters: Seq[$MessageFilter] = Seq.empty
+       |  ): $Service[$Request, $Response] =
        |    $ServerBuilder(extension)
        |      .withPrefix(prefix)
        |      .withMessageFilters(messageFilters)

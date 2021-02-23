@@ -13,6 +13,15 @@ object ProtoService {
 
 case class ProtoRpc(metadata: EndpointMetadata, svc: Service[Request, Response])
 
+object ProtoRpc {
+  def apply[
+    Req <: GeneratedMessage: GeneratedMessageCompanion,
+    Resp <: GeneratedMessage: GeneratedMessageCompanion
+  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpc = {
+    ProtoRpcBuilder(endpointMetadata, rpc).build(Seq.empty)
+  }
+}
+
 trait ProtoRpcBuilder {
   def build(generatedMessageFilters: Seq[MessageFilter]): ProtoRpc
 }
@@ -22,9 +31,9 @@ object ProtoRpcBuilder {
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
   ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpcBuilder =
-    (generatedMessageFilters: Seq[MessageFilter]) => {
+    (messageFilters: Seq[MessageFilter]) => {
       val twirpFilter: Filter[Request, Response, Req, Resp] = new TwirpEndpointFilter[Req, Resp]
-      val svc = generatedMessageFilters.foldLeft(twirpFilter) { case (accFilter, nextFilter) =>
+      val svc = messageFilters.foldLeft(twirpFilter) { case (accFilter, nextFilter) =>
         accFilter.andThen(nextFilter.toFilter)
       } andThen Service.mk(rpc)
       ProtoRpc(endpointMetadata, svc)
