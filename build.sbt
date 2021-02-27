@@ -1,5 +1,5 @@
 lazy val scala212 = "2.12.12"
-lazy val scala213 = "2.13.4"
+lazy val scala213 = "2.13.5"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
