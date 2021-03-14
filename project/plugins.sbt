@@ -9,4 +9,4 @@ libraryDependencies ++= Seq(
   "com.thesamet.scalapb" %% "compilerplugin"  % "0.10.11"
 )
 // only necessary so we can generate protos for tests
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.1")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.2")
