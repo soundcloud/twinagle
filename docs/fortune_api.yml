@@ -1,0 +1,104 @@
+swagger: "2.0"
+host: "0.0.0.0:5000"
+basePath: "/twirp"
+schemes:
+- "http"
+paths:
+  /proto.soundcloud.fortune.api.Fortune/GetCookie:
+    post:
+      operationId: "GetCookie"
+      consumes:
+      - "application/json"
+      - "application/protobuf"
+      produces:
+      - "application/json"
+      - "application/protobuf"
+      parameters:
+      - in: "body"
+        name: "GetCookieRequest"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/GetCookieRequest"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/GetCookieResponse"
+  /proto.soundcloud.fortune.api.Fortune/GetCookieFlaky:
+    post:
+      operationId: "GetCookieFlaky"
+      consumes:
+      - "application/json"
+      - "application/protobuf"
+      produces:
+      - "application/json"
+      - "application/protobuf"
+      parameters:
+      - in: "body"
+        name: "GetCookieFlakyRequest"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/GetCookieFlakyRequest"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/GetCookieFlakyResponse"
+  /proto.soundcloud.fortune.api.Fortune/GetCookieLate:
+    post:
+      operationId: "GetCookieLate"
+      consumes:
+      - "application/json"
+      - "application/protobuf"
+      produces:
+      - "application/json"
+      - "application/protobuf"
+      parameters:
+      - in: "body"
+        name: "GetCookieLateRequest"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/GetCookieLateRequest"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/GetCookieLateResponse"
+definitions:
+  GetCookieRequest:
+    type: "object"
+  GetCookieResponse:
+    type: "object"
+    properties:
+      fortuneCookieMessage:
+        type: "string"
+        description: "A random fortune cookie message from fortune.txt"
+  GetCookieFlakyRequest:
+    type: "object"
+    properties:
+      fail:
+        type: "boolean"
+        default: "false"
+        description: "Setting to true causes the request to fail for sure (i.e., not to just randomly fail)"
+  GetCookieFlakyResponse:
+    type: "object"
+    properties:
+      fortuneCookieMessage:
+        type: "string"
+        description: "A random fortune cookie message from fortune.txt"
+  GetCookieLateRequest:
+    type: "object"
+    properties:
+      delay_ms:
+        type: "integer"
+        default: "int32"
+        description: "Number of milliseconds to wait before returning the response"
+  GetCookieLateResponse:
+    type: "object"
+    properties:
+      fortuneCookieMessage:
+        type: "string"
+        description: "A random fortune cookie message from fortune.txt"

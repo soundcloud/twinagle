@@ -39,11 +39,13 @@ object ServerClientCodeGenerator extends CodeGenApp {
 
         // Process each top-level message in each file.
         // This can be customized if you want to traverse the input in a different way.
+        val serviceFiles = for {
+          file        <- request.filesToGenerate
+          serviceFile <- generateServiceFiles(file, implicits)
+        } yield serviceFile
+        val ymlFiles = request.filesToGenerate.map(generateYmlFile)
         CodeGenResponse.succeed(
-          for {
-            file        <- request.filesToGenerate
-            serviceFile <- generateServiceFiles(file, implicits)
-          } yield serviceFile
+          serviceFiles ++ ymlFiles
         )
       case Left(error) =>
         CodeGenResponse.fail(error)
@@ -53,6 +55,7 @@ object ServerClientCodeGenerator extends CodeGenApp {
       file: FileDescriptor,
       di: DescriptorImplicits
   ): Seq[PluginProtos.CodeGeneratorResponse.File] = {
+
     file.getServices.asScala.map { service =>
       val p = new TwinagleServicePrinter(service, di)
 
@@ -65,5 +68,7 @@ object ServerClientCodeGenerator extends CodeGenApp {
       b.build
     }
   }
+
+  def generateYmlFile(fileDescriptor: FileDescriptor): PluginProtos.CodeGeneratorResponse.File = {}
 
 }
