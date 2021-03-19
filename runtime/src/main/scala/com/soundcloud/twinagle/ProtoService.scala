@@ -1,6 +1,6 @@
 package com.soundcloud.twinagle
 
-import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Future
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
@@ -38,11 +38,10 @@ object ProtoRpcBuilder {
     override val metadata: EndpointMetadata = endpointMetadata
 
     override def build(messageFilters: Seq[MessageFilter]): ProtoRpc = {
-      val twirpFilter: Filter[Request, Response, Req, Resp] = new TwirpEndpointFilter[Req, Resp]
-      val svc = messageFilters.foldLeft(twirpFilter) { case (accFilter, nextFilter) =>
-        accFilter.andThen(nextFilter.toFilter)
-      } andThen Service.mk(rpc)
-      ProtoRpc(endpointMetadata, svc)
+      val svc: Service[Req, Resp] = messageFilters.foldRight(Service.mk(rpc)) { case (messageFilter, accSvc) =>
+        messageFilter.toFilter[Req, Resp] andThen accSvc
+      }
+      ProtoRpc(endpointMetadata, new TwirpEndpointFilter[Req, Resp] andThen svc)
     }
   }
 }
