@@ -20,14 +20,14 @@ object ProtoRpc {
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
   ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpc = {
-    ProtoRpcBuilder(endpointMetadata, rpc).build(Seq.empty)
+    ProtoRpcBuilder(endpointMetadata, rpc).build(MessageFilter.Identity)
   }
 }
 
 trait ProtoRpcBuilder {
   val metadata: EndpointMetadata
 
-  def build(messageFilters: Seq[MessageFilter]): ProtoRpc
+  def build(messageFilter: MessageFilter): ProtoRpc
 }
 
 object ProtoRpcBuilder {
@@ -37,11 +37,11 @@ object ProtoRpcBuilder {
   ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpcBuilder = new ProtoRpcBuilder {
     override val metadata: EndpointMetadata = endpointMetadata
 
-    override def build(messageFilters: Seq[MessageFilter]): ProtoRpc = {
-      val svc: Service[Req, Resp] = messageFilters.foldRight(Service.mk(rpc)) { case (messageFilter, accSvc) =>
-        messageFilter.toFilter[Req, Resp] andThen accSvc
-      }
-      ProtoRpc(endpointMetadata, new TwirpEndpointFilter[Req, Resp] andThen svc)
+    override def build(messageFilter: MessageFilter): ProtoRpc = {
+      val svc = new TwirpEndpointFilter[Req, Resp] andThen
+        messageFilter.toFilter[Req, Resp] andThen
+        Service.mk(rpc)
+      ProtoRpc(endpointMetadata, svc)
     }
   }
 }

@@ -39,11 +39,11 @@ final class TwinagleServicePrinter(
        |  def server(service: $serviceName,
        |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
        |             prefix: String = "/twirp",
-       |             messageFilters: Seq[$MessageFilter] = Seq.empty
+       |             messageFilter: $MessageFilter = $MessageFilter.Identity
        |  ): $Service[$Request, $Response] =
        |    $ServerBuilder(extension)
        |      .withPrefix(prefix)
-       |      .withMessageFilters(messageFilters)
+       |      .withMessageFilter(messageFilter)
        |      .register(service)
        |      .build
        |}
@@ -175,7 +175,7 @@ final class TwinagleServicePrinter(
     }
 
   private def decapitalize(str: String) =
-    if (str.length >= 1)
+    if (str.nonEmpty)
       str.substring(0, 1).toLowerCase() + str.substring(1)
     else str
 

@@ -13,7 +13,7 @@ class ServerBuilder private (
     extension: EndpointMetadata => Filter.TypeAgnostic,
     endpoints: Seq[ProtoRpcBuilder],
     prefix: String,
-    messageFilters: Seq[MessageFilter]
+    messageFilter: MessageFilter
 ) {
 
   if (prefix.nonEmpty) {
@@ -27,7 +27,7 @@ class ServerBuilder private (
     */
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
-    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix, messageFilters)
+    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix, messageFilter)
   }
 
   /** withPrefix configures the HTTP path prefix to use for this server (default: `/twirp`).
@@ -35,23 +35,15 @@ class ServerBuilder private (
     * Use an empty string to expose endpoints at the root of the HTTP path.
     */
   def withPrefix(prefix: String): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix, messageFilters)
+    new ServerBuilder(extension, endpoints, prefix, messageFilter)
   }
 
-  /** withMessageFilters configures message filters. Such filters can be used
-    * to observe and modify request and response payloads
-    * expressed as ScalaPB's GeneratedMessage.
-    */
-  def withMessageFilters(filters: Seq[MessageFilter]): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix, filters)
-  }
-
-  /** withMessageFilter adds a message filter. Such filter can be used
+  /** withMessageFilter configures the message filter. Such filters can be used
     * to observe and modify request and response payloads
     * expressed as ScalaPB's GeneratedMessage.
     */
   def withMessageFilter(filter: MessageFilter): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix, messageFilters :+ filter)
+    new ServerBuilder(extension, endpoints, prefix, filter)
   }
 
   /** create an HTTP server that implements the Twirp wire protocol by
@@ -61,7 +53,7 @@ class ServerBuilder private (
     new Server(endpoints.map(instrumentAndBuild), prefix)
 
   private def instrumentAndBuild(builder: ProtoRpcBuilder): ProtoRpc = {
-    val rpc = builder.build(messageFilters)
+    val rpc = builder.build(messageFilter)
     rpc.copy(
       svc = extension(rpc.metadata).toFilter andThen
         new TracingFilter[Request, Response](rpc.metadata) andThen
@@ -76,8 +68,8 @@ object ServerBuilder {
       extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
       endpoints: Seq[ProtoRpcBuilder] = Seq.empty,
       prefix: String = "/twirp",
-      messageFilters: Seq[MessageFilter] = Vector.empty
-  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix, messageFilters)
+      messageFilter: MessageFilter = MessageFilter.Identity
+  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix, messageFilter)
 }
 
 trait AsProtoService[T] {
