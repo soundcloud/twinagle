@@ -1,19 +1,22 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
-import com.twitter.finagle.{CancelledRequestException, Failure, Service}
+import com.twitter.finagle.{CancelledRequestException, Failure, Filter, Service}
 import com.twitter.finagle.http.{MediaType, Method, Request, Response, Status}
 import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+
+import scala.collection.mutable.ListBuffer
 
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val rpc = mock[TestMessage => Future[TestMessage]]
     val protoService = ProtoService(
       Seq(
-        ProtoRpc(EndpointMetadata("svc", "rpc"), rpc)
+        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
     val server = ServerBuilder()
@@ -69,6 +72,33 @@ class ServerSpec extends Specification with Mockito {
     there was exactly(1)(rpc).apply(TestMessage())
     response.status ==== Status.Ok
 
+  }
+
+  "generated message filter" in new Context {
+    val recorderRequests = ListBuffer[GeneratedMessage]()
+    val filter = new MessageFilter {
+      override def toFilter[
+          Req <: GeneratedMessage: GeneratedMessageCompanion,
+          Resp <: GeneratedMessage: GeneratedMessageCompanion
+      ]: Filter[Req, Resp, Req, Resp] =
+        (request: Req, next: Service[Req, Resp]) => {
+          recorderRequests += request
+          next(request)
+        }
+    }
+    override val server: Service[Request, Response] = ServerBuilder()
+      .withPrefix("/foo")
+      .withMessageFilter(filter)
+      .register(protoService)
+      .build
+    val request = httpRequest(path = "/foo/svc/rpc")
+    val message = TestMessage()
+    rpc.apply(any) returns Future.value(message)
+
+    val response = Await.result(server(request))
+    response.status ==== Status.Ok
+
+    recorderRequests.toList ==== List(message)
   }
 
   "exceptions" >> {
