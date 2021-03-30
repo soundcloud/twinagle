@@ -56,7 +56,7 @@ object ServerClientCodeGenerator extends CodeGenApp {
     file.getServices.asScala.map { service =>
       val p = new TwinagleServicePrinter(service, di)
 
-      import di.{FileDescriptorPimp, ServiceDescriptorPimp}
+      import di.{ExtendedFileDescriptor, ExtendedServiceDescriptor}
       val code = p.printService(FunctionalPrinter()).result()
       val b    = CodeGeneratorResponse.File.newBuilder()
       b.setName(file.scalaDirectory + "/" + service.name + ".scala")
