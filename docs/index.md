@@ -85,20 +85,6 @@ Twinagle will generate code from the API definition.
 
 To generate code, Twinagle uses scalapb library that supports various
 [customisation options](https://scalapb.github.io/docs/sbt-settings).
-For example, the following settings in `build.sbt` will activate Java conversions
-and generate the corresponding Java message representations.
-This is required to work with Java protobuf utils such as `FieldMaskUtils`:
-
-```scala
-Twinagle.scalapbCodeGeneratorOptions += scalapb.GeneratorOption.JavaConversions,
-
-// use `+=` / `++=` to add settings to `PB.targets
-// to avoid replacing/removing Twinagle's code generation
-Compile / PB.targets += protocbridge.Target(
-  PB.gens.java,
-  (sourceManaged in Compile).value
-)
-```
 
 ## Service
 
