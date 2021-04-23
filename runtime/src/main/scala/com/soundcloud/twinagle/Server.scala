@@ -24,7 +24,6 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc], prefix: String) extends
               case e: TwinagleException => errorResponse(e)
               case CancelledCategorizer(_) =>
                 errorResponse(TwinagleException(ErrorCode.Canceled, "Request canceled by client"))
-              case e => errorResponse(new TwinagleException(e))
             }
           case None =>
             Future.value(
