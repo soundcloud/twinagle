@@ -24,7 +24,7 @@ lazy val codegen = (project in file("codegen"))
     buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage := "com.soundcloud.twinagle.codegen",
     buildInfoUsePackageAsPath := true,
-    publishLocal := publishLocal.dependsOn(publishLocal in runtime).value,
+    publishLocal := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
@@ -43,8 +43,8 @@ lazy val runtime = (project in file("runtime")).settings(
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
-  PB.targets in Test := Seq(
-    scalapb.gen(flatPackage = true) -> (sourceManaged in Test).value
+  Test / PB.targets := Seq(
+    scalapb.gen(flatPackage = true) -> (Test / sourceManaged).value
   )
 )
 
@@ -53,5 +53,5 @@ lazy val root = (project in file("."))
   .settings(
     name := "twinagle-root",
     resolvers += Resolver.typesafeIvyRepo("releases"),
-    skip in publish := true
+    publish / skip := true
   )
