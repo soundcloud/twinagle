@@ -20,11 +20,11 @@ object Twinagle extends AutoPlugin {
     Compile / PB.targets := Seq(
       Target(
         scalapb.gen(scalapbCodeGeneratorOptions.value - scalapb.GeneratorOption.Grpc),
-        (Compile / sourceManaged).value
+        (Compile / sourceManaged).value / "twinagle-protobuf"
       ),
       Target(
         JvmGenerator("scala-twinagle", ServerClientCodeGenerator),
-        (Compile / sourceManaged).value,
+        (Compile / sourceManaged).value / "twinagle-services",
         scalapb.gen(scalapbCodeGeneratorOptions.value)._2
       )
     ),
