@@ -1,7 +1,8 @@
 enablePlugins(Twinagle)
 
 scalacOptions ++= Seq(
-  "-encoding", "utf8",
+  "-encoding",
+  "utf8",
   "-deprecation",
   "-unchecked",
   "-Xlint",

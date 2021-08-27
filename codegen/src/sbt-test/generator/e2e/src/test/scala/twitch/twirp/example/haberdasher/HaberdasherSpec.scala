@@ -22,14 +22,11 @@ class HaberdasherSpec extends Specification {
       }
   }
 
-
-
-
   "ClientJson" >> {
 
     "basic usage" >> {
       val httpService: Service[http.Request, http.Response] = HaberdasherService.server(svc)
-      val client = new HaberdasherClientJson(httpService)
+      val client                                            = new HaberdasherClientJson(httpService)
 
       "make a valid HTTP request" in {
         val hat = Await.result(client.makeHat(Size(12)))
@@ -45,15 +42,13 @@ class HaberdasherSpec extends Specification {
       }
     }
 
-
   }
-
 
   "ClientProtobuf" >> {
 
     "basic usage" >> {
       val httpService: Service[http.Request, http.Response] = HaberdasherService.server(svc)
-      val client = new HaberdasherClientProtobuf(httpService)
+      val client                                            = new HaberdasherClientProtobuf(httpService)
 
       "make a valid HTTP request" in {
 
@@ -72,7 +67,7 @@ class HaberdasherSpec extends Specification {
 
     "custom prefix" >> {
       val httpService = ServerBuilder().withPrefix("/foo").register(svc).build
-      val client = new HaberdasherClientProtobuf(httpService, prefix = "/foo")
+      val client      = new HaberdasherClientProtobuf(httpService, prefix = "/foo")
 
       "make a valid HTTP request" in {
 

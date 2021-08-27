@@ -14,7 +14,6 @@ class MultiMethodServiceSpec extends Specification {
       override def rpc2(req: MMRequest): Future[MMResponse] = Future.value(MMResponse())
     }
 
-
     val httpService = ServerBuilder()
       .register(svc)
       .build
