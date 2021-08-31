@@ -36,9 +36,10 @@ lazy val runtime = (project in file("runtime")).settings(
   libraryDependencies ++= Seq(
     "com.twitter"          %% "finagle-http"    % "21.8.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.11.1",
-    "org.specs2"           %% "specs2-core"     % "4.12.3" % Test,
-    "org.specs2"           %% "specs2-mock"     % "4.12.3" % Test
+    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.11.1",
+
+    "org.specs2" %% "specs2-core" % "4.12.6" % Test,
+    "org.specs2" %% "specs2-mock" % "4.12.6" % Test
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
