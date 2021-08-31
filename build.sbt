@@ -21,17 +21,17 @@ lazy val codegen = (project in file("codegen"))
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.4"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
-    buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage := "com.soundcloud.twinagle.codegen",
-    buildInfoUsePackageAsPath := true,
-    publishLocal := publishLocal.dependsOn(runtime / publishLocal).value,
+    buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage                              := "com.soundcloud.twinagle.codegen",
+    buildInfoUsePackageAsPath                     := true,
+    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
 
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
-  name := "twinagle-runtime",
+  name               := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213),
   libraryDependencies ++= Seq(
     "com.twitter"          %% "finagle-http"    % "21.8.0",
