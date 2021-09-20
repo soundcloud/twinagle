@@ -1,4 +1,4 @@
-lazy val scala212 = "2.12.14"
+lazy val scala212 = "2.12.15"
 lazy val scala213 = "2.13.6"
 
 lazy val commonSettings = List(
@@ -21,25 +21,24 @@ lazy val codegen = (project in file("codegen"))
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.4"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
-    buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage := "com.soundcloud.twinagle.codegen",
-    buildInfoUsePackageAsPath := true,
-    publishLocal := publishLocal.dependsOn(runtime / publishLocal).value,
+    buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage                              := "com.soundcloud.twinagle.codegen",
+    buildInfoUsePackageAsPath                     := true,
+    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
 
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
-  name := "twinagle-runtime",
+  name               := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213),
   libraryDependencies ++= Seq(
-    "com.twitter"          %% "finagle-http"    % "21.6.0",
+    "com.twitter"          %% "finagle-http"    % "21.8.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.12.0",
-
-    "org.specs2" %% "specs2-core" % "4.12.3" % Test,
-    "org.specs2" %% "specs2-mock" % "4.12.3" % Test
+    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.11.1",
+    "org.specs2"           %% "specs2-core"     % "4.12.12" % Test,
+    "org.specs2"           %% "specs2-mock"     % "4.12.12" % Test
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
