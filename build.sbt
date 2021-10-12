@@ -34,11 +34,11 @@ lazy val runtime = (project in file("runtime")).settings(
   name               := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213),
   libraryDependencies ++= Seq(
-    "com.twitter"          %% "finagle-http"    % "21.8.0",
+    "com.twitter"          %% "finagle-http"    % "21.9.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.0",
-    "org.specs2"           %% "specs2-core"     % "4.12.12" % Test,
-    "org.specs2"           %% "specs2-mock"     % "4.12.12" % Test
+    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.11.1",
+    "org.specs2"           %% "specs2-core"     % "4.13.0" % Test,
+    "org.specs2"           %% "specs2-mock"     % "4.13.0" % Test
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
