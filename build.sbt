@@ -36,7 +36,7 @@ lazy val runtime = (project in file("runtime")).settings(
   libraryDependencies ++= Seq(
     "com.twitter"          %% "finagle-http"    % "21.9.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.11.1",
+    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.0",
     "org.specs2"           %% "specs2-core"     % "4.13.0" % Test,
     "org.specs2"           %% "specs2-mock"     % "4.13.0" % Test
   ),
