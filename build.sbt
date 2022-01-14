@@ -1,5 +1,5 @@
 lazy val scala212 = "2.12.15"
-lazy val scala213 = "2.13.7"
+lazy val scala213 = "2.13.8"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
@@ -38,7 +38,6 @@ lazy val runtime = (project in file("runtime")).settings(
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.0",
     "org.json4s"           %% "json4s-native"   % "4.0.3",
-
     "org.specs2"           %% "specs2-core"     % "4.13.1" % Test,
     "org.specs2"           %% "specs2-mock"     % "4.13.1" % Test
   ),
