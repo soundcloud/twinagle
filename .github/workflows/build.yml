@@ -17,9 +17,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Install GPG
-      uses: olafurpg/setup-gpg@v3
-      if: ${{ github.event_name == 'release' }}
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
