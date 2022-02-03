@@ -43,7 +43,8 @@ object ServerClientCodeGenerator extends CodeGenApp {
           for {
             file        <- request.filesToGenerate
             serviceFile <- generateServiceFiles(file, implicits)
-          } yield serviceFile
+          } yield serviceFile,
+          supportedFeatures = Set(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL)
         )
       case Left(error) =>
         CodeGenResponse.fail(error)
