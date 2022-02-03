@@ -15,9 +15,9 @@ class OptionalFieldsSpec extends Specification {
         Future.value(req)
       }
 
-      private def iTakeAnOptionInt(a: Option[Int]): Unit = ()
+      private def iTakeAnOptionInt[T](a: T)(implicit ev: T =:= Option[Int]): Unit = ()
 
-      private def iTakeAnOptionString(a: Option[String]): Unit = ()
+      private def iTakeAnOptionString[T](a: T)(implicit ev: T =:= Option[String]): Unit = ()
     }
 
     val httpService = ServerBuilder()
