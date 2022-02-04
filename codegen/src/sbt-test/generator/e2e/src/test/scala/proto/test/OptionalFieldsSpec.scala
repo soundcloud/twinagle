@@ -15,8 +15,10 @@ class OptionalFieldsSpec extends Specification {
         Future.value(req)
       }
 
+      @annotation.nowarn
       private def iTakeAnOptionInt[T](a: T)(implicit ev: T =:= Option[Int]): Unit = ()
 
+      @annotation.nowarn
       private def iTakeAnOptionString[T](a: T)(implicit ev: T =:= Option[String]): Unit = ()
     }
 
