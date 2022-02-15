@@ -22,3 +22,6 @@ Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting 
 
 * IntelliJ [doesn't run plugins][intellij] during project build. Before importing,
  `sbt compile` may be necessary.
+
+* In order to run the full test suite (i.e. the unit tests & the end-to-end tests
+ for code-generation) use `sbt +test scripted`

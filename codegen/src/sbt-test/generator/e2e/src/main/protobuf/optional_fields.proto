@@ -1,0 +1,14 @@
+// A small test case for support of optional fields in proto3.
+
+syntax = "proto3";
+
+package proto.test;
+
+message IHaveOptionalFields {
+  optional int32 maybe_int = 1;
+  optional string maybe_string = 2;
+}
+
+service OptionalFieldsTest {
+  rpc DoSomething(IHaveOptionalFields) returns (IHaveOptionalFields);
+}

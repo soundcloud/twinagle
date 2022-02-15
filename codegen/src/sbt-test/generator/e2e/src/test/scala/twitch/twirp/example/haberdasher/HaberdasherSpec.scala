@@ -14,7 +14,7 @@ class HaberdasherSpec extends Specification {
           Hat(
             size = size.inches,
             color = "brown",
-            name = "bowler"
+            name = "bowler",
           )
         )
       } else {
