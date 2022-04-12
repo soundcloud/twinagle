@@ -19,7 +19,7 @@ lazy val codegen = (project in file("codegen"))
   .settings(
     commonSettings,
     name := "twinagle-scalapb-plugin",
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.4"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
     buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage                              := "com.soundcloud.twinagle.codegen",
@@ -34,13 +34,12 @@ lazy val runtime = (project in file("runtime")).settings(
   name               := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213),
   libraryDependencies ++= Seq(
-    "com.twitter"          %% "finagle-http"    % "21.11.0",
+    "com.twitter"          %% "finagle-http"    % "21.12.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.0",
     "org.json4s"           %% "json4s-native"   % "4.0.3",
-
-    "org.specs2"           %% "specs2-core"     % "4.13.1" % Test,
-    "org.specs2"           %% "specs2-mock"     % "4.13.1" % Test
+    "org.specs2"           %% "specs2-core"     % "4.13.3" % Test,
+    "org.specs2"           %% "specs2-mock"     % "4.13.3" % Test
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
