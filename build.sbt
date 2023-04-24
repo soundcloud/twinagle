@@ -1,4 +1,4 @@
-lazy val scala212 = "2.12.15"
+lazy val scala212 = "2.12.17"
 lazy val scala213 = "2.13.7"
 
 lazy val commonSettings = List(
@@ -36,10 +36,10 @@ lazy val runtime = (project in file("runtime")).settings(
   libraryDependencies ++= Seq(
     "com.twitter"          %% "finagle-http"    % "21.12.0",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
-    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.0",
+    "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
     "org.json4s"           %% "json4s-native"   % "4.0.6",
-    "org.specs2"           %% "specs2-core"     % "4.13.3" % Test,
-    "org.specs2"           %% "specs2-mock"     % "4.13.3" % Test
+    "org.specs2"           %% "specs2-core"     % "4.20.0" % Test,
+    "org.specs2"           %% "specs2-mock"     % "4.20.0" % Test
   ),
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
