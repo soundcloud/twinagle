@@ -1,4 +1,4 @@
-lazy val scala212 = "2.12.15"
+lazy val scala212 = "2.12.17"
 lazy val scala213 = "2.13.7"
 
 lazy val commonSettings = List(
