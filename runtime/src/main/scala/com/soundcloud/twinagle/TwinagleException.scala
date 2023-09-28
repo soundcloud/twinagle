@@ -79,12 +79,16 @@ object ErrorCode {
   }
 }
 
+object TwinagleException {
+  def mkMessage(code: ErrorCode, msg: String): String = s"TwinagleException with errorCode ${code.desc}: $msg"
+}
+
 case class TwinagleException(
     code: ErrorCode,
     msg: String,
     meta: Map[String, String] = Map.empty,
     cause: Throwable = null
-) extends RuntimeException(msg, cause) {
+) extends RuntimeException(TwinagleException.mkMessage(code, msg), cause) {
   def this(cause: Throwable) =
     this(ErrorCode.Internal, cause.toString, Map.empty, cause)
 }
