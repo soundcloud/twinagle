@@ -80,7 +80,7 @@ object ErrorCode {
 }
 
 object TwinagleException {
-  def mkMessage(code: ErrorCode, msg: String): String = s"TwinagleException with errorCode ${code.desc}: $msg"
+  private def mkMessage(code: ErrorCode, msg: String): String = s"$msg [${code.desc}]"
 }
 
 case class TwinagleException(
