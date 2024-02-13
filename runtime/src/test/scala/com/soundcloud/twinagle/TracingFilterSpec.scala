@@ -30,6 +30,8 @@ class TracingFilterSpec extends Specification {
         Await.result(svc(request))
       }
 
+      tracer.map(_.annotation) must contain(Annotation.Rpc("rpc"))
+      tracer.map(_.annotation) must contain(Annotation.ServiceName("svc"))
       binaryAnnotations.get(TracingFilter.Service) ==== Some("svc")
       binaryAnnotations.get(TracingFilter.Rpc) ==== Some("rpc")
 
