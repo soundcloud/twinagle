@@ -1,6 +1,6 @@
 # Twinagle = Twirp + Finagle
 
-![Build Status](https://github.com/soundcloud/twinagle/workflows/Scala%20CI/badge.svg)
+![Build Status](https://github.com/soundcloud/twinagle/actions/workflows/build.yml/badge.svg)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13)
 
 Twinagle is an implementation of the
@@ -20,7 +20,7 @@ Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting 
 
 # Notes
 
-* IntelliJ [doesn't run plugins][intellij] during project build. Before importing,
+* IntelliJ doesn't run plugins during project build. Before importing,
  `sbt compile` may be necessary.
 
 * In order to run the full test suite (i.e. the unit tests & the end-to-end tests
