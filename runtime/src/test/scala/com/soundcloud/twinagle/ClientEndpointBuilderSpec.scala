@@ -5,6 +5,9 @@ import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.{Request, Response}
 import org.specs2.mutable.Specification
 
+import scala.annotation.nowarn
+
+@nowarn("cat=lint-infer-any")
 class ClientEndpointBuilderSpec extends Specification {
 
   val httpClient: Service[Request, Response] =
