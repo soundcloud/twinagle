@@ -13,13 +13,13 @@ import scala.collection.mutable.ListBuffer
 
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
-    val rpc = mock[TestMessage => Future[TestMessage]]
-    val protoService = ProtoService(
+    val rpc: TestMessage => Future[TestMessage] = mock[TestMessage => Future[TestMessage]]
+    val protoService: ProtoService = ProtoService(
       Seq(
         ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
-    val server = ServerBuilder()
+    val server: Service[Request,Response] = ServerBuilder()
       .register(protoService)
       .build
   }

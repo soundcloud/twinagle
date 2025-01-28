@@ -9,7 +9,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
   */
 class ClientEndpointBuilder(
     httpClient: Service[Request, Response],
-    extension: EndpointMetadata => Filter.TypeAgnostic,
+    `extension`: EndpointMetadata => Filter.TypeAgnostic,
     prefix: String
 ) {
 
@@ -24,7 +24,7 @@ class ClientEndpointBuilder(
   ](
       endpointMetadata: EndpointMetadata
   ): Service[Req, Resp] = {
-    extension(endpointMetadata).toFilter andThen
+    `extension`(endpointMetadata).toFilter andThen
       new TracingFilter[Req, Resp](endpointMetadata) andThen
       new JsonClientFilter[Req, Resp](s"$prefix/${endpointMetadata.service}/${endpointMetadata.rpc}") andThen
       new TwirpHttpClient andThen
@@ -37,7 +37,7 @@ class ClientEndpointBuilder(
   ](
       endpointMetadata: EndpointMetadata
   ): Service[Req, Resp] = {
-    extension(endpointMetadata).toFilter andThen
+    `extension`(endpointMetadata).toFilter andThen
       new TracingFilter[Req, Resp](endpointMetadata) andThen
       new ProtobufClientFilter[Req, Resp](s"$prefix/${endpointMetadata.service}/${endpointMetadata.rpc}") andThen
       new TwirpHttpClient andThen

@@ -1,8 +1,8 @@
 package com.soundcloud.twinagle.codegen
 
 import protocbridge.{JvmGenerator, Target}
-import sbt.Keys._
-import sbt._
+import sbt.*
+import sbt.Keys.*
 import sbt.plugins.JvmPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
@@ -14,9 +14,19 @@ object Twinagle extends AutoPlugin {
   override def trigger: PluginTrigger = NoTrigger
 
   override def projectSettings: Seq[Def.Setting[_]] = List(
-    scalapbCodeGeneratorOptions := Set(
-      scalapb.GeneratorOption.FlatPackage // don't include proto filename in scala package name
-    ),
+    scalapbCodeGeneratorOptions := {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Set(
+            scalapb.GeneratorOption.FlatPackage, // don't include proto filename in scala package name
+            scalapb.GeneratorOption.Scala3Sources
+          )
+        case _ =>
+          Set(
+            scalapb.GeneratorOption.FlatPackage // don't include proto filename in scala package name
+          )
+      }
+    },
     Compile / PB.targets := Seq(
       Target(
         scalapb.gen(scalapbCodeGeneratorOptions.value - scalapb.GeneratorOption.Grpc),
@@ -27,7 +37,8 @@ object Twinagle extends AutoPlugin {
         (Compile / sourceManaged).value / "twinagle-services",
         scalapb.gen(scalapbCodeGeneratorOptions.value)._2
       )
-    ),
+    )
+    ,
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
     )

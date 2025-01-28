@@ -10,10 +10,10 @@ import org.specs2.specification.Scope
 class TracingFilterSpec extends Specification {
   trait Context extends Scope {
     val tracer   = new BufferingTracer
-    val response = Response()
-    val request  = Request(Method.Post, "/twirp/svc/rpc")
+    val response: Response = Response()
+    val request: Request  = Request(Method.Post, "/twirp/svc/rpc")
 
-    def binaryAnnotations =
+    def binaryAnnotations: Map[String,Any] =
       tracer
         .map(_.annotation)
         .collect { case Annotation.BinaryAnnotation(k, v) =>

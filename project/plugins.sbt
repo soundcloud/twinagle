@@ -12,3 +12,4 @@ libraryDependencies ++= Seq(
 )
 // only necessary so we can generate protos for tests
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7")
+addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.7.2")
