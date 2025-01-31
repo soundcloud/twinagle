@@ -37,8 +37,7 @@ object Twinagle extends AutoPlugin {
         (Compile / sourceManaged).value / "twinagle-services",
         scalapb.gen(scalapbCodeGeneratorOptions.value)._2
       )
-    )
-    ,
+    ),
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
     )

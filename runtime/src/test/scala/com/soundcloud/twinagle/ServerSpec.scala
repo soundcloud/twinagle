@@ -19,7 +19,7 @@ class ServerSpec extends Specification with Mockito {
         ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
-    val server: Service[Request,Response] = ServerBuilder()
+    val server: Service[Request, Response] = ServerBuilder()
       .register(protoService)
       .build
   }
