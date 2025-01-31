@@ -1,7 +1,7 @@
 import sbt.CrossVersion
 
 lazy val scala212 = "2.12.18"
-lazy val scala213 = "2.13.7"
+lazy val scala213 = "2.13.14"
 lazy val scala3 = "3.3.4"
 
 lazy val commonSettings = List(
@@ -9,7 +9,6 @@ lazy val commonSettings = List(
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) => scalacOptions ++= Seq("-Xlint")
-      case Some((3, _)) => scalacOptions ++= Seq("-rewrite", "-source:3.0-migration")
       case _ => ()
     }
     Seq(
@@ -20,7 +19,6 @@ lazy val commonSettings = List(
       "-Xfatal-warnings"
     )
   },
-  excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
   Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint"),
   scalafmtOnCompile := true
 )
@@ -44,12 +42,7 @@ lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
   name := "twinagle-runtime",
   crossScalaVersions := Seq(scala212, scala213, scala3),
-  scalacOptions ++= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq("-rewrite", "-source:3.0-migration")
-      case _ => Seq()
-    }
-  },
+  excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_3",
   libraryDependencies ++= {
     Seq(
       "com.twitter" %% "finagle-http" % "24.2.0" cross CrossVersion.for3Use2_13,
