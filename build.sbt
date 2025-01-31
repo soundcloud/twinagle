@@ -2,7 +2,6 @@ import sbt.CrossVersion
 
 lazy val scala212 = "2.12.18"
 lazy val scala213 = "2.13.7"
-lazy val scala213dot13 = "2.13.14"
 lazy val scala3 = "3.3.4"
 
 lazy val commonSettings = List(
@@ -44,7 +43,7 @@ lazy val codegen = (project in file("codegen"))
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
   name := "twinagle-runtime",
-  crossScalaVersions := Seq(scala212, scala213, scala213dot13, scala3),
+  crossScalaVersions := Seq(scala212, scala213, scala3),
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) => Seq("-rewrite", "-source:3.0-migration")
