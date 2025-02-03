@@ -1,15 +1,16 @@
 import sbt.CrossVersion
 
-lazy val scala212 = "2.12.18"
-lazy val scala213 = "2.13.14"
-lazy val scala3 = "3.3.4"
+lazy val scala212  = "2.12.18"
+lazy val scala213  = "2.13.14"
+lazy val scala3LTS = "3.3.4"
+lazy val scala3    = "3.6.3"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) => scalacOptions ++= Seq("-Xlint")
-      case _ => ()
+      case _            => ()
     }
     Seq(
       "-encoding",
@@ -30,37 +31,61 @@ lazy val codegen = (project in file("codegen"))
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
-    buildInfoKeys := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage := "com.soundcloud.twinagle.codegen",
-    buildInfoUsePackageAsPath := true,
-    publishLocal := publishLocal.dependsOn(runtime / publishLocal).value,
+    buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage                              := "com.soundcloud.twinagle.codegen",
+    buildInfoUsePackageAsPath                     := true,
+    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
 
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
-  name := "twinagle-runtime",
-  crossScalaVersions := Seq(scala212, scala213, scala3),
+  name                                           := "twinagle-runtime",
+  crossScalaVersions                             := Seq(scala212, scala213, scala3LTS, scala3),
+  // finagle uses 2.13 heavily so we will ignore our project runtime compat
   excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_3",
   libraryDependencies ++= {
     Seq(
-      "com.twitter" %% "finagle-http" % "24.2.0" cross CrossVersion.for3Use2_13,
+      "com.twitter"          %% "finagle-http"    % "24.2.0" cross CrossVersion.for3Use2_13,
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.17",
-      "com.thesamet.scalapb" %% "scalapb-json4s" % "0.12.1",
-      "org.json4s" %% "json4s-native" % "4.0.7",
-      "org.specs2" %% "specs2-core" % "4.20.5" % Test cross CrossVersion.for3Use2_13,
-      "org.specs2" %% "specs2-mock" % "4.20.5" % Test cross CrossVersion.for3Use2_13
+      "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
+      "org.json4s"           %% "json4s-native"   % "4.0.7",
+      "org.specs2"           %% "specs2-core"     % "4.20.8" % Test cross CrossVersion.for3Use2_13
     )
+  },
+  // scala mocking split
+  libraryDependencies ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 13)) =>
+        Seq(
+          "org.specs2" %% "specs2-mock" % "4.20.8" % Test
+        )
+      case Some((3, 3)) =>
+        Seq(
+          "org.scalamock" %% "scalamock" % "6.1.1" % Test
+        )
+      case Some((3, _)) =>
+        Seq(
+          "org.scalamock" %% "scalamock" % "7.1.0" % Test
+        )
+      case _ => Seq.empty
+    }
   },
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
-  // specs2 tests have some dependencies that use partial functions that the scala pickler has issue with.
-  // That's why we convert FailureToEliminateExistentialID (id=98) into info level
-  Test / scalacOptions ++= Seq("-Wconf:id=98:i,any:v"),
-  Test / PB.targets := Seq(
-    scalapb.gen(flatPackage = true) -> (Test / sourceManaged).value
-  )
+  Test / scalacOptions += {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, minor)) if minor > 3 => "-experimental"
+      case _            => ""
+    }
+  },
+  Test / PB.targets := {
+    val gen3 = CrossVersion.partialVersion(scalaVersion.value).exists(a => a._1 == 3L)
+    Seq(
+      scalapb.gen(flatPackage = true, scala3Sources = gen3) -> (Test / sourceManaged).value
+    )
+  }
 )
 
 lazy val root = (project in file("."))

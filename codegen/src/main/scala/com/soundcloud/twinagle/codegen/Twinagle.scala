@@ -1,8 +1,8 @@
 package com.soundcloud.twinagle.codegen
 
 import protocbridge.{JvmGenerator, Target}
-import sbt.*
-import sbt.Keys.*
+import sbt._
+import sbt.Keys._
 import sbt.plugins.JvmPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
@@ -40,6 +40,12 @@ object Twinagle extends AutoPlugin {
     ),
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
-    )
+    ),
+    excludeDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) => Seq("org.scala-lang.modules" % "scala-collection-compat_2.13")
+        case _            => Seq.empty
+      }
+    }
   )
 }
