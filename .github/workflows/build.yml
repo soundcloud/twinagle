@@ -19,6 +19,10 @@ jobs:
       with:
         java-version: 8
         distribution: temurin
+    - uses: sbt/setup-sbt@v1
+    - name: Build and test
+      shell: bash
+      run: sbt -v +test
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
