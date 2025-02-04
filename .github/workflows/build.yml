@@ -19,7 +19,7 @@ jobs:
       with:
         java-version: 8
         distribution: temurin
-    - uses: sc-actions-forks/setup-sbt@v1
+    - uses: sc-actions-forks/setup-sbt@main
     - name: Build and test
       shell: bash
       run: sbt -v +test
