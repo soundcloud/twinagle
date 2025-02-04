@@ -57,7 +57,7 @@ lazy val runtime = (project in file("runtime")).settings(
   // scala mocking split
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) =>
+      case Some((2, 13)) | Some((2, 12))  =>
         Seq(
           "org.specs2" %% "specs2-mock" % "4.20.8" % Test
         )
