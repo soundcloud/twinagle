@@ -63,10 +63,12 @@ lazy val runtime = (project in file("runtime")).settings(
         )
       case Some((3, 3)) =>
         Seq(
+          "org.playframework" %% "play-json" % "3.0.4",
           "org.scalamock" %% "scalamock" % "6.1.1" % Test
         )
       case Some((3, _)) =>
         Seq(
+          "org.playframework" %% "play-json" % "3.0.4",
           "org.scalamock" %% "scalamock" % "7.1.0" % Test
         )
       case _ => Seq.empty

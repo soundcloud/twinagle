@@ -1,6 +1,6 @@
 package com.soundcloud.twinagle
 
-import scala.annotation.nowarn
+import play.api.libs.json.{Json, OFormat}
 
 /** JsonError is the JSON representation of `TwinagleException`s.
   *
@@ -14,22 +14,13 @@ private[twinagle] case class JsonError(
 )
 
 private[twinagle] object JsonError {
-  // we use json4s because we depend on it already via scalapb-runtime.
-
-  import org.json4s.*
-  import org.json4s.native.Serialization
-  import org.json4s.native.Serialization.{read, write}
-
   import scala.util.control.Exception.*
-  implicit val formats: AnyRef & Formats = Serialization.formats(NoTypeHints)
 
-  @nowarn("cat=deprecation")
-  // known issue in json4s
-  // will supress this deprecation warning until this is fixed
-  // https://github.com/json4s/json4s/issues/982
+  implicit val writes: OFormat[JsonError] = Json.format[JsonError]
+
   def fromString(str: String): Option[JsonError] = allCatch opt {
-    read[JsonError](str)
+    Json.parse(str).as[JsonError]
   }
 
-  def toString(err: JsonError): String = write(err)
+  def toString(err: JsonError): String = Json.stringify(Json.toJson(err))
 }
