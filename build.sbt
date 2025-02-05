@@ -2,7 +2,7 @@ import sbt.CrossVersion
 
 lazy val scala212  = "2.12.18"
 lazy val scala213  = "2.13.14"
-lazy val scala3LTS = "3.3.4"
+lazy val scala3LTS = "3.3.5"
 lazy val scala3    = "3.6.3"
 
 lazy val commonSettings = List(
@@ -62,11 +62,11 @@ lazy val runtime = (project in file("runtime")).settings(
         )
       case Some((3, 3)) =>
         Seq(
-          "org.scalamock"     %% "scalamock" % "6.1.1" % Test
+          "org.scalamock" %% "scalamock" % "6.1.1" % Test
         )
       case Some((3, _)) =>
         Seq(
-          "org.scalamock"     %% "scalamock" % "7.1.0" % Test
+          "org.scalamock" %% "scalamock" % "7.1.0" % Test
         )
       case _ => Seq.empty
     }
