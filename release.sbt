@@ -19,6 +19,12 @@ inThisBuild(
         name = "Oren Berkowitz",
         email = "oren.berkowitz@soundcloud.com",
         url = url("https://github.com/oberkowitz")
+      ),
+      Developer(
+        id = "rbscgh",
+        name = "Rahul Bhonsale",
+        email = "rahul@soundcloud.com",
+        url = url("https://github.com/rbscgh")
       )
     ),
     scmInfo := Some(
