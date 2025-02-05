@@ -24,6 +24,9 @@ private[twinagle] object JsonError {
   implicit val formats: AnyRef & Formats = Serialization.formats(NoTypeHints)
 
   @nowarn("cat=deprecation")
+  // known issue in json4s
+  // will supress this deprecation warning until this is fixed
+  // https://github.com/json4s/json4s/issues/982
   def fromString(str: String): Option[JsonError] = allCatch opt {
     read[JsonError](str)
   }

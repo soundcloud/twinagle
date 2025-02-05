@@ -1,6 +1,5 @@
 package com.soundcloud.twinagle
 
-import scala.annotation.nowarn
 
 /** JsonError is the JSON representation of `TwinagleException`s.
   *
@@ -23,7 +22,6 @@ private[twinagle] object JsonError {
   import scala.util.control.Exception._
   implicit val formats: AnyRef with Formats = Serialization.formats(NoTypeHints)
 
-  @nowarn("cat=deprecation")
   def fromString(str: String): Option[JsonError] = allCatch opt {
     read[JsonError](str)
   }
