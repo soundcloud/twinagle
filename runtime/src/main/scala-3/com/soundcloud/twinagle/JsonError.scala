@@ -16,7 +16,7 @@ private[twinagle] case class JsonError(
 private[twinagle] object JsonError {
   import scala.util.control.Exception.*
 
-  implicit val writes: OFormat[JsonError] = Json.format[JsonError]
+  implicit val _format: OFormat[JsonError] = Json.format[JsonError]
 
   def fromString(str: String): Option[JsonError] = allCatch opt {
     Json.parse(str).as[JsonError]
