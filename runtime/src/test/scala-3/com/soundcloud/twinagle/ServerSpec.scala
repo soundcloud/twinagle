@@ -1,25 +1,27 @@
 package com.soundcloud.twinagle
 
 import com.soundcloud.twinagle.test.TestMessage
+import com.twitter.finagle.http.*
 import com.twitter.finagle.{CancelledRequestException, Failure, Filter, Service}
-import com.twitter.finagle.http.{MediaType, Method, Request, Response, Status}
 import com.twitter.util.{Await, Future}
-import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+import org.scalamock.specs2.MockContext
 
 import scala.collection.mutable.ListBuffer
 
-class ServerSpec extends Specification with Mockito {
-  trait Context extends Scope {
-    val rpc = mock[TestMessage => Future[TestMessage]]
-    val protoService = ProtoService(
+class ServerSpec extends Specification {
+
+  trait Context extends Scope with MockContext {
+    val rpc: TestMessage => Future[TestMessage] = mock[TestMessage => Future[TestMessage]]
+
+    val protoService: ProtoService = ProtoService(
       Seq(
         ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
-    val server = ServerBuilder()
+    val server: Service[Request, Response] = ServerBuilder()
       .register(protoService)
       .build
   }
@@ -33,29 +35,31 @@ class ServerSpec extends Specification with Mockito {
 
   "happy case" in new Context {
     val request = httpRequest()
-    rpc.apply(any) returns Future.value(TestMessage())
+
+    rpc.apply.expects(TestMessage()).returning(Future.value(TestMessage())).once()
 
     val response = Await.result(server(request))
 
-    there was exactly(1)(rpc).apply(TestMessage())
     response.status ==== Status.Ok
   }
 
   "non-POST request" in new Context {
     val request = httpRequest(method = Method.Get)
 
+    rpc.apply.expects(*).never()
+
     val response = Await.result(server(request))
 
-    there were noCallsTo(rpc)
     response.status ==== Status.NotFound // TODO: really? verify w/ Go impl
   }
 
   "unknown path" in new Context {
     val request = httpRequest(path = "/bar")
 
+    rpc.apply.expects(*).never()
+
     val response = Await.result(server(request))
 
-    there were noCallsTo(rpc)
     response.status ==== Status.NotFound
   }
 
@@ -65,11 +69,10 @@ class ServerSpec extends Specification with Mockito {
       .register(protoService)
       .build
     val request = httpRequest(path = "/foo/svc/rpc")
-    rpc.apply(any) returns Future.value(TestMessage())
+    rpc.apply.expects(TestMessage()).returning(Future.value(TestMessage())).once()
 
     val response = Await.result(server(request))
 
-    there was exactly(1)(rpc).apply(TestMessage())
     response.status ==== Status.Ok
 
   }
@@ -93,7 +96,7 @@ class ServerSpec extends Specification with Mockito {
       .build
     val request = httpRequest(path = "/foo/svc/rpc")
     val message = TestMessage()
-    rpc.apply(any) returns Future.value(message)
+    rpc.apply.expects(*).returning(Future.value(message)).once()
 
     val response = Await.result(server(request))
     response.status ==== Status.Ok
@@ -105,11 +108,10 @@ class ServerSpec extends Specification with Mockito {
     "TwinagleException" in new Context {
       val request = httpRequest()
       val ex      = TwinagleException(ErrorCode.PermissionDenied, "nope")
-      rpc.apply(any) returns Future.exception(ex)
+      rpc.apply.expects(TestMessage()).returning(Future.exception(ex)).once()
 
       val response = Await.result(server(request))
 
-      there was exactly(1)(rpc).apply(TestMessage())
       response.status ==== Status.Forbidden
       response.contentString must contain(ex.code.desc)
     }
@@ -117,11 +119,10 @@ class ServerSpec extends Specification with Mockito {
     "unknown exceptions" in new Context {
       val request = httpRequest()
       val ex      = new RuntimeException("eek")
-      rpc.apply(any) returns Future.exception(ex)
+      rpc.apply.expects(TestMessage()).returning(Future.exception(ex)).once()
 
       val response = Await.result(server(request))
 
-      there was exactly(1)(rpc).apply(TestMessage())
       response.status ==== Status.InternalServerError
       response.contentString must contain(ErrorCode.Internal.desc)
       response.contentString must contain(ex.toString)
@@ -130,11 +131,10 @@ class ServerSpec extends Specification with Mockito {
     "catches exceptions thrown by user code" in new Context {
       val request = httpRequest()
       val ex      = new RuntimeException("eek")
-      rpc.apply(any) throws ex
+      rpc.apply.expects(TestMessage()).once().throws(ex)
 
       val response = Await.result(server(request))
 
-      there was exactly(1)(rpc).apply(TestMessage())
       response.status ==== Status.InternalServerError
       response.contentString must contain(ErrorCode.Internal.desc)
       response.contentString must contain(ex.toString)
@@ -143,11 +143,10 @@ class ServerSpec extends Specification with Mockito {
     "translates Finagle cancelled request exceptions into Twirp canceled" in new Context {
       val request = httpRequest()
       val ex      = new CancelledRequestException()
-      rpc.apply(any) returns Future.exception(ex)
+      rpc.apply.expects(TestMessage()).once().returning(Future.exception(ex))
 
       val response = Await.result(server(request))
 
-      there was exactly(1)(rpc).apply(TestMessage())
       response.status ==== Status.RequestTimeout
       response.contentString must contain(ErrorCode.Canceled.desc)
       response.contentString must contain("Request canceled by client")
@@ -156,11 +155,10 @@ class ServerSpec extends Specification with Mockito {
     "translates Finagle failures caused by cancelled requests into Twirp canceled" in new Context {
       val request = httpRequest()
       val ex      = Failure(new CancelledRequestException())
-      rpc.apply(any) returns Future.exception(ex)
+      rpc.apply.expects(TestMessage()).once().returning(Future.exception(ex))
 
       val response = Await.result(server(request))
 
-      there was exactly(1)(rpc).apply(TestMessage())
       response.status ==== Status.RequestTimeout
       response.contentString must contain(ErrorCode.Canceled.desc)
       response.contentString must contain("Request canceled by client")
