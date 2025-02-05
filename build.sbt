@@ -50,6 +50,7 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.twitter"          %% "finagle-http"    % "24.2.0" cross CrossVersion.for3Use2_13,
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.17",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
+      "org.json4s"           %% "json4s-native"   % "4.0.7",
       "org.specs2"           %% "specs2-core"     % "4.20.8" % Test cross CrossVersion.for3Use2_13
     )
   },
@@ -57,17 +58,14 @@ lazy val runtime = (project in file("runtime")).settings(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) | Some((2, 12)) =>
         Seq(
-          "org.json4s" %% "json4s-native" % "4.0.7",
-          "org.specs2" %% "specs2-mock"   % "4.20.8" % Test
+          "org.specs2" %% "specs2-mock" % "4.20.8" % Test
         )
       case Some((3, 3)) =>
         Seq(
-          "org.playframework" %% "play-json" % "3.0.4",
           "org.scalamock"     %% "scalamock" % "6.1.1" % Test
         )
       case Some((3, _)) =>
         Seq(
-          "org.playframework" %% "play-json" % "3.0.4",
           "org.scalamock"     %% "scalamock" % "7.1.0" % Test
         )
       case _ => Seq.empty
