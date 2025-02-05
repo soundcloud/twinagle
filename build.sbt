@@ -41,8 +41,8 @@ lazy val codegen = (project in file("codegen"))
 
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
-  name                                           := "twinagle-runtime",
-  crossScalaVersions                             := Seq(scala212, scala213, scala3LTS, scala3),
+  name               := "twinagle-runtime",
+  crossScalaVersions := Seq(scala212, scala213, scala3LTS, scala3),
   // finagle uses 2.13 heavily so we will ignore our project runtime compat
   excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_3",
   libraryDependencies ++= {
@@ -50,26 +50,25 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.twitter"          %% "finagle-http"    % "24.2.0" cross CrossVersion.for3Use2_13,
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.17",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
-      "org.json4s"           %% "json4s-native"   % "4.0.7",
       "org.specs2"           %% "specs2-core"     % "4.20.8" % Test cross CrossVersion.for3Use2_13
     )
   },
-  // scala mocking split
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) | Some((2, 12))  =>
+      case Some((2, 13)) | Some((2, 12)) =>
         Seq(
-          "org.specs2" %% "specs2-mock" % "4.20.8" % Test
+          "org.json4s" %% "json4s-native" % "4.0.7",
+          "org.specs2" %% "specs2-mock"   % "4.20.8" % Test
         )
       case Some((3, 3)) =>
         Seq(
           "org.playframework" %% "play-json" % "3.0.4",
-          "org.scalamock" %% "scalamock" % "6.1.1" % Test
+          "org.scalamock"     %% "scalamock" % "6.1.1" % Test
         )
       case Some((3, _)) =>
         Seq(
           "org.playframework" %% "play-json" % "3.0.4",
-          "org.scalamock" %% "scalamock" % "7.1.0" % Test
+          "org.scalamock"     %% "scalamock" % "7.1.0" % Test
         )
       case _ => Seq.empty
     }
@@ -79,7 +78,7 @@ lazy val runtime = (project in file("runtime")).settings(
   Test / scalacOptions += {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, minor)) if minor > 3 => "-experimental"
-      case _            => ""
+      case _                             => ""
     }
   },
   Test / PB.targets := {
