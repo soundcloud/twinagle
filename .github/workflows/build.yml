@@ -23,7 +23,7 @@ jobs:
       with:
         java-version: 8
         distribution: temurin
-    - uses: sc-actions-forks/setup-sbt@main
+    - uses: sc-actions-forks/setup-sbt@96cf3f09dc501acdad7807fffe97dba9fa0709be #v1.1.5
     - name: Run tests
       run: sbt +test scripted
     - name: Lint
