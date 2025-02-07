@@ -2,8 +2,7 @@ import sbt.CrossVersion
 
 lazy val scala212  = "2.12.18"
 lazy val scala213  = "2.13.14"
-lazy val scala3LTS = "3.3.4"
-lazy val scala3    = "3.6.3"
+lazy val scala3LTS = "3.3.5"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
@@ -42,7 +41,8 @@ lazy val codegen = (project in file("codegen"))
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
   name               := "twinagle-runtime",
-  crossScalaVersions := Seq(scala212, scala213, scala3LTS, scala3),
+  crossScalaVersions := Seq(scala212, scala213, scala3LTS),
+  crossPaths := true,
   // finagle uses 2.13 heavily so we will ignore our project runtime compat
   excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_3",
   libraryDependencies ++= {
@@ -50,7 +50,7 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.twitter"          %% "finagle-http"    % "24.2.0" cross CrossVersion.for3Use2_13,
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.17",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
-      "org.json4s"           %% "json4s-native"   % "4.0.7",
+      "org.json4s"             %% "json4s-native"   % "4.0.7",
       "org.specs2"           %% "specs2-core"     % "4.20.8" % Test cross CrossVersion.for3Use2_13
     )
   },
