@@ -2,8 +2,7 @@ import sbt.CrossVersion
 
 lazy val scala212  = "2.12.18"
 lazy val scala213  = "2.13.14"
-lazy val scala3LTS = "3.3.4"
-lazy val scala3    = "3.6.3"
+lazy val scala3LTS = "3.3.5"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
@@ -42,7 +41,7 @@ lazy val codegen = (project in file("codegen"))
 lazy val runtime = (project in file("runtime")).settings(
   commonSettings,
   name               := "twinagle-runtime",
-  crossScalaVersions := Seq(scala212, scala213, scala3LTS, scala3),
+  crossScalaVersions := Seq(scala212, scala213, scala3LTS),
   // finagle uses 2.13 heavily so we will ignore our project runtime compat
   excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_3",
   libraryDependencies ++= {
@@ -62,23 +61,13 @@ lazy val runtime = (project in file("runtime")).settings(
         )
       case Some((3, 3)) =>
         Seq(
-          "org.scalamock"     %% "scalamock" % "6.1.1" % Test
-        )
-      case Some((3, _)) =>
-        Seq(
-          "org.scalamock"     %% "scalamock" % "7.1.0" % Test
+          "org.scalamock" %% "scalamock" % "6.1.1" % Test
         )
       case _ => Seq.empty
     }
   },
   // compile protobuf messages for unit tests
   Project.inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings),
-  Test / scalacOptions += {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, minor)) if minor > 3 => "-experimental"
-      case _                             => ""
-    }
-  },
   Test / PB.targets := {
     val gen3 = CrossVersion.partialVersion(scalaVersion.value).exists(a => a._1 == 3L)
     Seq(
