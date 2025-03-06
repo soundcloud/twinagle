@@ -24,14 +24,23 @@ lazy val commonSettings = List(
 )
 
 lazy val codegen = (project in file("codegen"))
+  .settings(
+    commonSettings,
+    name := "twinagle-codegen",
+    crossScalaVersions := Seq(scala212, scala213, scala3LTS),
+    libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
+    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
+  )
+
+lazy val plugin = (project in file("plugin"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
+  .dependsOn(codegen)
   .settings(
     commonSettings,
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
-    libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
     buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage                              := "com.soundcloud.twinagle.codegen",
+    buildInfoPackage                              := "com.soundcloud.twinagle.plugin",
     buildInfoUsePackageAsPath                     := true,
     publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
@@ -77,7 +86,7 @@ lazy val runtime = (project in file("runtime")).settings(
 )
 
 lazy val root = (project in file("."))
-  .aggregate(runtime, codegen)
+  .aggregate(runtime, codegen, plugin)
   .settings(
     name := "twinagle-root",
     resolvers += Resolver.typesafeIvyRepo("releases"),

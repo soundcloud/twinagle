@@ -1,4 +1,4 @@
-package com.soundcloud.twinagle.codegen
+package com.soundcloud.twinagle.plugin
 
 import protocbridge.{JvmGenerator, Target}
 import sbt._
@@ -33,7 +33,7 @@ object Twinagle extends AutoPlugin {
         (Compile / sourceManaged).value / "twinagle-protobuf"
       ),
       Target(
-        JvmGenerator("scala-twinagle", ServerClientCodeGenerator),
+        JvmGenerator("scala-twinagle", SbtServerClientCodeGenerator),
         (Compile / sourceManaged).value / "twinagle-services",
         scalapb.gen(scalapbCodeGeneratorOptions.value)._2
       )

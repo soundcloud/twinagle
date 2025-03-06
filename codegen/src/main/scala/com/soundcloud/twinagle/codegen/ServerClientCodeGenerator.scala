@@ -4,31 +4,15 @@ import com.google.protobuf.Descriptors._
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
-import protocbridge.Artifact
 import protocgen.{CodeGenApp, CodeGenRequest, CodeGenResponse}
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter, ProtobufGenerator}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
-object ServerClientCodeGenerator extends CodeGenApp {
+trait ServerClientCodeGenerator extends CodeGenApp {
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
     scalapb.options.Scalapb.registerAllExtensions(registry)
   }
-
-  override def suggestedDependencies: Seq[protocbridge.Artifact] = Seq(
-    Artifact(
-      "com.soundcloud",
-      "twinagle-runtime",
-      BuildInfo.version,
-      crossVersion = true
-    ),
-    Artifact(
-      "com.thesamet.scalapb",
-      "scalapb-runtime",
-      scalapb.compiler.Version.scalapbVersion,
-      crossVersion = true
-    )
-  )
 
   def process(request: CodeGenRequest): CodeGenResponse =
     ProtobufGenerator.parseParameters(request.parameter) match {
@@ -54,7 +38,7 @@ object ServerClientCodeGenerator extends CodeGenApp {
       file: FileDescriptor,
       di: DescriptorImplicits
   ): Seq[PluginProtos.CodeGeneratorResponse.File] = {
-    file.getServices.asScala.map { service =>
+    file.getServices.asScala.toSeq.map { service =>
       val p = new TwinagleServicePrinter(service, di)
 
       import di.{ExtendedFileDescriptor, ExtendedServiceDescriptor}
@@ -68,3 +52,5 @@ object ServerClientCodeGenerator extends CodeGenApp {
   }
 
 }
+
+object StandaloneServerClientCodeGenerator extends ServerClientCodeGenerator {}
