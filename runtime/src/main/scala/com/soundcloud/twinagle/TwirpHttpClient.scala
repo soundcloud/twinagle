@@ -71,19 +71,19 @@ private[twinagle] class TwirpHttpClient extends SimpleFilter[Request, Response] 
   ): TwinagleException = {
     import Status._
     val errorCode = status match {
-      case s if isRedirect(s) => ErrorCode.Internal
-      case BadRequest         => ErrorCode.Internal
-      case Unauthorized       => ErrorCode.Unauthenticated
-      case Forbidden          => ErrorCode.PermissionDenied
-      case NotFound           => ErrorCode.BadRoute
-      case TooManyRequests    => ErrorCode.ResourceExhausted
+      case s if isRedirect(s)                               => ErrorCode.Internal
+      case BadRequest                                       => ErrorCode.Internal
+      case Unauthorized                                     => ErrorCode.Unauthenticated
+      case Forbidden                                        => ErrorCode.PermissionDenied
+      case NotFound                                         => ErrorCode.BadRoute
+      case TooManyRequests                                  => ErrorCode.ResourceExhausted
       case BadGateway | ServiceUnavailable | GatewayTimeout =>
         ErrorCode.Unavailable
       case _ => ErrorCode.Internal
     }
 
     val bodyOrLocationKey = if (isRedirect(status)) "location" else "body"
-    val meta = Map(
+    val meta              = Map(
       "http_error_code_from_intermediary" -> "true",
       "status_code"                       -> status.code.toString,
       bodyOrLocationKey                   -> bodyOrLocation

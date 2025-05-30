@@ -79,7 +79,7 @@ class ServerSpec extends Specification {
 
   "generated message filter" in new Context {
     val recorderRequests = ListBuffer[GeneratedMessage]()
-    val filter = new MessageFilter {
+    val filter           = new MessageFilter {
       override def toFilter[
           Req <: GeneratedMessage: GeneratedMessageCompanion,
           Resp <: GeneratedMessage: GeneratedMessageCompanion
