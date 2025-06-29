@@ -26,10 +26,10 @@ lazy val commonSettings = List(
 lazy val codegen = (project in file("codegen"))
   .settings(
     commonSettings,
-    name := "twinagle-codegen",
-    crossScalaVersions := Seq(scala212, scala213, scala3LTS),
+    name                                          := "twinagle-codegen",
+    crossScalaVersions                            := Seq(scala212, scala213, scala3LTS),
     libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
-    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
+    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value
   )
 
 lazy val plugin = (project in file("plugin"))
@@ -39,10 +39,10 @@ lazy val plugin = (project in file("plugin"))
     commonSettings,
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
-    buildInfoKeys                                 := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage                              := "com.soundcloud.twinagle.plugin",
-    buildInfoUsePackageAsPath                     := true,
-    publishLocal                                  := publishLocal.dependsOn(runtime / publishLocal).value,
+    buildInfoKeys             := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage          := "com.soundcloud.twinagle.plugin",
+    buildInfoUsePackageAsPath := true,
+    publishLocal              := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
