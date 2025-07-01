@@ -13,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
-    val rpc = mock[TestMessage => Future[TestMessage]]
+    val rpc                        = mock[TestMessage => Future[TestMessage]]
     val protoService: ProtoService = ProtoService(
       Seq(
         ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
@@ -76,7 +76,7 @@ class ServerSpec extends Specification with Mockito {
 
   "generated message filter" in new Context {
     val recorderRequests = ListBuffer[GeneratedMessage]()
-    val filter = new MessageFilter {
+    val filter           = new MessageFilter {
       override def toFilter[
           Req <: GeneratedMessage: GeneratedMessageCompanion,
           Resp <: GeneratedMessage: GeneratedMessageCompanion

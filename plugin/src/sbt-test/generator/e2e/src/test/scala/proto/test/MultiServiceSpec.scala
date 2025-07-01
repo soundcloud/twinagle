@@ -35,7 +35,7 @@ class MultiServiceSpec extends Specification {
   "ServerBuilder with specified message filter" >> {
     trait MessageFilterContext extends Scope {
       val recorderRequests = ListBuffer[GeneratedMessage]()
-      val filter = new MessageFilter {
+      val filter           = new MessageFilter {
         override def toFilter[
             Req <: GeneratedMessage: GeneratedMessageCompanion,
             Resp <: GeneratedMessage: GeneratedMessageCompanion

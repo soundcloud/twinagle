@@ -21,7 +21,7 @@ private[twinagle] class Server(endpoints: Seq[ProtoRpc], prefix: String) extends
         servicesByPath.get(request.path) match {
           case Some(service) =>
             service(request).handle {
-              case e: TwinagleException => errorResponse(e)
+              case e: TwinagleException    => errorResponse(e)
               case CancelledCategorizer(_) =>
                 errorResponse(TwinagleException(ErrorCode.Canceled, "Request canceled by client"))
               case e => errorResponse(new TwinagleException(e))

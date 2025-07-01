@@ -151,7 +151,7 @@ final class TwinagleServicePrinter(
     val varName    = decapitalize(varType)
     val outputType = methodOutputType(methodDescriptor)
     val methodName = decapitalizedName(methodDescriptor)
-    val docString = commentToDocString(methodDescriptor.comment).replace(
+    val docString  = commentToDocString(methodDescriptor.comment).replace(
       "\n",
       "\n  "
     ) // First line is indented by "|  " and the next lines are indented with the replace
