@@ -38,7 +38,7 @@ lazy val plugin = (project in file("plugin"))
   .settings(
     commonSettings,
     name := "twinagle-scalapb-plugin",
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.8"),
     buildInfoKeys             := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage          := "com.soundcloud.twinagle.plugin",
     buildInfoUsePackageAsPath := true,
