@@ -2,7 +2,7 @@ import sbt.CrossVersion
 
 lazy val scala212  = "2.12.18"
 lazy val scala213  = "2.13.14"
-lazy val scala3LTS = "3.3.5"
+lazy val scala3LTS = "3.3.6"
 
 lazy val commonSettings = List(
   scalaVersion := scala212,
