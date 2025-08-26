@@ -1,6 +1,6 @@
 import sbt.CrossVersion
 
-lazy val scala212  = "2.12.18"
+lazy val scala212  = "2.12.20"
 lazy val scala213  = "2.13.16"
 lazy val scala3LTS = "3.3.6"
 
