@@ -46,7 +46,6 @@ trait ServerClientCodeGenerator extends CodeGenApp {
       val b    = CodeGeneratorResponse.File.newBuilder()
       b.setName(file.scalaDirectory + "/" + service.name + ".scala")
       b.setContent(code)
-      println(b.getName)
       b.build
     }
   }
