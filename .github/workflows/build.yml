@@ -34,6 +34,6 @@ jobs:
         CI_SNAPSHOT_RELEASE: "+publishSigned"
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSWORD }}
         PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        SONATYPE_USERNAME: soundcloud
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USER }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
       run: sbt ci-release
