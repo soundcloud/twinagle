@@ -59,14 +59,14 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.20",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
       "org.json4s"           %% "json4s-native"   % "4.0.7",
-      "org.specs2"           %% "specs2-core"     % "4.20.9" % Test cross CrossVersion.for3Use2_13
+      "org.specs2"           %% "specs2-core"     % "4.23.0" % Test cross CrossVersion.for3Use2_13
     )
   },
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) | Some((2, 12)) =>
         Seq(
-          "org.specs2" %% "specs2-mock" % "4.20.9" % Test
+          "org.specs2" %% "specs2-mock" % "4.23.0" % Test
         )
       case Some((3, 3)) =>
         Seq(
