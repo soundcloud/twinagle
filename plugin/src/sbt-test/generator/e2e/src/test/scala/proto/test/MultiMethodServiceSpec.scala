@@ -1,7 +1,6 @@
 package proto.test
 
 import com.twitter.util.Future
-import com.soundcloud.twinagle.ServerBuilder
 
 import org.specs2.mutable.Specification
 

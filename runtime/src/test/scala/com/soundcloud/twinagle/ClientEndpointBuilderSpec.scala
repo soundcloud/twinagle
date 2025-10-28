@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}

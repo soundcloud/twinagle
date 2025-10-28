@@ -1,6 +1,4 @@
-package com.soundcloud.twinagle
 
-import com.soundcloud.twinagle.test.{HasField, TestMessage}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future, Throw}

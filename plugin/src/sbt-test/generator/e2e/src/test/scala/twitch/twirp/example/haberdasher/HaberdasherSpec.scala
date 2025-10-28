@@ -1,6 +1,5 @@
 package twitch.twirp.example.haberdasher
 
-import com.soundcloud.twinagle.{ErrorCode, ServerBuilder, TwinagleException}
 import com.twitter.finagle.{Service, http}
 import com.twitter.util.{Await, Future, Throw}
 import org.specs2.mutable.Specification

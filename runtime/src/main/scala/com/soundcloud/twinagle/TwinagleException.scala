@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 sealed abstract case class ErrorCode(desc: String) {
   override def toString: String = desc

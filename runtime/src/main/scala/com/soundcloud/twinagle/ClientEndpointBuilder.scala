@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}

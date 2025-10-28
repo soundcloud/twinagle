@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 import org.specs2.mutable.Specification
 

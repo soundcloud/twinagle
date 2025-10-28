@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle.plugin
 
 import protocbridge.{JvmGenerator, Target}
 import sbt._

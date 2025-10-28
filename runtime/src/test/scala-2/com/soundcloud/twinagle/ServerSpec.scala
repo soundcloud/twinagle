@@ -1,6 +1,4 @@
-package com.soundcloud.twinagle
 
-import com.soundcloud.twinagle.test.TestMessage
 import com.twitter.finagle.http._
 import com.twitter.finagle.{CancelledRequestException, Failure, Filter, Service}
 import com.twitter.util.{Await, Future}

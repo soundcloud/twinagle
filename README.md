@@ -1,13 +1,10 @@
 # Twinagle = Twirp + Finagle
 
-![Build Status](https://github.com/soundcloud/twinagle/actions/workflows/build.yml/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.soundcloud/twinagle-runtime_2.13)
 
 Twinagle is an implementation of the
 [Twirp wire protocol](https://github.com/twitchtv/twirp/blob/master/PROTOCOL.md)
 for Scala+Finagle.
 
-Please see [the documentation website](https://soundcloud.github.io/twinagle)
 for an introduction.
 
 # How to contribute

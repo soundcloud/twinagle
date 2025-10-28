@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle.codegen
 
 import com.google.protobuf.Descriptors._
 import com.google.protobuf.ExtensionRegistry

@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 /** JsonError is the JSON representation of `TwinagleException`s.
   *

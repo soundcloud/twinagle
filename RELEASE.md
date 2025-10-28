@@ -2,7 +2,6 @@
 
 Twinagle uses Github Releases.
 
-1. Go to https://github.com/soundcloud/twinagle/releases
 1. Click "Draft a new release"
 1. Enter the version number for the release in the tag field
 1. Update the release notes. The following template works well:

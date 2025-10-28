@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle
 
 import com.twitter.finagle._
 import com.twitter.finagle.tracing.Trace

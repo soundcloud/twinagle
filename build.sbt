@@ -40,7 +40,6 @@ lazy val plugin = (project in file("plugin"))
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
     buildInfoKeys             := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage          := "com.soundcloud.twinagle.plugin",
     buildInfoUsePackageAsPath := true,
     publishLocal              := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),

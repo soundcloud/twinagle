@@ -1,4 +1,3 @@
-package com.soundcloud.twinagle.codegen
 
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
@@ -12,7 +11,6 @@ final class TwinagleServicePrinter(
   private[this] val twitterUtil = "_root_.com.twitter.util"
   private[this] val finagle     = "_root_.com.twitter.finagle"
   private[this] val finagleHttp = s"$finagle.http"
-  private[this] val twinagle    = "_root_.com.soundcloud.twinagle"
 
   private[this] val Future   = s"$twitterUtil.Future"
   private[this] val Service  = s"$finagle.Service"

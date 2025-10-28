@@ -6,4 +6,3 @@ val pluginVersion = sys.props
                      |example -Dplugin.version=0.1.1-SNAPSHOT""".stripMargin)
   )
 
-addSbtPlugin("com.soundcloud" % "twinagle-scalapb-plugin" % pluginVersion)
