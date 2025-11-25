@@ -42,6 +42,7 @@ lazy val plugin = (project in file("plugin"))
     buildInfoKeys             := Seq[BuildInfoKey](version, scalaBinaryVersion),
     buildInfoPackage          := "com.soundcloud.twinagle.plugin",
     buildInfoUsePackageAsPath := true,
+    sbtPluginPublishLegacyMavenStyle := true,
     publishLocal              := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
