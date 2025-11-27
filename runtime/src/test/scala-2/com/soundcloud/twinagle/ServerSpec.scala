@@ -3,7 +3,9 @@ package com.soundcloud.twinagle
 import com.soundcloud.twinagle.test.TestMessage
 import com.twitter.finagle.http._
 import com.twitter.finagle.{CancelledRequestException, Failure, Filter, Service}
+import com.twitter.io.Reader
 import com.twitter.util.{Await, Future}
+import io.grpc.Status.Code
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -164,6 +166,53 @@ class ServerSpec extends Specification with Mockito {
       response.status ==== Status.RequestTimeout
       response.contentString must contain(ErrorCode.Canceled.desc)
       response.contentString must contain("Request canceled by client")
+    }
+  }
+
+  trait GrpcContext extends Scope {
+    val rpc                        = mock[TestMessage => Future[TestMessage]]
+    val protoService: ProtoService = ProtoService(
+      Seq(
+        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
+      )
+    )
+    val server: Service[Request, Response] = ServerBuilder()
+      .asGrpc()
+      .register(protoService)
+      .build
+  }
+  private def grpcRequest(method: Method = Method.Post, path: String = "/svc/rpc") = {
+    val req = Request(method, path)
+    req.mediaType = "application/grpc+proto"
+    req.contentString = "{}"
+    req
+  }
+
+  "grpc" >> {
+    "happy case" in new GrpcContext {
+      val request = grpcRequest()
+      rpc.apply(any) returns Future.value(TestMessage())
+
+      val response = Await.result(server(request))
+
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.Ok
+      val trailers = Await.result(Reader.readAllItems(response.chunkReader)).last.trailers
+      println(trailers)
+      trailers.get("grpc-status").get ==== Code.OK.value().toString
+    }
+
+    "Grpc Error - Trailers - Only" in new GrpcContext {
+      val request = grpcRequest()
+      val ex      = TwinagleException(ErrorCode.PermissionDenied, "nope")
+      rpc.apply(any) returns Future.exception(ex)
+
+      val response = Await.result(server(request))
+
+      there was exactly(1)(rpc).apply(TestMessage())
+      response.status ==== Status.Ok
+      val trailers = Await.result(Reader.readAllItems(response.chunkReader)).head.trailers
+      trailers.get("grpc-status").get ==== Code.PERMISSION_DENIED.value().toString
     }
   }
 }
