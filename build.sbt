@@ -59,7 +59,7 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.twitter"          %% "finagle-http"    % "24.2.0" cross CrossVersion.for3Use2_13,
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.20",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
-      "org.json4s"           %% "json4s-native"   % "4.0.7",
+      "io.github.json4s"     %% "json4s-native"   % "4.1.0",
       "org.specs2"           %% "specs2-core"     % "4.20.9" % Test cross CrossVersion.for3Use2_13
     )
   },
