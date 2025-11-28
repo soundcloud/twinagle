@@ -46,6 +46,10 @@ class ServerBuilder private (
     new ServerBuilder(extension, endpoints, prefix, filter)
   }
 
+  def asGrpc(): ServerBuilder = {
+    new ServerBuilder(extension, endpoints, "", messageFilter)
+  }
+
   /** create an HTTP server that implements the Twirp wire protocol by
     * dispatching to the registered services.
     */
