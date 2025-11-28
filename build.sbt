@@ -71,7 +71,7 @@ lazy val runtime = (project in file("runtime")).settings(
         )
       case Some((3, 3)) =>
         Seq(
-          "org.scalamock" %% "scalamock" % "6.1.1" % Test
+          "org.scalamock" %% "scalamock" % "6.2.0" % Test
         )
       case _ => Seq.empty
     }
