@@ -45,14 +45,14 @@ object Twinagle extends AutoPlugin {
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
     ),
     excludeDependencies ++= {
-      // Explicit InclExclRule element type: sbt 2 / Scala 3 no longer applies the implicit
-      // OrganizationArtifactName -> InclExclRule conversion that sbt 1 relied on here.
+      // ExclusionRule directly (rather than `org % name`): the implicit
+      // OrganizationArtifactName -> InclExclRule conversion sbt 1 relied on here is
+      // gone in sbt 2 / Scala 3. The _2.13 suffix is the literal artifact name finagle
+      // drags in via for3Use2_13, not a cross-versioned suffix.
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
-          Seq[sbt.librarymanagement.InclExclRule](
-            "org.scala-lang.modules" % "scala-collection-compat_2.13"
-          )
-        case _ => Seq.empty[sbt.librarymanagement.InclExclRule]
+          Seq(ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13"))
+        case _ => Seq.empty
       }
     }
   )

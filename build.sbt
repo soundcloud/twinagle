@@ -76,6 +76,11 @@ lazy val runtime = (project in file("runtime")).settings(
       // early-semver check otherwise flags the alpha.1 -> alpha.5 eviction as a hard conflict,
       // and a per-dependency exclude (unlike dependencyOverrides) serializes into the published
       // POM/ivy so downstream consumers inherit the coherent single version.
+      //
+      // The Scala-binary suffixes (_2.12/_2.13/_3) are spelled out explicitly rather than via
+      // CrossVersion.binary: exclusions match on the literal published artifactId, and a
+      // CrossVersion.binary rule serializes to the suffix-less "scalapb-runtime", which does
+      // NOT match "scalapb-runtime_2.13" in a downstream consumer's POM resolution.
       ("com.thesamet.scalapb" %% "scalapb-json4s" % "1.0.0-alpha.1")
         .exclude("com.thesamet.scalapb", "scalapb-runtime_2.12")
         .exclude("com.thesamet.scalapb", "scalapb-runtime_2.13")
