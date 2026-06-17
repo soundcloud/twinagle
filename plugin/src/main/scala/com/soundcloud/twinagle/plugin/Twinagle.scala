@@ -13,7 +13,10 @@ object Twinagle extends AutoPlugin {
 
   override def trigger: PluginTrigger = NoTrigger
 
-  override def projectSettings: Seq[Def.Setting[_]] = List(
+  // Return type is inherited from AutoPlugin.projectSettings. We avoid writing it
+  // explicitly because sbt 1 (Scala 2.12) types it as Seq[Setting[_]] while sbt 2
+  // (Scala 3) uses Seq[Setting[?]], and `_` is a fatal deprecation under -Werror on 3.x.
+  override def projectSettings = List(
     scalapbCodeGeneratorOptions := {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
@@ -42,9 +45,14 @@ object Twinagle extends AutoPlugin {
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
     ),
     excludeDependencies ++= {
+      // ExclusionRule directly (rather than `org % name`): the implicit
+      // OrganizationArtifactName -> InclExclRule conversion sbt 1 relied on here is
+      // gone in sbt 2 / Scala 3. The _2.13 suffix is the literal artifact name finagle
+      // drags in via for3Use2_13, not a cross-versioned suffix.
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) => Seq("org.scala-lang.modules" % "scala-collection-compat_2.13")
-        case _            => Seq.empty
+        case Some((3, _)) =>
+          Seq(ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13"))
+        case _ => Seq.empty
       }
     }
   )

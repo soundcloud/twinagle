@@ -18,14 +18,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Install JDK 1.8
+    - name: Install JDK 17
       uses: actions/setup-java@v4
       with:
-        java-version: 8
+        java-version: 17
         distribution: temurin
     - uses: sc-actions-forks/setup-sbt@96cf3f09dc501acdad7807fffe97dba9fa0709be #v1.1.5
     - name: Run tests
-      run: sbt +test scripted
+      run: sbt +test +publishLocal +plugin/scripted
     - name: Lint
       run: sbt scalafmtCheckAll
     - name: Release
