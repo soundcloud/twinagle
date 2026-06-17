@@ -36,7 +36,7 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
 
         ex.code ==== ErrorCode.InvalidArgument
       }
@@ -59,7 +59,7 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
 
         ex.code ==== ErrorCode.InvalidArgument
       }
@@ -78,7 +78,7 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry)
+        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
 
         ex.code ==== ErrorCode.InvalidArgument
       }

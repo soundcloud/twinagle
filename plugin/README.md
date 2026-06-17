@@ -1,22 +1,34 @@
 # Twinagle ScalaPB Plugin
 
-To test the generator, within SBT:
+This plugin is cross-built for **sbt 1.x and sbt 2.x**. The end-to-end test under
+`plugin/src/sbt-test/generator/e2e` runs against both: on the Scala 2.12 axis it
+launches sbt 1.x, and on the Scala 3 axis it launches sbt 2.0.0.
+
+## Running the generator tests
+
+To test the generator across both sbt axes, within sbt (requires JDK 17):
 
 ```
-> scripted
+> +publishLocal
+> +plugin/scripted
 ```
 
-This would publish your generator locally and run it over a test project
-located under `codegen/src/sbt-test/generator/e2e`.
+`+publishLocal` cross-publishes `twinagle-runtime`, `twinagle-codegen`, and both
+plugin artifacts (`_2.12_1.0` and `_sbt2_3`) to your local ivy repo. `+plugin/scripted`
+then publishes nothing further and runs the test project once per sbt axis.
 
-Assuming that the plugin If you would like to test the test project without republishing the plugin
-each time (assuming it does not change), then publish it locally using
-`publishLocal`, then in `codegen/src/sbt-test` run SBT and pass it the version number,
-for example:
+> Note: a bare `scripted` only runs the sbt 1.x axis. Use `+plugin/scripted` to
+> cover sbt 2.x as well.
+
+## Iterating on the test project without republishing
+
+If the plugin itself hasn't changed, publish it once and run the test project
+directly, passing the version number:
 
 ```
-cd codegen/src/sbt-test/generator/e2e`
-sbt -Dplugin.version=0.1.1-SNAPSHOT
+sbt +publishLocal     # note the version it prints, e.g. 1.4.6-SNAPSHOT
 
+cd plugin/src/sbt-test/generator/e2e
+sbt -Dplugin.version=1.4.6-SNAPSHOT
 > test
 ```

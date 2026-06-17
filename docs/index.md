@@ -26,6 +26,8 @@ over http.
 ## Project setup
 
 To get started with twinagle, you'll need to add a plugin dependency to your project and enable the plugin for your build.
+The plugin is published for both **sbt 1.x and sbt 2.x** — sbt resolves the matching
+artifact automatically, so the same line works in either case.
 Add the folowing line to `project/plugins.sbt`:
 
 ```scala

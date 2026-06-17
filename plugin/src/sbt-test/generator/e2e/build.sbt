@@ -1,5 +1,7 @@
 enablePlugins(Twinagle)
 
+scalaVersion := "2.13.17"
+
 scalacOptions ++= Seq(
   "-encoding",
   "utf8",

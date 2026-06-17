@@ -16,7 +16,18 @@ Thanks for your interest in Twinagle, we're welcome your contributions!
 For larger changes, please open an issue to discuss them before spending lots of time implementing things.
 For small changes, hack away and submit a pull request.
 
-Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting code changes.
+Please ensure that `sbt scalafmtCheckAll +test +publishLocal +plugin/scripted` passes when submitting code changes.
+
+# sbt 1.x and sbt 2.x
+
+The `twinagle-scalapb-plugin` is cross-built for **both sbt 1.x and sbt 2.x**.
+The build itself runs on an sbt 1.x launcher and cross-publishes both plugin
+artifacts via `crossScalaVersions = [2.12, 3]` + `pluginCrossBuild / sbtVersion`
+(Scala 2.12 → sbt 1.x, Scala 3 → sbt 2.0.0). This follows the pattern used by
+sbt-protoc / sbt-assembly; see the
+[sbt 2 plugin cross-building guide](https://www.scala-sbt.org/2.x/docs/en/changes/migrating-from-sbt-1.x.html#cross-building-sbt-plugins).
+
+**Building requires JDK 17** (sbt 2.0.0 will not run on JDK 8/11).
 
 # Notes
 
@@ -24,4 +35,6 @@ Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting 
  `sbt compile` may be necessary.
 
 * In order to run the full test suite (i.e. the unit tests & the end-to-end tests
- for code-generation) use `sbt +test scripted`
+ for code-generation) use `sbt +test +publishLocal +plugin/scripted`. The
+ `+plugin/scripted` runs the end-to-end test against **both** sbt 1.x and sbt 2.x;
+ bare `scripted` only exercises the sbt 1.x axis.

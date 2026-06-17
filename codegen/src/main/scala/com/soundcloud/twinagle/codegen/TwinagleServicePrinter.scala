@@ -9,24 +9,24 @@ final class TwinagleServicePrinter(
 ) {
   import implicits._
 
-  private[this] val twitterUtil = "_root_.com.twitter.util"
-  private[this] val finagle     = "_root_.com.twitter.finagle"
-  private[this] val finagleHttp = s"$finagle.http"
-  private[this] val twinagle    = "_root_.com.soundcloud.twinagle"
+  private val twitterUtil = "_root_.com.twitter.util"
+  private val finagle     = "_root_.com.twitter.finagle"
+  private val finagleHttp = s"$finagle.http"
+  private val twinagle    = "_root_.com.soundcloud.twinagle"
 
-  private[this] val Future   = s"$twitterUtil.Future"
-  private[this] val Service  = s"$finagle.Service"
-  private[this] val Filter   = s"$finagle.Filter"
-  private[this] val Request  = s"$finagleHttp.Request"
-  private[this] val Response = s"$finagleHttp.Response"
+  private val Future   = s"$twitterUtil.Future"
+  private val Service  = s"$finagle.Service"
+  private val Filter   = s"$finagle.Filter"
+  private val Request  = s"$finagleHttp.Request"
+  private val Response = s"$finagleHttp.Response"
 
-  private[this] val EndpointMetadata      = s"$twinagle.EndpointMetadata"
-  private[this] val MessageFilter         = s"$twinagle.MessageFilter"
-  private[this] val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
-  private[this] val ServerBuilder         = s"$twinagle.ServerBuilder"
-  private[this] val ProtoService          = s"$twinagle.ProtoService"
-  private[this] val AsProtoService        = s"$twinagle.AsProtoService"
-  private[this] val ProtoRpcBuilder       = s"$twinagle.ProtoRpcBuilder"
+  private val EndpointMetadata      = s"$twinagle.EndpointMetadata"
+  private val MessageFilter         = s"$twinagle.MessageFilter"
+  private val ClientEndpointBuilder = s"$twinagle.ClientEndpointBuilder"
+  private val ServerBuilder         = s"$twinagle.ServerBuilder"
+  private val ProtoService          = s"$twinagle.ProtoService"
+  private val AsProtoService        = s"$twinagle.AsProtoService"
+  private val ProtoRpcBuilder       = s"$twinagle.ProtoRpcBuilder"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
