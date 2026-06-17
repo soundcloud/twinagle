@@ -2,7 +2,7 @@ package twitch.twirp.example.haberdasher
 
 import com.soundcloud.twinagle.{ErrorCode, ServerBuilder, TwinagleException}
 import com.twitter.finagle.{Service, http}
-import com.twitter.util.{Await, Future, Throw}
+import com.twitter.util.{Await, Future}
 import org.specs2.mutable.Specification
 
 class HaberdasherSpec extends Specification {
@@ -36,9 +36,9 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
-
-        ex.code ==== ErrorCode.InvalidArgument
+        Await.result(client.makeHat(Size(-1))) must throwA[TwinagleException].like { case ex: TwinagleException =>
+          ex.code ==== ErrorCode.InvalidArgument
+        }
       }
     }
 
@@ -59,9 +59,9 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
-
-        ex.code ==== ErrorCode.InvalidArgument
+        Await.result(client.makeHat(Size(-1))) must throwA[TwinagleException].like { case ex: TwinagleException =>
+          ex.code ==== ErrorCode.InvalidArgument
+        }
       }
     }
 
@@ -78,9 +78,9 @@ class HaberdasherSpec extends Specification {
       }
 
       "produces TwinagleExceptions for error responses" in {
-        val Throw(ex: TwinagleException) = Await.result(client.makeHat(Size(-1)).liftToTry): @unchecked
-
-        ex.code ==== ErrorCode.InvalidArgument
+        Await.result(client.makeHat(Size(-1))) must throwA[TwinagleException].like { case ex: TwinagleException =>
+          ex.code ==== ErrorCode.InvalidArgument
+        }
       }
     }
   }

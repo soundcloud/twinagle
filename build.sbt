@@ -10,22 +10,12 @@ lazy val sbt1      = "1.9.9" // pluginCrossBuild sbt version for the 2.12 axis (
 lazy val commonSettings = List(
   scalaVersion := scala212,
   scalacOptions ++= {
+    val common = Seq("-encoding", "utf8", "-deprecation", "-unchecked")
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) => scalacOptions ++= Seq("-Xlint")
-      case _            => ()
+      // Scala 3 renamed -Xfatal-warnings to -Werror (the old alias is itself deprecated).
+      case Some((2, _)) => common ++ Seq("-Xlint", "-Xfatal-warnings")
+      case _            => common ++ Seq("-Werror")
     }
-    // Scala 3 renamed -Xfatal-warnings to -Werror (the old alias is itself deprecated).
-    val fatalWarnings = CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) => "-Xfatal-warnings"
-      case _            => "-Werror"
-    }
-    Seq(
-      "-encoding",
-      "utf8",
-      "-deprecation",
-      "-unchecked",
-      fatalWarnings
-    )
   },
   Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Werror", "-Xlint"),
   scalafmtOnCompile := true
