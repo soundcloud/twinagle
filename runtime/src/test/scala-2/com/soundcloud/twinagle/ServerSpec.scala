@@ -18,7 +18,7 @@ class ServerSpec extends Specification with Mockito {
     val typeRegistry               = TypeRegistry.empty
     val protoService: ProtoService = ProtoService(
       Seq(
-        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), typeRegistry, rpc)
+        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
       )
     )
     val server: Service[Request, Response] = ServerBuilder()
