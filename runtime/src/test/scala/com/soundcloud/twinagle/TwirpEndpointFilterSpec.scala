@@ -6,11 +6,13 @@ import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future, Throw}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+import scalapb.json4s.TypeRegistry
 
 class TwirpEndpointFilterSpec extends Specification {
   "content-type header" >> {
     trait Context extends Scope {
-      val svc = new TwirpEndpointFilter[TestMessage, TestMessage] andThen
+      val typeRegistry = TypeRegistry.empty
+      val svc          = new TwirpEndpointFilter[TestMessage, TestMessage](typeRegistry) andThen
         Service.mk[TestMessage, TestMessage](msg => Future.value(msg))
     }
 
@@ -59,7 +61,8 @@ class TwirpEndpointFilterSpec extends Specification {
       }
 
       "serializes default values" in {
-        val svc = new TwirpEndpointFilter[HasField, HasField] andThen
+        val typeRegistry = TypeRegistry.empty
+        val svc = new TwirpEndpointFilter[HasField, HasField](typeRegistry) andThen
           Service.mk[HasField, HasField](msg => Future.value(msg))
 
         val request = Request()

@@ -2,6 +2,7 @@ package com.soundcloud.twinagle
 
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Filter, Service}
+import scalapb.json4s.TypeRegistry
 
 /** ServerBuilder can be used to customize the Twinagle HTTP server.
   *
@@ -13,7 +14,8 @@ class ServerBuilder private (
     extension: EndpointMetadata => Filter.TypeAgnostic,
     endpoints: Seq[ProtoRpcBuilder],
     prefix: String,
-    messageFilter: MessageFilter
+    messageFilter: MessageFilter,
+    typeRegistry: TypeRegistry
 ) {
 
   if (prefix.nonEmpty) {
@@ -27,7 +29,7 @@ class ServerBuilder private (
     */
   def register[T: AsProtoService](svc: T): ServerBuilder = {
     val protoService = implicitly[AsProtoService[T]].asProtoService(svc)
-    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix, messageFilter)
+    new ServerBuilder(extension, endpoints ++ protoService.rpcs, prefix, messageFilter, typeRegistry)
   }
 
   /** withPrefix configures the HTTP path prefix to use for this server (default: `/twirp`).
@@ -35,7 +37,7 @@ class ServerBuilder private (
     * Use an empty string to expose endpoints at the root of the HTTP path.
     */
   def withPrefix(prefix: String): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix, messageFilter)
+    new ServerBuilder(extension, endpoints, prefix, messageFilter, typeRegistry)
   }
 
   /** withMessageFilter configures the message filter. Such filters can be used
@@ -43,7 +45,7 @@ class ServerBuilder private (
     * expressed as ScalaPB's GeneratedMessage.
     */
   def withMessageFilter(filter: MessageFilter): ServerBuilder = {
-    new ServerBuilder(extension, endpoints, prefix, filter)
+    new ServerBuilder(extension, endpoints, prefix, filter, typeRegistry)
   }
 
   /** create an HTTP server that implements the Twirp wire protocol by
@@ -68,8 +70,9 @@ object ServerBuilder {
       extension: EndpointMetadata => Filter.TypeAgnostic = _ => Filter.TypeAgnostic.Identity,
       endpoints: Seq[ProtoRpcBuilder] = Seq.empty,
       prefix: String = "/twirp",
-      messageFilter: MessageFilter = MessageFilter.Identity
-  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix, messageFilter)
+      messageFilter: MessageFilter = MessageFilter.Identity,
+      typeRegistry: TypeRegistry = TypeRegistry.empty
+  ): ServerBuilder = new ServerBuilder(extension, endpoints, prefix, messageFilter, typeRegistry)
 }
 
 trait AsProtoService[T] {

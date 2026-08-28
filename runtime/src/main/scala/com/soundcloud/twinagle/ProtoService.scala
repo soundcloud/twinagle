@@ -3,6 +3,7 @@ package com.soundcloud.twinagle
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Future
+import scalapb.json4s.TypeRegistry
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 case class ProtoService(rpcs: Seq[ProtoRpcBuilder]) {
@@ -19,8 +20,8 @@ object ProtoRpc {
   def apply[
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
-  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpc = {
-    ProtoRpcBuilder(endpointMetadata, rpc).build(MessageFilter.Identity)
+  ](endpointMetadata: EndpointMetadata, typeRegistry: TypeRegistry, rpc: Req => Future[Resp]): ProtoRpc = {
+    ProtoRpcBuilder(endpointMetadata, typeRegistry, rpc).build(MessageFilter.Identity)
   }
 }
 
@@ -34,14 +35,15 @@ object ProtoRpcBuilder {
   def apply[
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
-  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpcBuilder = new ProtoRpcBuilder {
-    override val metadata: EndpointMetadata = endpointMetadata
+  ](endpointMetadata: EndpointMetadata, typeRegistry: TypeRegistry, rpc: Req => Future[Resp]): ProtoRpcBuilder =
+    new ProtoRpcBuilder {
+      override val metadata: EndpointMetadata = endpointMetadata
 
-    override def build(messageFilter: MessageFilter): ProtoRpc = {
-      val svc = new TwirpEndpointFilter[Req, Resp] andThen
-        messageFilter.toFilter[Req, Resp] andThen
-        Service.mk(rpc)
-      ProtoRpc(endpointMetadata, svc)
+      override def build(messageFilter: MessageFilter): ProtoRpc = {
+        val svc = new TwirpEndpointFilter[Req, Resp](typeRegistry) andThen
+          messageFilter.toFilter[Req, Resp] andThen
+          Service.mk(rpc)
+        ProtoRpc(endpointMetadata, svc)
+      }
     }
-  }
 }

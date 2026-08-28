@@ -7,6 +7,7 @@ import com.twitter.util.{Await, Future}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+import scalapb.json4s.TypeRegistry
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.collection.mutable.ListBuffer
@@ -14,9 +15,10 @@ import scala.collection.mutable.ListBuffer
 class ServerSpec extends Specification with Mockito {
   trait Context extends Scope {
     val rpc                        = mock[TestMessage => Future[TestMessage]]
+    val typeRegistry               = TypeRegistry.empty
     val protoService: ProtoService = ProtoService(
       Seq(
-        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), rpc)
+        ProtoRpcBuilder(EndpointMetadata("svc", "rpc"), typeRegistry, rpc)
       )
     )
     val server: Service[Request, Response] = ServerBuilder()
