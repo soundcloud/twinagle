@@ -18,7 +18,7 @@ private[twinagle] class TwirpEndpointFilter[
 ](typeRegistry: TypeRegistry)
     extends Filter[Request, Response, Req, Rep] {
 
-  private val jsonParser = new Parser().ignoringUnknownFields
+  private val jsonParser = new Parser().ignoringUnknownFields.withTypeRegistry(typeRegistry)
   private val printer    = new Printer().includingDefaultValueFields.withTypeRegistry(typeRegistry)
 
   override def apply(
