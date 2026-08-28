@@ -27,6 +27,7 @@ final class TwinagleServicePrinter(
   private[this] val ProtoService          = s"$twinagle.ProtoService"
   private[this] val AsProtoService        = s"$twinagle.AsProtoService"
   private[this] val ProtoRpcBuilder       = s"$twinagle.ProtoRpcBuilder"
+  private[this] val TypeRegistry          = "_root_.scalapb.json4s.TypeRegistry"
 
   def generateServiceObject(m: ServiceDescriptor): String = {
     val serviceName = getServiceName(m)
@@ -39,9 +40,10 @@ final class TwinagleServicePrinter(
        |  def server(service: $serviceName,
        |             extension: $EndpointMetadata => $Filter.TypeAgnostic = _ => $Filter.TypeAgnostic.Identity,
        |             prefix: String = "/twirp",
-       |             messageFilter: $MessageFilter = $MessageFilter.Identity
+       |             messageFilter: $MessageFilter = $MessageFilter.Identity,
+       |             typeRegistry: $TypeRegistry = $TypeRegistry.empty
        |  ): $Service[$Request, $Response] =
-       |    $ServerBuilder(extension)
+       |    $ServerBuilder(extension, typeRegistry = typeRegistry)
        |      .withPrefix(prefix)
        |      .withMessageFilter(messageFilter)
        |      .register(service)

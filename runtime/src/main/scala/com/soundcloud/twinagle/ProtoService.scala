@@ -20,26 +20,26 @@ object ProtoRpc {
   def apply[
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
-  ](endpointMetadata: EndpointMetadata, typeRegistry: TypeRegistry, rpc: Req => Future[Resp]): ProtoRpc = {
-    ProtoRpcBuilder(endpointMetadata, typeRegistry, rpc).build(MessageFilter.Identity)
+  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpc = {
+    ProtoRpcBuilder(endpointMetadata, rpc).build(MessageFilter.Identity, TypeRegistry.empty)
   }
 }
 
 trait ProtoRpcBuilder {
   val metadata: EndpointMetadata
 
-  def build(messageFilter: MessageFilter): ProtoRpc
+  def build(messageFilter: MessageFilter, typeRegistry: TypeRegistry): ProtoRpc
 }
 
 object ProtoRpcBuilder {
   def apply[
       Req <: GeneratedMessage: GeneratedMessageCompanion,
       Resp <: GeneratedMessage: GeneratedMessageCompanion
-  ](endpointMetadata: EndpointMetadata, typeRegistry: TypeRegistry, rpc: Req => Future[Resp]): ProtoRpcBuilder =
+  ](endpointMetadata: EndpointMetadata, rpc: Req => Future[Resp]): ProtoRpcBuilder =
     new ProtoRpcBuilder {
       override val metadata: EndpointMetadata = endpointMetadata
 
-      override def build(messageFilter: MessageFilter): ProtoRpc = {
+      override def build(messageFilter: MessageFilter, typeRegistry: TypeRegistry): ProtoRpc = {
         val svc = new TwirpEndpointFilter[Req, Resp](typeRegistry) andThen
           messageFilter.toFilter[Req, Resp] andThen
           Service.mk(rpc)

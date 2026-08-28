@@ -55,7 +55,7 @@ class ServerBuilder private (
     new Server(endpoints.map(instrumentAndBuild), prefix)
 
   private def instrumentAndBuild(builder: ProtoRpcBuilder): ProtoRpc = {
-    val rpc = builder.build(messageFilter)
+    val rpc = builder.build(messageFilter, typeRegistry)
     rpc.copy(
       svc = extension(rpc.metadata).toFilter andThen
         new TracingFilter[Request, Response](rpc.metadata) andThen
