@@ -5,23 +5,25 @@
 
 Twinagle is an implementation of the
 [Twirp wire protocol](https://github.com/twitchtv/twirp/blob/master/PROTOCOL.md)
-for Scala+Finagle.
+for Scala + Finagle.
 
-Please see [the documentation website](https://soundcloud.github.io/twinagle)
-for an introduction.
+See [the documentation website](https://soundcloud.github.io/twinagle) for an
+introduction.
 
-# How to contribute
+## Contributing
 
-Thanks for your interest in Twinagle, we're welcome your contributions!
-For larger changes, please open an issue to discuss them before spending lots of time implementing things.
-For small changes, hack away and submit a pull request.
+Thanks for your interest in Twinagle — we welcome your contributions!
 
-Please ensure that `sbt scalafmtCheckAll +test scripted` passes when submitting code changes.
+- For larger changes, please open an issue to discuss them before spending time
+  on implementation.
+- For small changes, hack away and submit a pull request.
 
-# Notes
+Please ensure that `sbt scalafmtCheckAll +test scripted` passes before
+submitting code changes.
 
-* IntelliJ doesn't run plugins during project build. Before importing,
- `sbt compile` may be necessary.
+## Notes
 
-* In order to run the full test suite (i.e. the unit tests & the end-to-end tests
- for code-generation) use `sbt +test scripted`
+- IntelliJ doesn't run plugins during project build. Before importing, `sbt
+  compile` may be necessary.
+- To run the full test suite (unit tests plus the end-to-end code-generation
+  tests), use `sbt +test scripted`.
