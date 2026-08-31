@@ -10,7 +10,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +27,24 @@ jobs:
       run: sbt +test scripted
     - name: Lint
       run: sbt scalafmtCheckAll
+
+  release:
+    needs: build
+    if: ${{ github.event_name == 'release' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Install JDK 1.8
+      uses: actions/setup-java@v4
+      with:
+        java-version: 8
+        distribution: temurin
+    - uses: sc-actions-forks/setup-sbt@96cf3f09dc501acdad7807fffe97dba9fa0709be #v1.1.5
     - name: Release
-      if: ${{ github.event_name == 'release' }}
       env:
         CI_SNAPSHOT_RELEASE: "+publishSigned"
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSWORD }}
