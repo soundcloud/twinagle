@@ -19,8 +19,7 @@ lazy val commonSettings = List(
       "-Xfatal-warnings"
     )
   },
-  Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint"),
-  scalafmtOnCompile := true
+  Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint")
 )
 
 lazy val codegen = (project in file("codegen"))
