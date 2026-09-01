@@ -8,3 +8,4 @@ config/production
 .kube
 config/development
 target/
+.DS_Store

@@ -39,11 +39,11 @@ lazy val plugin = (project in file("plugin"))
     commonSettings,
     name := "twinagle-scalapb-plugin",
     addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
-    buildInfoKeys             := Seq[BuildInfoKey](version, scalaBinaryVersion),
-    buildInfoPackage          := "com.soundcloud.twinagle.plugin",
-    buildInfoUsePackageAsPath := true,
+    buildInfoKeys                    := Seq[BuildInfoKey](version, scalaBinaryVersion),
+    buildInfoPackage                 := "com.soundcloud.twinagle.plugin",
+    buildInfoUsePackageAsPath        := true,
     sbtPluginPublishLegacyMavenStyle := true,
-    publishLocal              := publishLocal.dependsOn(runtime / publishLocal).value,
+    publishLocal                     := publishLocal.dependsOn(runtime / publishLocal).value,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
@@ -60,7 +60,8 @@ lazy val runtime = (project in file("runtime")).settings(
       "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.20",
       "com.thesamet.scalapb" %% "scalapb-json4s"  % "0.12.1",
       "org.json4s"           %% "json4s-native"   % "4.0.7",
-      "org.specs2"           %% "specs2-core"     % "4.20.9" % Test cross CrossVersion.for3Use2_13
+      "org.specs2"           %% "specs2-core"     % "4.20.9" % Test cross CrossVersion.for3Use2_13,
+      "io.grpc"               % "grpc-api"        % "1.77.0"
     )
   },
   libraryDependencies ++= {
