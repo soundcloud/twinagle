@@ -62,7 +62,7 @@ class TwirpEndpointFilterSpec extends Specification {
 
       "serializes default values" in {
         val typeRegistry = TypeRegistry.empty
-        val svc = new TwirpEndpointFilter[HasField, HasField](typeRegistry) andThen
+        val svc          = new TwirpEndpointFilter[HasField, HasField](typeRegistry) andThen
           Service.mk[HasField, HasField](msg => Future.value(msg))
 
         val request = Request()

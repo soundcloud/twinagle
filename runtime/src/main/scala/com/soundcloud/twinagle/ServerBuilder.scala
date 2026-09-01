@@ -41,17 +41,17 @@ class ServerBuilder private (
   }
 
   /** withMessageFilter configures the message filter. Such filters can be used
-   * to observe and modify request and response payloads
-   * expressed as ScalaPB's GeneratedMessage.
-   */
+    * to observe and modify request and response payloads
+    * expressed as ScalaPB's GeneratedMessage.
+    */
   def withMessageFilter(filter: MessageFilter): ServerBuilder = {
     new ServerBuilder(extension, endpoints, prefix, filter, typeRegistry)
   }
 
   /** withTypeRegistry configures the type registry. A custom type registry
-   * can be provided when the request/response contains types that require one
-   * (e.g. `google.protobuf.Any`).
-   */
+    * can be provided when the request/response contains types that require one
+    * (e.g. `google.protobuf.Any`).
+    */
   def withTypeRegistry(typeRegistry: TypeRegistry): ServerBuilder = {
     new ServerBuilder(extension, endpoints, prefix, messageFilter, typeRegistry)
   }
